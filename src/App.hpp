@@ -1,7 +1,5 @@
 #pragma once
 #include "Canvas.hpp"
-#include <string>
-#include <memory>
 
 
 struct AppConfig
@@ -18,6 +16,7 @@ public:
 	App(const AppConfig&);
 	void Run();
 	void Close();
+	Canvas* GetCanvas() { return m_Canvas.get(); }
 
 	static App& Get() { return *m_Instance; }
 private:

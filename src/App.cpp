@@ -1,3 +1,4 @@
+#include "pch.hpp"
 #include "App.hpp"
 #include "raylib.h"
 #include "Canvas.hpp"

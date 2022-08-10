@@ -1,108 +1,266 @@
+#include "pch.hpp"
+
 #include "Canvas.hpp"
 #include "raylib.h"
 #include "raymath.h"
 #include "clip.h"
+#include "Components.hpp"
+#include "Entity.hpp"
+#include "ImageEntity.hpp"
+#include "Utils/Print.hpp"
+#include "Scripts/ClickToAddText.hpp"
+#include "Utils/Print.hpp"
 
-#include <cmath>
-#include <iostream> // temp
-#include <string>
-#include <algorithm>
+Canvas* Canvas::m_PrimaryInstance = nullptr;
 
-std::ostream& operator<<(std::ostream& os, const Vector2 v)
+
+struct SelectionScript : ScriptableEntity
 {
-	os << "(" << v.x << ", " << v.y << ")";
-	return os;
-}
+	// TODO: Instead of passing tegistry to the script I should
+	//       extend Canvas API and create getter for it, eg.
+	//       Canvas::Registry(), Canvas::GetEntities<A, B>()
+	SelectionScript(Entity entity, entt::registry& registry)
+		: ScriptableEntity(entity), m_Registry(registry) {}
 
-Canvas::Canvas() : m_Props{}
+	void OnUpdate() override
+	{
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+		{
+			auto view = m_Registry.view<Components::Transform, Components::Focusable>();
+			for (auto& [entity, transform, focusable] : view.each())
+			{
+				focusable.IsFocused = false;
+			}
+			
+			for (auto& [entity, transform, focusable] : view.each())
+			{
+				Vector2 worldPos = GetScreenToWorld2D(GetMousePosition(), Canvas::Camera());
+				if (CheckCollisionPointRec(worldPos, focusable.FocusArea))
+				{
+					focusable.IsFocused = true;
+					break;
+				}
+			}
+		}
+	}
+
+	entt::registry& m_Registry;
+};
+
+struct CanvasViewControlScript : ScriptableEntity
+{
+	// TODO: Instead of passing Camera2D I should extend Canvas API, eg.
+	//       Canvas::Get().Camera() or Canvas::Camera()
+	CanvasViewControlScript(Entity entity, entt::registry& registry, Camera2D& camera)
+		: ScriptableEntity(entity), m_Registry(registry), m_Camera(camera) {}
+
+	void OnUpdate() override
+	{
+		float zoomChange = GetMouseWheelMove();
+		if (zoomChange != 0)
+		{
+			Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), m_Camera);
+			m_Camera.offset = GetMousePosition();
+			m_Camera.target = mouseWorldPos;
+
+			const float zoomFactor = 1.1f;
+			m_Camera.zoom *= zoomChange > 0 ? zoomFactor : (1.0f / zoomFactor);
+
+			// Limits
+			m_Camera.zoom = Clamp(m_Camera.zoom, 0.1f, 10.0f);
+
+			// Snap to 1.0
+			if (m_Camera.zoom > 0.95f && m_Camera.zoom < 1.05f)
+			{
+				m_Camera.zoom = 1.0f;
+			}
+
+			for (auto& [entity, texture] : m_Registry.view<Components::Sprite>().each())
+			{
+				AdjustFilterToZoomLevel(m_Camera.zoom, texture);
+			}
+		}
+
+		if (IsKeyPressed(KEY_SPACE))
+		{
+			// Place for some debugging code...
+		}
+
+		if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE))
+		{
+			MoveCanvasWithMouse();
+		}
+	}
+
+	void AdjustFilterToZoomLevel(float zoom, Texture2D& texture)
+	{
+		std::cout << "zoom = " << zoom << std::endl;
+		if (zoom < 1.0f)
+			SetTextureFilter(texture, TEXTURE_FILTER_BILINEAR);
+		else
+			SetTextureFilter(texture, TEXTURE_FILTER_POINT);
+	}
+
+	void MoveCanvasWithMouse()
+	{
+		Vector2 delta = GetMouseDelta();
+		delta = Vector2Scale(delta, -1.0f / m_Camera.zoom);
+		m_Camera.target = Vector2Add(m_Camera.target, delta);
+	}
+
+	entt::registry& m_Registry;
+	Camera2D& m_Camera;
+};
+
+Canvas::Canvas(bool primary) : m_Props{}
 {
 	m_Camera.offset = { 0, 0 };
 	m_Camera.target = { 0, 0 };
 	m_Camera.rotation = 0.0f;
 	m_Camera.zoom = 1.0f;
+
+	// TODO: I'm not sure if this is good place for creating such scripts...
+	// TODO: Find better way for massive script creation.
+	auto selectionEntity = CreateEntity();
+	auto& selectionScript = selectionEntity
+		.AddComponent<Components::NativeScript>(std::make_unique<SelectionScript>(selectionEntity, m_Registry));
+	selectionScript.Instance->OnCreate();
+
+	auto zoomEntity = CreateEntity();
+	auto& zoomScript = zoomEntity
+		.AddComponent<Components::NativeScript>(std::make_unique<CanvasViewControlScript>(zoomEntity, m_Registry, m_Camera));
+	zoomScript.Instance->OnCreate();
+
+	auto clickToAddTextEntity = CreateEntity();
+	auto& clickToAddTextScript = clickToAddTextEntity
+		.AddComponent<Components::NativeScript>(std::make_unique<Script::ClickToAddText>(clickToAddTextEntity));
+	clickToAddTextScript.Instance->OnCreate();
+
+	if (primary)
+		m_PrimaryInstance = this;
 }
 
+Canvas::~Canvas()
+{
+	m_PrimaryInstance = nullptr;
+}
 
 void Canvas::Draw()
 {
 	BeginDrawing();
 	ClearBackground(m_Props.BackgroundColor);
+	
+	// Canvas world drawing
+	BeginMode2D(m_Camera);
 	{
-		// Canvas world drawing
-		BeginMode2D(m_Camera);
-		{
-			DrawGrid();
-			DrawImages();
-		}
-		EndMode2D();
+		DrawGrid();
 
-		// Screen absolute drawing
-		DrawGui();
+		// TODO: Layer system so that GUI is never "under" canvas elements.
+		m_Registry.sort<Components::Transform>([](const auto& lhs, const auto& rhs) {
+			return lhs.Index < rhs.Index;
+		}, entt::insertion_sort{}); // Insertion sort is O(n) for nearly sorted arrays
+
+		// Draw text
+		{
+			auto viewText = m_Registry.view<Components::Transform, Components::Text>();
+			for (auto [entity, transform, text] : viewText.each())
+			{
+				const auto& position = transform.GetTransform();
+				Font font = GetFontDefault();
+				float spacing = text.Size / 10.0f;
+				DrawTextEx(font, text, position, text.Size, spacing, text.FontColor);
+			}
+		}
+
+
+		// Draw sprites (order_by TrasnformComponent)
+		{
+			auto viewTexture = m_Registry.view<Components::Transform, Components::Sprite>().use<Components::Transform>();
+			for (auto [entity, transform, texture] : viewTexture.each())
+			{
+				DrawTextureV(texture, transform, WHITE);
+			}
+		}
+
+		// Draw selection rects
+		{
+			auto viewFocus = m_Registry.view<Components::Focusable>();
+			for (auto [entity, focusable] : viewFocus.each())
+			{
+				if (focusable.IsFocused)
+					DrawRectangleLinesEx(focusable.FocusArea, 2.0f, BLUE);
+				else
+					DrawRectangleLinesEx(focusable.FocusArea, 1.0f, RED);
+			}
+		}
 	}
+	EndMode2D();
+
+	// TODO: Move GUI outside the Canvas class. Everything here should be rendered "inside" camera.
+	//       Overlay with GUI should still have access to Canvas to manipulate it via provided API.
+	//       (without friendship would be great)
+	DrawGui();
+	
 	EndDrawing();
 }
 
 void Canvas::OnUpdate()
 {
-	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+	// TODO: Scripts should be automatically instantiated here:
+	// for ( [entity, script] : view<NativeScript>().each )
+	// {
+	//     if (!script.Instance)
+	//     {
+	//         script.Instance = script.InstantiateScript();
+	//         script.Instance->m_Entity = Entity{ entity, this };
+	//         script.OnCreate();
+	//     }
+	//     script.Instance->OnUpdate()
+	// }
+	//
+	// ^^^ This way my scripts are instantiated automatically.
+	//     But they have to have this lambda "InstantiateScript" where
+	//     their real type is constructed with real constructor.
+	auto view = m_Registry.view<Components::NativeScript>();
+	for (auto [entity, script] : view.each())
 	{
-		SelectImageByScreenPos(GetMousePosition());
+		script.Instance->OnUpdate();
 	}
-	if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE))
-	{
-		MoveCanvasWithMouse();
-	}
-	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
-	{
-		MoveObjectOnCanvasWithMouse();
-	}
+
+	// TODO: This code should go to NativeScript
 	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_V))
 	{
 		HandlePasteImage();
 	}
-	ZoomCanvas(GetMouseWheelMove());
-	if (IsKeyPressed(KEY_SPACE))
+
+	// Remove entities scheduled for removal from scripts.
+	for (auto entity : m_ToBeRemoved)
 	{
-		//std::reverse(m_Images.begin(), m_Images.end());
-		std::swap(m_Images[0], m_Images[1]);
-		//m_Images.clear();
+		if (m_Registry.valid(entity))
+			m_Registry.destroy(entity);
 	}
+	m_ToBeRemoved.clear();
 }
 
-
-void Canvas::MoveCanvasWithMouse()
+Entity Canvas::CreateEntity(Vector2 initialPosition)
 {
-	Vector2 delta = GetMouseDelta();
-	delta = Vector2Scale(delta, -1.0f / m_Camera.zoom);
-	m_Camera.target = Vector2Add(m_Camera.target, delta);
+	Entity entity = { m_Registry.create(), this };
+	entity.AddComponent<Components::Transform>(initialPosition);
+	print("CREATED ENTITY id={}", (int)entity);
+
+	return entity;
 }
 
-void Canvas::ZoomCanvas(float zoomChange)
+void Canvas::RemoveEntity(const entt::entity entity)
 {
-	if (zoomChange != 0)
+	assert(m_Registry.valid(entity));
+	if (m_Registry.all_of<Components::NativeScript>(entity))
 	{
-		Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), m_Camera);
-		m_Camera.offset = GetMousePosition();
-		m_Camera.target = mouseWorldPos;
-
-		const float zoomFactor = 1.1f;
-		m_Camera.zoom *= zoomChange > 0 ? zoomFactor : (1.0f / zoomFactor);
-
-		// Limits
-		m_Camera.zoom = Clamp(m_Camera.zoom, 0.1f, 10.0f);
-
-		// Snap to 1.0
-		if (m_Camera.zoom > 0.95f && m_Camera.zoom < 1.05f)
-		{
-			m_Camera.zoom = 1.0f;
-		}
-
-		// Filter corrections. TODO: Entity Component System: GetAll<Texture>
-		for (auto& image : m_Images)
-		{
-			image.AdjustFilterToZoomLevel(m_Camera.zoom);
-		}
+		m_Registry.get<Components::NativeScript>(entity).Instance->OnDestroy();
 	}
+
+	// Schedule the removal so the script can remove itself.
+	m_ToBeRemoved.push_back(entity);
 }
 
 void TransformFromBgraToRgba(uint8_t* data, int size)
@@ -128,9 +286,7 @@ void Canvas::HandlePasteImage()
 	TransformFromBgraToRgba(data, size);
 	Vector2 imagePos = GetScreenToWorld2D(GetMousePosition(), m_Camera);
 
-	m_Images.emplace_back(imagePos, data, imageSpec.width, imageSpec.height);
-	m_Images.back().AdjustFilterToZoomLevel(m_Camera.zoom);
-	m_Images.back().Focus();
+	ImageEntity imageEntity(imagePos, data, imageSpec.width, imageSpec.height);
 }
 
 void Canvas::DrawGrid()
@@ -167,132 +323,4 @@ void Canvas::DrawGui()
 	// Draw zoom level
 	std::string zoomLevelText = "zoom: " + std::to_string(int(m_Camera.zoom * 100)) + "%";
 	DrawText(zoomLevelText.c_str(), 30, GetScreenHeight() - 30, 10, DARKGRAY);
-}
-
-void Canvas::MoveObjectOnCanvasWithMouse()
-{
-	if (m_SelectedImageIndex == -1) return;
-
-	// Scale screen distance to world distance
-	Vector2 delta = Vector2Scale(GetMouseDelta(), 1.0f / m_Camera.zoom);
-	m_Images[m_SelectedImageIndex].MoveBy(delta);
-}
-
-void Canvas::DrawImages()
-{
-	for (const auto& img : m_Images)
-	{
-		img.Draw();
-	}
-}
-
-void Canvas::SelectImageByScreenPos(Vector2 pos)
-{
-	m_SelectedImageIndex = -1;
-	UnselectAllImages();
-
-	Vector2 worldPos = GetScreenToWorld2D(pos, m_Camera);
-	for (int i = (int)m_Images.size() - 1; i >= 0; i--)
-	{
-		if (CheckCollisionPointRec(worldPos, m_Images[i].AsRectangle()))
-		{
-			m_SelectedImageIndex = i;
-			m_Images[i].Focus();
-			break;
-		}
-	}
-}
-
-void Canvas::UnselectAllImages()
-{
-	for (auto& image : m_Images)
-		image.Unfocus();
-}
-
-CanvasImage::CanvasImage(Vector2 pos, uint8_t* data, int width, int height)
-	: m_Texture{}, m_Position{pos}
-{
-	Image image = LoadImageFromRgba(data, width, height);
-	m_Texture = LoadTextureFromImage(image);
-	UnloadImage(image);
-}
-
-CanvasImage::CanvasImage(CanvasImage&& other) noexcept
-{
-	m_Position = other.m_Position;
-	m_Texture = other.m_Texture;
-	other.m_Texture = {};
-}
-
-CanvasImage& CanvasImage::operator=(CanvasImage&& other) noexcept
-{
-	m_Position = other.m_Position;
-	m_Texture = other.m_Texture;
-	other.m_Texture = {};
-	return *this;
-}
-
-CanvasImage::~CanvasImage()
-{
-	UnloadTexture(m_Texture);
-}
-
-void Ensure(bool condition)
-{
-	if (!condition)
-	{
-		TraceLog(LOG_ERROR, "ENSURE: Assertion filed");
-		exit(-1);
-	}
-}
-
-Rectangle CanvasImage::GetWorldBoundaries() const
-{
-	return AsRectangle();
-}
-
-Image CanvasImage::LoadImageFromRgba(uint8_t* data, int width, int height)
-{
-	PixelFormat format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
-	int size = GetPixelDataSize(width, height, format);
-
-	Image image{};
-	image.data = RL_MALLOC(size);
-	if (image.data == nullptr)
-	{
-		TraceLog(LOG_ERROR, "IMAGE: Cannot alocate memory for image");
-		return image;
-	}
-	memcpy(image.data, data, size);
-	image.width = width;
-	image.height = height;
-	image.mipmaps = 1;
-	image.format = format;
-
-	return image;
-}
-
-void CanvasImage::Draw() const
-{
-	DrawTextureV(m_Texture, m_Position, WHITE);
-	if (m_Focued)
-		DrawRectangleLinesEx(GetWorldBoundaries(), 2.0f, BLUE);
-}
-
-void CanvasImage::MoveBy(Vector2 positionChange)
-{
-	m_Position = Vector2Add(m_Position, positionChange);
-}
-
-Rectangle CanvasImage::AsRectangle() const
-{
-	return Rectangle{m_Position.x, m_Position.y, (float)m_Texture.width, (float)m_Texture.height};
-}
-
-void CanvasImage::AdjustFilterToZoomLevel(float zoom)
-{
-	if (zoom < 1.0f)
-		SetTextureFilter(m_Texture, TEXTURE_FILTER_BILINEAR);
-	else
-		SetTextureFilter(m_Texture, TEXTURE_FILTER_POINT);
 }

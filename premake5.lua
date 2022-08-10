@@ -3,22 +3,23 @@ workspace "CodeMap"
 	architecture "x86_64"
 	startproject "CodeMap"
 
+	targetdir "build/bin/%{cfg.buildcfg}"
+	objdir "build/obj/%{cfg.buildcfg}/%{prj.name}"
+
 	filter "configurations:Debug"
-		defines { "DEBUG" }
+		runtime "Debug"
 		symbols "On"
 
 	filter "configurations:Release"
-		defines { "NDEBUG" }
+		runtime "Release"
 		optimize "On"	
 
 	filter {}
 
-	targetdir "build/bin/%{cfg.buildcfg}"
-	objdir "build/obj/%{cfg.buildcfg}/%{prj.name}"
 
 	group "Dependencies"
 		include "lib/raylib.lua"
-        include "lib/clip.lua"
+		include "lib/clip.lua"
 	group ""
 
 	project "CodeMap"
@@ -27,9 +28,14 @@ workspace "CodeMap"
 		language "C++"
 		cppdialect "C++17"
 
+		pchheader "pch.hpp"
+		pchsource "src/pch.cpp"
+
 		includedirs {
+			"src/",
 			"lib/raylib/src",
-            "lib/clip/"
+			"lib/clip/",
+			"lib/entt/include"
 		}
 		files {"src/**.cpp", "src/**.hpp"}
 
@@ -56,16 +62,16 @@ workspace "CodeMap"
 
 
 newaction {
-    trigger     = "clean",
-    description = "Clean project from binaries and obj files",
-    execute = function ()
-        print("Removing build/...")
-        os.rmdir("build")
-        print("Removing Visual Studio files...")
-        os.rmdir(".vs")
-        os.remove("*.sln")
-        os.remove("lib/*.vcxproj*")
-        os.remove("*.vcxproj*")
-        print("Done")
-    end
+	trigger     = "clean",
+	description = "Clean project from binaries and obj files",
+	execute = function ()
+		print("Removing build/...")
+		os.rmdir("build")
+		print("Removing Visual Studio files...")
+		os.rmdir(".vs")
+		os.remove("*.sln")
+		os.remove("lib/*.vcxproj*")
+		os.remove("*.vcxproj*")
+		print("Done")
+	end
 }
