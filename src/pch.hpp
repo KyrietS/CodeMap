@@ -2,14 +2,15 @@
 
 #include <iostream>
 
-#include <vector>
 #include <list>
-#include <optional>
+#include <vector>
 #include <string>
+#include <optional>
+#include <functional>
 
+#include <algorithm>
+#include <ranges>
 #include <memory>
 #include <cstdint>
-#include <algorithm>
 #include <cmath>
-#include <functional>
 #include <cassert>

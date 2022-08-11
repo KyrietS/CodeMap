@@ -6,111 +6,16 @@
 #include "clip.h"
 #include "Components.hpp"
 #include "Entity.hpp"
-#include "ImageEntity.hpp"
+#include "Prefabs/ImageEntity.hpp"
 #include "Utils/Print.hpp"
 #include "Scripts/ClickToAddText.hpp"
+#include "Scripts/SelectionScript.hpp"
+#include "Scripts/CanvasViewControlScript.hpp"
 #include "Utils/Print.hpp"
 
 Canvas* Canvas::m_PrimaryInstance = nullptr;
 
 
-struct SelectionScript : ScriptableEntity
-{
-	// TODO: Instead of passing tegistry to the script I should
-	//       extend Canvas API and create getter for it, eg.
-	//       Canvas::Registry(), Canvas::GetEntities<A, B>()
-	SelectionScript(Entity entity, entt::registry& registry)
-		: ScriptableEntity(entity), m_Registry(registry) {}
-
-	void OnUpdate() override
-	{
-		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-		{
-			auto view = m_Registry.view<Components::Transform, Components::Focusable>();
-			for (auto& [entity, transform, focusable] : view.each())
-			{
-				focusable.IsFocused = false;
-			}
-			
-			for (auto& [entity, transform, focusable] : view.each())
-			{
-				Vector2 worldPos = GetScreenToWorld2D(GetMousePosition(), Canvas::Camera());
-				if (CheckCollisionPointRec(worldPos, focusable.FocusArea))
-				{
-					focusable.IsFocused = true;
-					break;
-				}
-			}
-		}
-	}
-
-	entt::registry& m_Registry;
-};
-
-struct CanvasViewControlScript : ScriptableEntity
-{
-	// TODO: Instead of passing Camera2D I should extend Canvas API, eg.
-	//       Canvas::Get().Camera() or Canvas::Camera()
-	CanvasViewControlScript(Entity entity, entt::registry& registry, Camera2D& camera)
-		: ScriptableEntity(entity), m_Registry(registry), m_Camera(camera) {}
-
-	void OnUpdate() override
-	{
-		float zoomChange = GetMouseWheelMove();
-		if (zoomChange != 0)
-		{
-			Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), m_Camera);
-			m_Camera.offset = GetMousePosition();
-			m_Camera.target = mouseWorldPos;
-
-			const float zoomFactor = 1.1f;
-			m_Camera.zoom *= zoomChange > 0 ? zoomFactor : (1.0f / zoomFactor);
-
-			// Limits
-			m_Camera.zoom = Clamp(m_Camera.zoom, 0.1f, 10.0f);
-
-			// Snap to 1.0
-			if (m_Camera.zoom > 0.95f && m_Camera.zoom < 1.05f)
-			{
-				m_Camera.zoom = 1.0f;
-			}
-
-			for (auto& [entity, texture] : m_Registry.view<Components::Sprite>().each())
-			{
-				AdjustFilterToZoomLevel(m_Camera.zoom, texture);
-			}
-		}
-
-		if (IsKeyPressed(KEY_SPACE))
-		{
-			// Place for some debugging code...
-		}
-
-		if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE))
-		{
-			MoveCanvasWithMouse();
-		}
-	}
-
-	void AdjustFilterToZoomLevel(float zoom, Texture2D& texture)
-	{
-		std::cout << "zoom = " << zoom << std::endl;
-		if (zoom < 1.0f)
-			SetTextureFilter(texture, TEXTURE_FILTER_BILINEAR);
-		else
-			SetTextureFilter(texture, TEXTURE_FILTER_POINT);
-	}
-
-	void MoveCanvasWithMouse()
-	{
-		Vector2 delta = GetMouseDelta();
-		delta = Vector2Scale(delta, -1.0f / m_Camera.zoom);
-		m_Camera.target = Vector2Add(m_Camera.target, delta);
-	}
-
-	entt::registry& m_Registry;
-	Camera2D& m_Camera;
-};
 
 Canvas::Canvas(bool primary) : m_Props{}
 {
@@ -119,22 +24,11 @@ Canvas::Canvas(bool primary) : m_Props{}
 	m_Camera.rotation = 0.0f;
 	m_Camera.zoom = 1.0f;
 
-	// TODO: I'm not sure if this is good place for creating such scripts...
-	// TODO: Find better way for massive script creation.
-	auto selectionEntity = CreateEntity();
-	auto& selectionScript = selectionEntity
-		.AddComponent<Components::NativeScript>(std::make_unique<SelectionScript>(selectionEntity, m_Registry));
-	selectionScript.Instance->OnCreate();
+	// TODO: I'm not sure if this is good place for creating scripts...
+	CreateEntity().AddComponent<Components::NativeScript>().Bind<SelectionScript>();
+	CreateEntity().AddComponent<Components::NativeScript>().Bind<CanvasViewControlScript>();
+	CreateEntity().AddComponent<Components::NativeScript>().Bind<Script::ClickToAddText>();
 
-	auto zoomEntity = CreateEntity();
-	auto& zoomScript = zoomEntity
-		.AddComponent<Components::NativeScript>(std::make_unique<CanvasViewControlScript>(zoomEntity, m_Registry, m_Camera));
-	zoomScript.Instance->OnCreate();
-
-	auto clickToAddTextEntity = CreateEntity();
-	auto& clickToAddTextScript = clickToAddTextEntity
-		.AddComponent<Components::NativeScript>(std::make_unique<Script::ClickToAddText>(clickToAddTextEntity));
-	clickToAddTextScript.Instance->OnCreate();
 
 	if (primary)
 		m_PrimaryInstance = this;
@@ -206,24 +100,18 @@ void Canvas::Draw()
 
 void Canvas::OnUpdate()
 {
-	// TODO: Scripts should be automatically instantiated here:
-	// for ( [entity, script] : view<NativeScript>().each )
-	// {
-	//     if (!script.Instance)
-	//     {
-	//         script.Instance = script.InstantiateScript();
-	//         script.Instance->m_Entity = Entity{ entity, this };
-	//         script.OnCreate();
-	//     }
-	//     script.Instance->OnUpdate()
-	// }
-	//
-	// ^^^ This way my scripts are instantiated automatically.
-	//     But they have to have this lambda "InstantiateScript" where
-	//     their real type is constructed with real constructor.
+	// Move it to some kinf ScriptEngine.
+	// Waste of time to check this if every frame.
 	auto view = m_Registry.view<Components::NativeScript>();
 	for (auto [entity, script] : view.each())
 	{
+		if (!script.Instance)
+		{
+			script.Instance = script.Instantiate();
+			print("Instantiating script: {}", typeid(*(script.Instance)).name());
+			script.Instance->m_Entity = { entity, this };
+			script.Instance->OnCreate();
+		}
 		script.Instance->OnUpdate();
 	}
 
@@ -246,7 +134,7 @@ Entity Canvas::CreateEntity(Vector2 initialPosition)
 {
 	Entity entity = { m_Registry.create(), this };
 	entity.AddComponent<Components::Transform>(initialPosition);
-	print("CREATED ENTITY id={}", (int)entity);
+	print("CREATED ENTITY id={}", (int)(entt::entity)entity);
 
 	return entity;
 }

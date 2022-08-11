@@ -1,15 +1,16 @@
 #pragma once
 
+#include "raylib.h"
 #include "entt.hpp"
+#include "Canvas.hpp"
 
-class Canvas;
 
 class Entity
 {
 public:
 	Entity() = default;
 	Entity(const Entity&) = default;
-	Entity::Entity(entt::entity handle, Canvas* canvas)
+	Entity(entt::entity handle, Canvas* canvas)
 		: m_EntityHandle(handle), m_Canvas(canvas)
 	{
 	}

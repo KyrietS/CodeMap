@@ -8,7 +8,7 @@ namespace
 	struct Script : public ScriptableEntity
 	{
 		Script(ImageEntity entity)
-			: ScriptableEntity(entity), m_Entity(entity)
+			: m_Entity(entity)
 		{
 		}
 
@@ -69,7 +69,7 @@ ImageEntity::ImageEntity()
 {
 	AddComponent<Components::Sprite>();
 	AddComponent<Components::Focusable>();
-	AddComponent<Components::NativeScript>(std::make_unique<Script>(*this));
+	AddComponent<Components::NativeScript>().Bind<::Script>(*this);
 }
 
 ImageEntity::ImageEntity(Vector2 pos, uint8_t* data, int width, int height)

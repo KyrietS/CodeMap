@@ -61,10 +61,28 @@ namespace Components
 
 	struct NativeScript
 	{
-		std::unique_ptr<ScriptableEntity> Instance;
+		using ScriptInstanceType = std::unique_ptr<ScriptableEntity>;
+
+		ScriptInstanceType Instance;
+
+		std::function<ScriptInstanceType()> Instantiate;
+		std::function<void()> DestroyScript;
 
 		NativeScript() = default;
-		NativeScript(std::unique_ptr<ScriptableEntity> ptr) : Instance{ std::move(ptr) } {}
+		NativeScript(std::function<ScriptInstanceType()> instantiate) : Instantiate(std::move(instantiate)) {}
+		NativeScript(ScriptInstanceType ptr) : Instance{ std::move(ptr) } {}
+
+		// Passing arguments to script's constructors is an experimental feature.
+		// It should be avoided in general. If script needs some data, then it should
+		// use Canvas API to get it fot itself.
+		template<typename T, typename ... Args>
+		void Bind(Args&&... args)
+		{
+			// C++20 feature
+			Instantiate = [...args = std::forward<Args>(args)]() mutable { return std::make_unique<T>(std::move(args)...);  };
+			//Instantiate = [&args...]() { return std::make_unique<T>(std::forward<Args>(args)...);  };
+			DestroyScript = [this]() { Instance.reset(); };
+		}
 	};
 
 	// TODO: FocusArea for rotated rects is not supported!

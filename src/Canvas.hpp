@@ -2,12 +2,13 @@
 
 #include "raylib.h"
 #include "entt.hpp"
-#include "Entity.hpp"
 
 struct CanvasProps
 {
 	Color BackgroundColor = RAYWHITE;
 };
+
+class Entity;
 
 class Canvas
 {
@@ -18,11 +19,32 @@ public:
 	//       This separation is very artificial and doesn't make much sense.
 	void Draw();
 	void OnUpdate();
-	Entity CreateEntity(Vector2 = { 0, 0 });
 
+	Entity CreateEntity(Vector2 = { 0, 0 });
 	void RemoveEntity(const entt::entity);
+
+	template<typename Component, typename ... Other>
+	static auto GetComponents()
+	{
+		return m_PrimaryInstance->m_Registry.view<Component, Other...>();
+	};
+	template<typename Component>
+	static auto& GetComponent(entt::entity entity)
+	{
+		return m_PrimaryInstance->m_Registry.get<Component>(entity);
+	}
+	template<typename... Components>
+	static auto& GetComponents(entt::entity entity)
+	{
+		return m_PrimaryInstance->m_Registry.get<Components...>(entity);
+	};
+	template<typename... Components>
+	static bool HasComponents(entt::entity entity)
+	{
+		return m_PrimaryInstance->m_Registry.all_of<Components...>(entity);
+	}
 	static Canvas& Get() { return *m_PrimaryInstance; }
-	static Camera2D& Camera() { return Get().m_Camera; }
+	static Camera2D& Camera() { return m_PrimaryInstance->m_Camera; }
 
 private:
 	void HandlePasteImage();

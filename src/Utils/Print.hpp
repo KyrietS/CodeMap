@@ -3,7 +3,7 @@
 #include "raylib.h"
 
 // TODO: Replace this whole module with spdlog
-
+// TODO: This `split` crap should be replaced with std::format
 std::vector<std::string_view> split(std::string_view text, std::string_view pattern);
 
 // TODO: Uncomment when spdlog is in use
