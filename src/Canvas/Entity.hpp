@@ -10,6 +10,8 @@ class Entity
 public:
 	Entity() = default;
 	Entity(const Entity&) = default;
+	Entity(entt::entity handle) 
+		: Entity(handle, &Canvas::Get()) {}
 	Entity(entt::entity handle, Canvas* canvas)
 		: m_EntityHandle(handle), m_Canvas(canvas)
 	{
@@ -47,6 +49,11 @@ public:
 	void RemoveComponent()
 	{
 		m_Canvas->m_Registry.remove<T>(m_EntityHandle);
+	}
+
+	void Destroy()
+	{
+		m_Canvas->ScheduleEntityForDestruction(m_EntityHandle);
 	}
 
 	operator bool() const { return m_EntityHandle != entt::null; }

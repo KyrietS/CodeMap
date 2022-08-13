@@ -1,5 +1,6 @@
 #pragma once
-#include "Canvas.hpp"
+#include "Canvas/Canvas.hpp"
+#include "ScriptEngine.hpp"
 
 
 struct AppConfig
@@ -25,6 +26,7 @@ private:
 	AppConfig m_AppConfig;
 	bool m_Running = true;
 	std::unique_ptr<Canvas> m_Canvas;
+	std::unique_ptr<ScriptEngine> m_ScriptEngine;
 
 	static App* m_Instance;
 };

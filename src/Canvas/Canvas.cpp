@@ -8,26 +8,22 @@
 #include "Entity.hpp"
 #include "Prefabs/ImageEntity.hpp"
 #include "Utils/Print.hpp"
-#include "Scripts/ClickToAddText.hpp"
+#include "Scripts/ClickToAddTextScript.hpp"
 #include "Scripts/SelectionScript.hpp"
 #include "Scripts/CanvasViewControlScript.hpp"
 #include "Utils/Print.hpp"
+#include "Input.hpp"
+
 
 Canvas* Canvas::m_PrimaryInstance = nullptr;
 
 
-
 Canvas::Canvas(bool primary) : m_Props{}
 {
-	m_Camera.offset = { 0, 0 };
-	m_Camera.target = { 0, 0 };
-	m_Camera.rotation = 0.0f;
-	m_Camera.zoom = 1.0f;
-
 	// TODO: I'm not sure if this is good place for creating scripts...
 	CreateEntity().AddComponent<Components::NativeScript>().Bind<SelectionScript>();
 	CreateEntity().AddComponent<Components::NativeScript>().Bind<CanvasViewControlScript>();
-	CreateEntity().AddComponent<Components::NativeScript>().Bind<Script::ClickToAddText>();
+	CreateEntity().AddComponent<Components::NativeScript>().Bind<ClickToAddTextScript>();
 
 
 	if (primary)
@@ -102,18 +98,18 @@ void Canvas::OnUpdate()
 {
 	// Move it to some kinf ScriptEngine.
 	// Waste of time to check this if every frame.
-	auto view = m_Registry.view<Components::NativeScript>();
-	for (auto [entity, script] : view.each())
-	{
-		if (!script.Instance)
-		{
-			script.Instance = script.Instantiate();
-			print("Instantiating script: {}", typeid(*(script.Instance)).name());
-			script.Instance->m_Entity = { entity, this };
-			script.Instance->OnCreate();
-		}
-		script.Instance->OnUpdate();
-	}
+	//auto view = m_Registry.view<Components::NativeScript>();
+	//for (auto [entity, script] : view.each())
+	//{
+	//	if (!script.Instance)
+	//	{
+	//		script.Instance = script.Instantiate();
+	//		print("Instantiating script: {}", typeid(*(script.Instance)).name());
+	//		script.Instance->m_Entity = { entity, this };
+	//		script.Instance->OnCreate();
+	//	}
+	//	script.Instance->OnUpdate();
+	//}
 
 	// TODO: This code should go to NativeScript
 	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_V))
@@ -139,18 +135,6 @@ Entity Canvas::CreateEntity(Vector2 initialPosition)
 	return entity;
 }
 
-void Canvas::RemoveEntity(const entt::entity entity)
-{
-	assert(m_Registry.valid(entity));
-	if (m_Registry.all_of<Components::NativeScript>(entity))
-	{
-		m_Registry.get<Components::NativeScript>(entity).Instance->OnDestroy();
-	}
-
-	// Schedule the removal so the script can remove itself.
-	m_ToBeRemoved.push_back(entity);
-}
-
 void TransformFromBgraToRgba(uint8_t* data, int size)
 {
 	for (int i = 0; i < size / 4; i++)
@@ -172,24 +156,37 @@ void Canvas::HandlePasteImage()
 	int size = (int)imageSpec.required_data_size();
 	uint8_t* data = reinterpret_cast<uint8_t*>(clipboardImage.data());
 	TransformFromBgraToRgba(data, size);
-	Vector2 imagePos = GetScreenToWorld2D(GetMousePosition(), m_Camera);
+	Vector2 imagePos = Input::GetWorldMousePosition();
 
-	ImageEntity imageEntity(imagePos, data, imageSpec.width, imageSpec.height);
+	ImageEntity(CreateEntity()).Build(imagePos, data, imageSpec.width, imageSpec.height);
+}
+
+void Canvas::ScheduleEntityForDestruction(const entt::entity entity)
+{
+	assert(m_Registry.valid(entity));
+	if (m_Registry.all_of<Components::NativeScript>(entity))
+	{
+		m_Registry.get<Components::NativeScript>(entity).Instance->OnDestroy();
+	}
+
+	// Schedule the removal so the script can remove itself.
+	m_ToBeRemoved.push_back(entity);
 }
 
 void Canvas::DrawGrid()
 {
+	const float zoom = m_Camera.GetZoom();
 	const int DOT_GAP_SIZE = 50;
-	const int NUM_OF_DOTS_HORIZONTAL = static_cast<int>((GetScreenWidth() / m_Camera.zoom) / DOT_GAP_SIZE + 2);
-	const int NUM_OF_DOTS_VERTICAL = static_cast<int>((GetScreenHeight() / m_Camera.zoom) / DOT_GAP_SIZE + 2);
+	const int NUM_OF_DOTS_HORIZONTAL = static_cast<int>((GetScreenWidth() / zoom) / DOT_GAP_SIZE + 2);
+	const int NUM_OF_DOTS_VERTICAL = static_cast<int>((GetScreenHeight() / zoom) / DOT_GAP_SIZE + 2);
 	float DOT_SIZE = 4;
-	if (m_Camera.zoom < 1.0f)
+	if (zoom < 1.0f)
 	{
-		DOT_SIZE *= (2.0f - m_Camera.zoom);
+		DOT_SIZE *= (2.0f - zoom);
 	}
 
 	Vector2 dotScreenPos = { 0, 0 };
-	Vector2 dotWorldPos = GetScreenToWorld2D(dotScreenPos, m_Camera);
+	Vector2 dotWorldPos = m_Camera.GetScreenToWorld(dotScreenPos);
 	Vector2 firstDotScreenPos = {
 		DOT_GAP_SIZE * ceil(dotWorldPos.x / DOT_GAP_SIZE) - DOT_GAP_SIZE,
 		DOT_GAP_SIZE * ceil(dotWorldPos.y / DOT_GAP_SIZE) - DOT_GAP_SIZE
@@ -209,6 +206,6 @@ void Canvas::DrawGrid()
 void Canvas::DrawGui()
 {
 	// Draw zoom level
-	std::string zoomLevelText = "zoom: " + std::to_string(int(m_Camera.zoom * 100)) + "%";
+	std::string zoomLevelText = "zoom: " + std::to_string(int(m_Camera.GetZoom() * 100)) + "%";
 	DrawText(zoomLevelText.c_str(), 30, GetScreenHeight() - 30, 10, DARKGRAY);
 }

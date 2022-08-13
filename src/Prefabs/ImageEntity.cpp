@@ -1,7 +1,9 @@
 #include "pch.hpp"
 #include "ImageEntity.hpp"
-#include "Components.hpp"
-#include "Canvas.hpp"
+#include "Canvas/Components.hpp"
+#include "Canvas/Canvas.hpp"
+#include "Input.hpp"
+
 
 namespace 
 {
@@ -17,13 +19,13 @@ namespace
 		void OnUpdate() override
 		{
 			auto isFocused = GetComponent<Components::Focusable>().IsFocused;
-			Vector2 worldPos = GetScreenToWorld2D(GetMousePosition(), Canvas::Camera());
+			Vector2 worldPos = Input::GetWorldMousePosition();
 			if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && isFocused
 				&& (m_CurrentlyMoving || CheckCollisionPointRec(worldPos, m_Entity.AsRectangle())))
 			{
 				m_CurrentlyMoving = true;
 				// Scale screen distance to world distance
-				Vector2 delta = Vector2Scale(GetMouseDelta(), 1.0f / Canvas::Camera().zoom);
+				Vector2 delta = Vector2Scale(GetMouseDelta(), 1.0f / Canvas::Camera().GetZoom());
 				MoveBy(delta);
 			}
 
@@ -42,7 +44,7 @@ namespace
 			}
 			if (isFocused && IsKeyPressed(KEY_DELETE))
 			{
-				Canvas::Get().RemoveEntity(m_Entity);
+				m_Entity.Destroy();
 			}
 		}
 
@@ -64,16 +66,15 @@ namespace
 	};
 }
 
-ImageEntity::ImageEntity()
-	: Entity({ Canvas::Get().CreateEntity(), &Canvas::Get()})
+ImageEntity::ImageEntity(const Entity& entity)
+	: Entity(entity)
 {
 	AddComponent<Components::Sprite>();
 	AddComponent<Components::Focusable>();
 	AddComponent<Components::NativeScript>().Bind<::Script>(*this);
 }
 
-ImageEntity::ImageEntity(Vector2 pos, uint8_t* data, int width, int height)
-	: ImageEntity()
+ImageEntity& ImageEntity::Build(Vector2 pos, uint8_t* data, int width, int height)
 {
 	Image image = LoadImageFromRgba(data, width, height);
 	// TODO: Is it a good idea to unload the texture in script's OnDestroy?
@@ -81,6 +82,7 @@ ImageEntity::ImageEntity(Vector2 pos, uint8_t* data, int width, int height)
 	Transform().Translation = pos;
 	Focusable().FocusArea = AsRectangle();
 	UnloadImage(image);
+	return *this;
 }
 
 Rectangle ImageEntity::AsRectangle()

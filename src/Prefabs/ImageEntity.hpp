@@ -1,15 +1,15 @@
 #pragma once
 
-#include "ScriptableEntity.hpp"
+#include "Canvas/ScriptableEntity.hpp"
 #include "entt.hpp"
-#include "Components.hpp"
+#include "Canvas/Components.hpp"
 
 
 class ImageEntity : public Entity
 {
 public:
-	ImageEntity();
-	ImageEntity(Vector2 pos, uint8_t* data, int width, int height);
+	ImageEntity(const Entity& entity);
+	ImageEntity& Build(Vector2 pos, uint8_t* data, int width, int height);
 
 	Rectangle AsRectangle();
 

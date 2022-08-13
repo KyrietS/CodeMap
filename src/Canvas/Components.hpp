@@ -64,6 +64,7 @@ namespace Components
 		using ScriptInstanceType = std::unique_ptr<ScriptableEntity>;
 
 		ScriptInstanceType Instance;
+		bool Active = true;
 
 		std::function<ScriptInstanceType()> Instantiate;
 		std::function<void()> DestroyScript;
@@ -80,7 +81,6 @@ namespace Components
 		{
 			// C++20 feature
 			Instantiate = [...args = std::forward<Args>(args)]() mutable { return std::make_unique<T>(std::move(args)...);  };
-			//Instantiate = [&args...]() { return std::make_unique<T>(std::forward<Args>(args)...);  };
 			DestroyScript = [this]() { Instance.reset(); };
 		}
 	};

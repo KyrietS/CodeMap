@@ -26,7 +26,7 @@ workspace "CodeMap"
 		kind "ConsoleApp"
 		location ""
 		language "C++"
-		cppdialect "C++17"
+		cppdialect "C++20"
 
 		pchheader "pch.hpp"
 		pchsource "src/pch.cpp"
@@ -35,7 +35,8 @@ workspace "CodeMap"
 			"src/",
 			"lib/raylib/src",
 			"lib/clip/",
-			"lib/entt/include"
+			"lib/entt/include",
+            "lib/reasings/src"
 		}
 		files {"src/**.cpp", "src/**.hpp"}
 

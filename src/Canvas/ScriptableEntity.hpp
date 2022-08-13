@@ -21,5 +21,5 @@ public:
 
 private:
 	Entity m_Entity;
-	friend class Canvas;
+	friend class ScriptEngine;
 };
