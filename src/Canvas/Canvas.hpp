@@ -33,6 +33,7 @@ public:
 	static CanvasCamera& Camera() { return m_PrimaryInstance->m_Camera; }
 
 private:
+	Entity CreateVoidEntity();
 	void HandlePasteImage();
 	void ScheduleEntityForDestruction(const entt::entity entity);
 

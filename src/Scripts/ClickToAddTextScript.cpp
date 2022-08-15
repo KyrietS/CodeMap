@@ -1,9 +1,11 @@
 #include "pch.hpp"
 #include "ClickToAddTextScript.hpp"
 #include "Scripts/MoveByDragScript.hpp"
+#include "Scripts/CommonCanvasEntityScript.hpp"
 #include "Canvas/Canvas.hpp"
 #include "Canvas/Components.hpp"
 #include "Input.hpp"
+
 
 void ClickToAddTextScript::OnUpdate()
 {
@@ -24,7 +26,8 @@ void ClickToAddTextScript::OnUpdate()
 			focus.Size = MeasureTextEx(text.Font, text.Content.c_str(), text.Size, text.Spacing);
 			focus.IsFocused = true;
 
-			textEntity.AddComponent<Components::NativeScript>().Bind<MoveByDragScript>();
+			textEntity.AttachScript<MoveByDragScript>();
+			textEntity.AttachScript<CommonCanvasEntityScript>();
 		}
 
 	}

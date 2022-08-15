@@ -3,6 +3,7 @@
 #include "Canvas/Components.hpp"
 #include "Canvas/Canvas.hpp"
 #include "Scripts/MoveByDragScript.hpp"
+#include "Scripts/CommonCanvasEntityScript.hpp"
 #include "Input.hpp"
 
 
@@ -19,20 +20,6 @@ namespace
 
 		void OnUpdate() override
 		{
-			auto isFocused = GetComponent<Components::Focusable>().IsFocused;
-
-			if (isFocused && IsKeyPressed(KEY_PAGE_UP))
-			{
-				GetComponent<Components::Transform>().Index += 1;
-			}
-			if (isFocused && IsKeyPressed(KEY_PAGE_DOWN))
-			{
-				GetComponent<Components::Transform>().Index -= 1;
-			}
-			if (isFocused && IsKeyPressed(KEY_DELETE))
-			{
-				m_Entity.Destroy();
-			}
 		}
 
 		void OnDestroy() override
@@ -52,6 +39,7 @@ ImageEntity::ImageEntity(const Entity& entity)
 	
 	AttachScript<::Script>(*this);
 	AttachScript<MoveByDragScript>();
+	AttachScript<CommonCanvasEntityScript>();
 }
 
 ImageEntity& ImageEntity::Build(Vector2 pos, uint8_t* data, int width, int height)

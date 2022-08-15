@@ -3,6 +3,7 @@
 #include "Canvas/Components.hpp"
 #include "Canvas/ScriptableEntity.hpp"
 #include "Scripts/MoveByDragScript.hpp"
+#include "Scripts/CommonCanvasEntityScript.hpp"
 #include "Input.hpp"
 
 
@@ -71,6 +72,7 @@ LineEntity::LineEntity(const Entity& entity)
 
 	AttachScript<::Script>();
 	AttachScript<MoveByDragScript>();
+	AttachScript<CommonCanvasEntityScript>();
 }
 
 

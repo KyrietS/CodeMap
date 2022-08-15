@@ -22,9 +22,9 @@ Canvas* Canvas::m_PrimaryInstance = nullptr;
 Canvas::Canvas(bool primary) : m_Props{}
 {
 	// TODO: I'm not sure if this is good place for creating scripts...
-	CreateEntity().AddComponent<Components::NativeScript>().Bind<SelectionScript>();
-	CreateEntity().AddComponent<Components::NativeScript>().Bind<CanvasViewControlScript>();
-	CreateEntity().AddComponent<Components::NativeScript>().Bind<ClickToAddTextScript>();
+	CreateVoidEntity().AddComponent<Components::NativeScript>().Bind<SelectionScript>();
+	CreateVoidEntity().AddComponent<Components::NativeScript>().Bind<CanvasViewControlScript>();
+	CreateVoidEntity().AddComponent<Components::NativeScript>().Bind<ClickToAddTextScript>();
 
 
 	if (primary)
@@ -51,31 +51,32 @@ void Canvas::Draw()
 			return lhs.Index < rhs.Index;
 		}, entt::insertion_sort{}); // Insertion sort is O(n) for nearly sorted arrays
 
-		// Draw sprites (order_by TrasnformComponent)
+		// Draw entities in order of their z-Index
+		auto drawables = m_Registry.view<Components::Transform>();
+		for (Entity entity : drawables)
 		{
-			auto viewTexture = m_Registry.view<Components::Transform, Components::Sprite>().use<Components::Transform>();
-			for (auto [entity, transform, texture] : viewTexture.each())
-			{
-				DrawTextureV(texture, transform.Translation, WHITE);
-			}
-		}
+			auto& transform = entity.GetComponent<Components::Transform>();
 
-		// Draw lines
-		{
-			auto viewLines = m_Registry.view<Components::Transform, Components::LineSegment>().use<Components::Transform>();
-			for (auto [entity, transform, line] : viewLines.each())
+			// Draw sprite
+			if (entity.HasComponent<Components::Sprite>())
 			{
+				auto& sprite = entity.GetComponent<Components::Sprite>();
+				DrawTextureV(sprite, transform.Translation, WHITE);
+			}
+
+			// Draw line
+			if (entity.HasComponent<Components::LineSegment>())
+			{
+				auto& line = entity.GetComponent<Components::LineSegment>();
 				Vector2 begin = line.GetBegin(transform);
 				Vector2 end = line.GetEnd(transform);
 				DrawLineEx(begin, end, line.Thickness, line.StrokeColor);
 			}
-		}
 
-		// Draw arrowheads
-		{
-			auto arrowheads = m_Registry.view<Components::Transform, Components::Arrowhead>().use<Components::Transform>();
-			for (auto [entity, transform, arrowhead] : arrowheads.each())
+			// Draw arrowhead
+			if (entity.HasComponent<Components::Arrowhead>())
 			{
+				auto& arrowhead = entity.GetComponent<Components::Arrowhead>();
 				Vector2 tip1 = arrowhead.Offset;
 				Vector2 tip2 = { tip1.x - arrowhead.Width, tip1.y - arrowhead.Height };
 				Vector2 tip3 = { tip1.x - arrowhead.Width, tip1.y + arrowhead.Height };
@@ -86,13 +87,11 @@ void Canvas::Draw()
 
 				DrawTriangle(tip1, tip2, tip3, ORANGE);
 			}
-		}
 
-		// Draw text
-		{
-			auto viewText = m_Registry.view<Components::Transform, Components::Text>();
-			for (auto [entity, transform, text] : viewText.each())
+			// Draw text
+			if (entity.HasComponent<Components::Text>())
 			{
+				auto& text = entity.GetComponent<Components::Text>();
 				const auto& position = transform.Translation;
 				Font font = GetFontDefault();
 				float spacing = text.Size / 10.0f;
@@ -151,9 +150,15 @@ void Canvas::OnUpdate()
 
 Entity Canvas::CreateEntity(Vector2 initialPosition)
 {
-	Entity entity = { m_Registry.create(), this };
-	entity.AddComponent<Components::Transform>(initialPosition);
-	print("CREATED ENTITY id={}", (int)(entt::entity)entity);
+	static int s_LastIndex = 0;
+
+	Entity entity = CreateVoidEntity();
+	auto& transform = entity.AddComponent<Components::Transform>(initialPosition);
+	transform.Index = s_LastIndex;
+
+	s_LastIndex += 1;
+
+	print("index = {}", s_LastIndex);
 
 	return entity;
 }
@@ -165,6 +170,14 @@ void TransformFromBgraToRgba(uint8_t* data, int size)
 		// Swap first and third byte in pixel.
 		std::swap(data[i * 4 + 0], data[i * 4 + 2]);
 	}
+}
+
+Entity Canvas::CreateVoidEntity()
+{
+	Entity entity = { m_Registry.create(), this };
+	print("CREATED ENTITY id={}", (int)(entt::entity)entity);
+
+	return entity;
 }
 
 void Canvas::HandlePasteImage()

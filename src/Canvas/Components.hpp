@@ -18,7 +18,8 @@ namespace Components
 		int Index = 0;
 
 		Transform() = default;
-		Transform(const Components::Transform&) = default;
+		Transform(const Transform&) noexcept = default;
+
 		Transform(const Vector2& translation, float rotation = 0.0f, int index = 0)
 			: Translation(translation), Rotation(rotation), Index(index) {}
 		~Transform() { print("Transform component destroyed"); }
