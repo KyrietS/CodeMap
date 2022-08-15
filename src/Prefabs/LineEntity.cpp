@@ -22,11 +22,15 @@ namespace
 
 			if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && m_EditMode)
 			{
-				auto transform = GetComponent<Components::Transform>().GetTransform();
-				auto& line = GetComponent<Components::Arrow>();
-				Vector2 end = Vector2Subtract(Input::GetWorldMousePosition(), transform);
-				line.End = end;
-				UpdateFocusArea();
+				auto& transform = GetComponent<Components::Transform>();
+				auto& line = GetComponent<Components::LineSegment>();
+				Vector2 lineVector = Vector2Subtract(Input::GetWorldMousePosition(), transform.Translation);
+				line.Length = Vector2Length(lineVector);
+				transform.Rotation = Vector2Angle({ 1.0f, 0.0f }, lineVector);
+
+				GetComponent<Components::Arrowhead>().Offset = line.GetLocalEnd();
+
+				UpdateFocusArea(); 
 			}
 			if (isFocused && IsKeyPressed(KEY_DELETE))
 			{
@@ -36,22 +40,20 @@ namespace
 
 		void UpdateFocusArea()
 		{
-			//auto transform = GetComponent<Components::Transform>().GetTransform();
-			auto& line = GetComponent<const Components::Arrow>();
+			auto& transform = GetComponent<Components::Transform>();
+			auto& line = GetComponent<const Components::LineSegment>();
 			auto& focus = GetComponent<Components::Focusable>();
 
-			focus.Origin = line.Origin;
-			focus.Size = line.End;
+			Vector2 begin = line.GetBegin(transform);
+			Vector2 end = line.GetEnd(transform);
 
-			//Vector2 begin = Vector2Add(transform, line.Origin);
-			//Vector2 end = Vector2Add(transform, line.End);
+			float minX = std::min(begin.x, end.x);
+			float minY = std::min(begin.y, end.y);
+			float width = std::fabs(begin.x - end.x);
+			float height = std::fabs(begin.y - end.y);
 
-			//float minX = std::min(begin.x, end.x);
-			//float minY = std::min(begin.y, end.y);
-			//float width = std::fabs(begin.x - end.x);
-			//float height = std::fabs(begin.y - end.y);
-
-			//focus.FocusArea = { minX, minY, width, height };
+			focus.Origin = Vector2Subtract({minX, minY}, begin);
+			focus.Size = {width, height};
 		}
 
 		bool m_EditMode = true;
@@ -63,24 +65,27 @@ namespace
 LineEntity::LineEntity(const Entity& entity)
 	: Entity(entity) 
 {
-	AddComponent<Components::Arrow>();
+	AddComponent<Components::LineSegment>();
+	AddComponent<Components::Arrowhead>();
 	AddComponent<Components::Focusable>();
 	// TODO: Add ability to attach multiple scripts
 	AddComponent<Components::NativeScript>().Bind<::Script>();
 	GetComponent<Components::NativeScript>().Bind<MoveByDragScript>();
-	//AddComponent<Components::NativeScript>().Bind<MoveByDragScript>();
 }
 
 
 LineEntity& LineEntity::Build(Vector2 end)
 {
-	auto& line = GetComponent<Components::Arrow>();
-
+	auto& line = GetComponent<Components::LineSegment>();
 	line.Origin = {0.0f, 0.0f};
-	line.End = end;
-	line.FillColor = BLUE;
+	line.Length = 0.0f;
+	line.StrokeColor = BLUE;
 	line.Thickness = 5.0f;
-	line.EndHead = Components::Arrow::Sharp;
+
+	auto& arrowhead = GetComponent<Components::Arrowhead>();
+	arrowhead.Offset = { 0.0f, 0.0f };
+	arrowhead.Height = 10.0f;
+	arrowhead.Width = 30.0f;
 
 	return *this;
 }

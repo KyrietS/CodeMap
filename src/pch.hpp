@@ -9,6 +9,7 @@
 #include <functional>
 
 #include <algorithm>
+#include <chrono>
 #include <ranges>
 #include <memory>
 #include <cstdint>

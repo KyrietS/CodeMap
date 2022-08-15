@@ -56,7 +56,7 @@ void Canvas::Draw()
 			auto viewText = m_Registry.view<Components::Transform, Components::Text>();
 			for (auto [entity, transform, text] : viewText.each())
 			{
-				const auto& position = transform.GetTransform();
+				const auto& position = transform.Translation;
 				Font font = GetFontDefault();
 				float spacing = text.Size / 10.0f;
 				DrawTextEx(font, text, position, text.Size, spacing, text.FontColor);
@@ -68,59 +68,51 @@ void Canvas::Draw()
 			auto viewTexture = m_Registry.view<Components::Transform, Components::Sprite>().use<Components::Transform>();
 			for (auto [entity, transform, texture] : viewTexture.each())
 			{
-				DrawTextureV(texture, transform, WHITE);
+				DrawTextureV(texture, transform.Translation, WHITE);
 			}
 		}
 
-		// Draw arrows
+		// Draw lines
 		{
-			auto viewLines = m_Registry.view<Components::Transform, Components::Arrow>().use<Components::Transform>();
-			for (auto [entity, transform, arrow] : viewLines.each())
+			auto viewLines = m_Registry.view<Components::Transform, Components::LineSegment>().use<Components::Transform>();
+			for (auto [entity, transform, line] : viewLines.each())
 			{
-				Vector2 transform = m_Registry.get<Components::Transform>(entity).GetTransform();
-				Vector2 begin = Vector2Add(transform, arrow.Origin);
-				Vector2 end = Vector2Add(begin, arrow.End);
-				DrawLineEx(begin, end, arrow.Thickness, arrow.FillColor);
+				Vector2 begin = line.GetBegin(transform);
+				Vector2 end = line.GetEnd(transform);
+				DrawLineEx(begin, end, line.Thickness, line.StrokeColor);
+			}
+		}
 
-				
-				if (arrow.EndHead != Components::Arrow::None)
-				{
-					// TODO: This arrowhead should be a separate component!
-					float angle = Vector2Angle({ 1.0f, 0.0f }, arrow.End);
-					float distance = Vector2Distance(begin, end);
-					const int ARROW_SIZE = 40;
-					Vector2 tip{ distance, 0.0f };
-					Vector2 tip2{ distance - ARROW_SIZE, -ARROW_SIZE / 2.0f };
-					Vector2 tip3{ distance - ARROW_SIZE, +ARROW_SIZE / 2.0f };
+		// Draw arrowheads
+		{
+			auto arrowheads = m_Registry.view<Components::Transform, Components::Arrowhead>().use<Components::Transform>();
+			for (auto [entity, transform, arrowhead] : arrowheads.each())
+			{
+				Vector2 tip1 = arrowhead.Offset;
+				Vector2 tip2 = { tip1.x - arrowhead.Width, tip1.y - arrowhead.Height };
+				Vector2 tip3 = { tip1.x - arrowhead.Width, tip1.y + arrowhead.Height };
 
-					Vector2 rotatedTip = Vector2Add(begin, Vector2Rotate(tip, angle));
-					Vector2 rotatedTip2 = Vector2Add(begin, Vector2Rotate(tip2, angle));
-					Vector2 rotatedTip3 = Vector2Add(begin, Vector2Rotate(tip3, angle));
+				tip1 = Vector2Transform(tip1, transform.GetTransformMatrix());
+				tip2 = Vector2Transform(tip2, transform.GetTransformMatrix());
+				tip3 = Vector2Transform(tip3, transform.GetTransformMatrix());
 
-					DrawTriangle(rotatedTip, rotatedTip2, rotatedTip3, ORANGE);
-					//DrawCircleV(rotatedTip, 15.0f, ORANGE);
-
-					//DrawTriangle()
-				}
-				
+				DrawTriangle(tip1, tip2, tip3, ORANGE);
 			}
 		}
 
 		// Draw selection rects
-		if (m_DebugMode)
+		auto viewFocus = m_Registry.view<Components::Transform, Components::Focusable>();
+		for (auto [entity, transform, focusable] : viewFocus.each())
 		{
-			auto viewFocus = m_Registry.view<Components::Transform, Components::Focusable>();
-			for (auto [entity, transform, focusable] : viewFocus.each())
-			{
-				// TODO: This will not work with rotations:
-				const Rectangle rect = focusable.AsRectangle(transform);
+			// TODO: This will not work with rotations:
+			const Rectangle rect = focusable.AsRectangle(transform);
 
-				if (focusable.IsFocused)
-					DrawRectangleLinesEx(rect, 2.0f, BLUE);
-				else // this is debug line. It should always be 1px thick
-					DrawRectangleLinesEx(rect, 1.0f / m_Camera.GetZoom(), RED);
-			}
+			if (focusable.IsFocused)
+				DrawRectangleLinesEx(rect, 2.0f, BLUE);
+			else if (m_DebugMode) // this is debug line. It should always be 1px thick
+				DrawRectangleLinesEx(rect, 1.0f / m_Camera.GetZoom(), RED);
 		}
+		
 	}
 	EndMode2D();
 

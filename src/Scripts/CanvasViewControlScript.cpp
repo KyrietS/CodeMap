@@ -67,15 +67,6 @@ void CanvasViewControlScript::ZoomCamera(float zoomChange)
 	}
 }
 
-//void CanvasViewControlScript::SetCameraZoomAt(float zoomLevel)
-//{
-//	Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), m_Camera);
-//	m_Camera.offset = GetMousePosition();
-//	m_Camera.target = mouseWorldPos;
-//
-//	m_Camera.zoom = zoomLevel;
-//}
-
 void CanvasViewControlScript::AdjustFilterToZoomLevel(float zoom, Texture2D& texture)
 {
 	if (zoom < 1.0f)
@@ -83,10 +74,3 @@ void CanvasViewControlScript::AdjustFilterToZoomLevel(float zoom, Texture2D& tex
 	else
 		SetTextureFilter(texture, TEXTURE_FILTER_POINT);
 }
-
-//void CanvasViewControlScript::MoveCanvasWithMouse()
-//{
-//	Vector2 delta = GetMouseDelta();
-//	delta = Vector2Scale(delta, -1.0f / m_Camera.zoom);
-//	m_Camera.target = Vector2Add(m_Camera.target, delta);
-//}

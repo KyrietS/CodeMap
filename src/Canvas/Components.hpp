@@ -2,7 +2,6 @@
 
 #include "raylib.h"
 #include "raymath.h"
-//#include "ScriptableEntity.hpp"
 #include "Utils/Print.hpp"
 
 
@@ -11,8 +10,7 @@ class ScriptableEntity;
 
 namespace Components
 {
-	// TODO: Use Matrix with helper functions instead of Translation + Rotation
-	// TODO: Add helper function for getting Matrix
+	// TODO: Remove legacy GetTransform()
 	struct Transform
 	{
 		Vector2 Translation = { 0.0f, 0.0f };
@@ -24,12 +22,21 @@ namespace Components
 		Transform(const Vector2& translation, float rotation = 0.0f, int index = 0)
 			: Translation(translation), Rotation(rotation), Index(index) {}
 		~Transform() { print("Transform component destroyed"); }
+		operator Matrix () { return GetTransformMatrix(); }
 
-		operator Vector2() { return GetTransform(); }
-
-		Vector2 GetTransform() const
+		Matrix GetTransformMatrix() const
 		{
-			return Vector2Rotate(Translation, Rotation);
+			return MatrixMultiply(GetRotationMatrix(), GetTranslationMatrix());
+		}
+
+		Matrix GetTranslationMatrix() const
+		{
+			return MatrixTranslate(Translation.x, Translation.y, 0.0f);
+		}
+
+		Matrix GetRotationMatrix() const
+		{
+			return MatrixRotateZ(Rotation);
 		}
 	};
 
@@ -47,20 +54,38 @@ namespace Components
 		operator Texture2D& () { return Texture; }
 	};
 
-	struct Arrow
+	struct LineSegment
 	{
 		Vector2 Origin = { 0.0f, 0.0f };
-		Vector2 End = { 0.0f, 0.0f };
-		Color FillColor = BLACK;
+		float Length = 0.0f;
+		Color StrokeColor = BLACK;
 		float Thickness = 1.0f;
 
-		enum Arrowhead
+		Vector2 GetBegin(const Transform& transform) const
 		{
-			None, Sharp
-		};
+			return Vector2Transform(Origin, transform.GetTransformMatrix());
+		}
+		Vector2 GetEnd(const Transform& transform) const
+		{
+			Vector2 endRelative = { Origin.x + Length, Origin.y };
+			return Vector2Transform(endRelative, transform.GetTransformMatrix());
+		}
+		Vector2 GetLocalEnd() const
+		{
+			return { Origin.x + Length, Origin.y };
+		}
+	};
 
-		Arrowhead BeginHead = Arrowhead::None;
-		Arrowhead EndHead = Arrowhead::None;
+	struct Arrowhead
+	{
+		Vector2 Offset = { 0.0f, 0.0f };
+		float Width = 0.0f;
+		float Height = 0.0f;
+
+		Vector2 GetTip(const Transform& transform)
+		{
+			return Vector2Transform(Offset, transform.GetTransformMatrix());
+		}
 	};
 
 	struct Text
@@ -79,39 +104,6 @@ namespace Components
 		operator const char* () const { return Content.c_str(); }
 		Components::Text& operator=(const std::string_view newText) { Content = newText; }
 	};
-
-	/*
-	struct NativeScript
-	{
-		using ScriptInstanceType = std::unique_ptr<ScriptableEntity>;
-
-		std::vector<ScriptInstanceType> vec;
-
-		ScriptInstanceType Instance;
-		bool Active = true;
-
-		std::function<ScriptInstanceType()> Instantiate;
-		std::function<void()> DestroyScript;
-
-		NativeScript() = default;
-		NativeScript(NativeScript&& other) noexcept = default;
-		NativeScript& operator=(NativeScript&&) noexcept = default;
-		~NativeScript();
-		//NativeScript(std::function<ScriptInstanceType()> instantiate) : Instantiate(std::move(instantiate)) {}
-		//NativeScript(ScriptInstanceType ptr) : Instance{ std::move(ptr) } {}
-
-		// Passing arguments to script's constructors is an experimental feature.
-		// It should be avoided in general. If script needs some data, then it should
-		// use Canvas API to get it fot itself.
-		template<typename T, typename ... Args>
-		void Bind(Args&&... args)
-		{
-			// C++20 feature
-			Instantiate = [...args = std::forward<Args>(args)]() mutable { return std::make_unique<T>(std::move(args)...);  };
-			DestroyScript = [this]() { Instance.reset(); };
-			//vec.push_back(std::make_unique<T>(std::move(args)...));
-		}
-	};*/
 
 	struct NativeScript
 	{
@@ -157,7 +149,6 @@ namespace Components
 	};
 
 	// TODO: FocusArea for rotated rects is not supported!
-	// TODO: Instead of Rectangle add: Vector2 origin (relative to Transform) + float width + float height
 	struct Focusable
 	{
 		Vector2 Origin = { 0.0f, 0.0f };
@@ -166,12 +157,11 @@ namespace Components
 
 		Vector2 GetBegin(const Transform& transform) const
 		{
-			return Vector2Rotate(Vector2Add(transform.Translation, Origin), transform.Rotation);
+			return Vector2Add(transform.Translation, Origin);
 		}
 		Vector2 GetEnd(const Transform& transform) const
 		{
-			Vector2 begin = Vector2Add(transform.Translation, Origin);
-			return Vector2Rotate(Vector2Add(begin, Size), transform.Rotation);
+			return Vector2Add(GetBegin(transform), Size);
 		}
 
 		// WARNING: Rotation is not taken into account!!!
@@ -185,7 +175,5 @@ namespace Components
 
 			return { minX, minY, std::fabs(end.x - begin.x), std::fabs(end.y - begin.y) };
 		}
-
-		//Rectangle FocusArea = { 0 };
 	};
 }

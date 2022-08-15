@@ -66,7 +66,7 @@ ImageEntity& ImageEntity::Build(Vector2 pos, uint8_t* data, int width, int heigh
 
 Rectangle ImageEntity::AsRectangle()
 {
-	Vector2 position = GetComponent<Components::Transform>();
+	Vector2 position = GetComponent<Components::Transform>().Translation;
 	Texture2D texture = GetComponent<Components::Sprite>();
 	return Rectangle{ position.x, position.y, (float)texture.width, (float)texture.height };
 }

@@ -35,12 +35,5 @@ void MoveByDragScript::OnUpdate()
 void MoveByDragScript::MoveBy(Vector2 positionChange)
 {
 	auto& transform = GetComponent<Components::Transform>();
-	transform.Translation = Vector2Add(transform, positionChange);
-
-	//auto& focus = GetComponent<Components::Focusable>();
-	//Vector2 focusAreaPosition = { focus.FocusArea.x, focus.FocusArea.y };
-
-	//focusAreaPosition = Vector2Add(focusAreaPosition, positionChange);
-	//focus.FocusArea.x = focusAreaPosition.x;
-	//focus.FocusArea.y = focusAreaPosition.y;
+	transform.Translation = Vector2Add(transform.Translation, positionChange);
 }

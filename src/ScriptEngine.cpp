@@ -16,9 +16,6 @@ void ScriptEngine::OnScriptsUpdate()
 	auto view = m_Canvas.GetAllEntitiesWith<Components::NativeScript>();
 	for (auto [entity, scripts] : view.each())
 	{
-		// TODO: Active script
-		//if (!script.Active)
-		//	continue;
 		for (auto& script : scripts.Instances)
 		{
 			if (!script)
