@@ -49,8 +49,9 @@ ImageEntity::ImageEntity(const Entity& entity)
 {
 	AddComponent<Components::Sprite>();
 	AddComponent<Components::Focusable>();
-	AddComponent<Components::NativeScript>().Bind<::Script>(*this);
-	GetComponent<Components::NativeScript>().Bind<MoveByDragScript>();
+	
+	AttachScript<::Script>(*this);
+	AttachScript<MoveByDragScript>();
 }
 
 ImageEntity& ImageEntity::Build(Vector2 pos, uint8_t* data, int width, int height)

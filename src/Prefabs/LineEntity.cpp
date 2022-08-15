@@ -68,9 +68,9 @@ LineEntity::LineEntity(const Entity& entity)
 	AddComponent<Components::LineSegment>();
 	AddComponent<Components::Arrowhead>();
 	AddComponent<Components::Focusable>();
-	// TODO: Add ability to attach multiple scripts
-	AddComponent<Components::NativeScript>().Bind<::Script>();
-	GetComponent<Components::NativeScript>().Bind<MoveByDragScript>();
+
+	AttachScript<::Script>();
+	AttachScript<MoveByDragScript>();
 }
 
 

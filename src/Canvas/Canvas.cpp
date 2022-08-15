@@ -51,18 +51,6 @@ void Canvas::Draw()
 			return lhs.Index < rhs.Index;
 		}, entt::insertion_sort{}); // Insertion sort is O(n) for nearly sorted arrays
 
-		// Draw text
-		{
-			auto viewText = m_Registry.view<Components::Transform, Components::Text>();
-			for (auto [entity, transform, text] : viewText.each())
-			{
-				const auto& position = transform.Translation;
-				Font font = GetFontDefault();
-				float spacing = text.Size / 10.0f;
-				DrawTextEx(font, text, position, text.Size, spacing, text.FontColor);
-			}
-		}
-
 		// Draw sprites (order_by TrasnformComponent)
 		{
 			auto viewTexture = m_Registry.view<Components::Transform, Components::Sprite>().use<Components::Transform>();
@@ -97,6 +85,18 @@ void Canvas::Draw()
 				tip3 = Vector2Transform(tip3, transform.GetTransformMatrix());
 
 				DrawTriangle(tip1, tip2, tip3, ORANGE);
+			}
+		}
+
+		// Draw text
+		{
+			auto viewText = m_Registry.view<Components::Transform, Components::Text>();
+			for (auto [entity, transform, text] : viewText.each())
+			{
+				const auto& position = transform.Translation;
+				Font font = GetFontDefault();
+				float spacing = text.Size / 10.0f;
+				DrawTextEx(font, text, position, text.Size, spacing, text.FontColor);
 			}
 		}
 

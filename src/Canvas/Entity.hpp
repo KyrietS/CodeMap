@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include "entt.hpp"
 #include "Canvas.hpp"
+#include "Components.hpp"
 
 
 class Entity
@@ -24,6 +25,19 @@ public:
 		assert(!HasComponent<T>());
 		T& component = m_Canvas->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
 		return component;
+	}
+
+	template<typename T, typename... Args>
+	void AttachScript(Args&&... args)
+	{
+		if (HasComponent<Components::NativeScript>())
+		{
+			GetComponent<Components::NativeScript>().Bind<T>(std::forward<Args>(args)...);
+		}
+		else
+		{
+			AddComponent<Components::NativeScript>().Bind<T>(std::forward<Args>(args)...);
+		}
 	}
 
 	template<typename T, typename... Args>
