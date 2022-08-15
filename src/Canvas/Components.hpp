@@ -91,12 +91,13 @@ namespace Components
 
 	struct Text
 	{
-		std::string Content;
-		float Size;
-		float Spacing;
-		Color FontColor;
-		Font Font;
+		std::string Content = "";
+		float Size = 0.0f;
+		float Spacing = 0.0f;
+		Color FontColor = { 0 };
+		Font Font = { 0 };
 
+		Text() = default;
 		Text(const Components::Text&) = default;
 		Text(const std::string_view text, float size, const Color& color)
 			: Content(text), Size(size), Spacing(size / 10.0f), FontColor(color), Font(GetFontDefault()) {}

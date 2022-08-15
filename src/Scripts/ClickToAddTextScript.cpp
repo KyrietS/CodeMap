@@ -1,10 +1,8 @@
 #include "pch.hpp"
 #include "ClickToAddTextScript.hpp"
-#include "Scripts/MoveByDragScript.hpp"
-#include "Scripts/CommonCanvasEntityScript.hpp"
 #include "Canvas/Canvas.hpp"
-#include "Canvas/Components.hpp"
 #include "Input.hpp"
+#include "Prefabs/TextEntity.hpp"
 
 
 void ClickToAddTextScript::OnUpdate()
@@ -18,16 +16,7 @@ void ClickToAddTextScript::OnUpdate()
 
 		// Double-click
 		if (diff_ms > 10 && diff_ms < 200) {
-			Vector2 textPos = Input::GetWorldMousePosition();
-			Entity textEntity = Canvas::Get().CreateEntity(textPos);
-			auto& text = textEntity.AddComponent<Components::Text>("Some Text", 20.0f, BLUE);
-
-			auto& focus = textEntity.AddComponent<Components::Focusable>();
-			focus.Size = MeasureTextEx(text.Font, text.Content.c_str(), text.Size, text.Spacing);
-			focus.IsFocused = true;
-
-			textEntity.AttachScript<MoveByDragScript>();
-			textEntity.AttachScript<CommonCanvasEntityScript>();
+			TextEntity(Canvas::Get().CreateEntity(Input::GetWorldMousePosition())).Build("Some text");
 		}
 
 	}

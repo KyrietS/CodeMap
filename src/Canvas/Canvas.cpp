@@ -158,8 +158,6 @@ Entity Canvas::CreateEntity(Vector2 initialPosition)
 
 	s_LastIndex += 1;
 
-	print("index = {}", s_LastIndex);
-
 	return entity;
 }
 
