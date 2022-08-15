@@ -17,9 +17,11 @@ void SelectionScript::OnUpdate()
 		{
 			if (!entity.HasComponent<Components::Focusable>())
 				continue;
+			auto& transform = entity.GetComponent<Components::Transform>();
 			auto& focusable = entity.GetComponent<Components::Focusable>();
 			Vector2 worldPos = Input::GetWorldMousePosition();
-			if (CheckCollisionPointRec(worldPos, focusable.FocusArea))
+			// TODO: Rotation is not taken into account!
+			if (CheckCollisionPointRec(worldPos, focusable.AsRectangle(transform)))
 			{
 				focusable.IsFocused = true;
 				break;

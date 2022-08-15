@@ -78,7 +78,6 @@ void CanvasViewControlScript::ZoomCamera(float zoomChange)
 
 void CanvasViewControlScript::AdjustFilterToZoomLevel(float zoom, Texture2D& texture)
 {
-	std::cout << "zoom = " << zoom << std::endl;
 	if (zoom < 1.0f)
 		SetTextureFilter(texture, TEXTURE_FILTER_BILINEAR);
 	else

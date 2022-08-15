@@ -2,6 +2,7 @@
 #include "ScriptEngine.hpp"
 #include "Canvas/Canvas.hpp"
 #include "Canvas/Components.hpp"
+#include "Canvas/ScriptableEntity.hpp"
 
 
 ScriptEngine::ScriptEngine(Canvas& canvas)
@@ -13,17 +14,20 @@ ScriptEngine::ScriptEngine(Canvas& canvas)
 void ScriptEngine::OnScriptsUpdate()
 {
 	auto view = m_Canvas.GetAllEntitiesWith<Components::NativeScript>();
-	for (auto [entity, script] : view.each())
+	for (auto [entity, scripts] : view.each())
 	{
-		if (!script.Active)
-			continue;
-		if (!script.Instance)
+		// TODO: Active script
+		//if (!script.Active)
+		//	continue;
+		for (auto& script : scripts.Instances)
 		{
-			script.Instance = script.Instantiate();
-			print("Instantiating script: {}", typeid(*(script.Instance)).name());
-			script.Instance->m_Entity = { entity, &m_Canvas };
-			script.Instance->OnCreate();
+			if (!script)
+			{
+				script.m_Instance = script.Instantiate();
+				script.m_Instance->m_Entity = { entity, &m_Canvas };
+				script->OnCreate();
+			}
+			script->OnUpdate();
 		}
-		script.Instance->OnUpdate();
 	}
 }

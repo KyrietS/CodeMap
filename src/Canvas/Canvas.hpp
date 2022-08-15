@@ -41,11 +41,14 @@ private:
 	void DrawGui();
 
 private:
+
+
 	entt::registry m_Registry;
 	CanvasProps m_Props;
-	//Camera2D m_Camera;
 	CanvasCamera m_Camera;
 	std::list<entt::entity> m_ToBeRemoved;
+
+	bool m_DebugMode = true;
 
 	static Canvas* m_PrimaryInstance;
 

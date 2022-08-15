@@ -12,5 +12,6 @@ class Input
 public:
 	static Vector2 GetScreenMousePosition();
 	static Vector2 GetWorldMousePosition();
+	static Vector2 GetWorldMousePositionRelativeTo(Vector2 origin);
 };
 

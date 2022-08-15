@@ -2,6 +2,7 @@
 #include "ImageEntity.hpp"
 #include "Canvas/Components.hpp"
 #include "Canvas/Canvas.hpp"
+#include "Scripts/MoveByDragScript.hpp"
 #include "Input.hpp"
 
 
@@ -19,20 +20,6 @@ namespace
 		void OnUpdate() override
 		{
 			auto isFocused = GetComponent<Components::Focusable>().IsFocused;
-			Vector2 worldPos = Input::GetWorldMousePosition();
-			if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && isFocused
-				&& (m_CurrentlyMoving || CheckCollisionPointRec(worldPos, m_Entity.AsRectangle())))
-			{
-				m_CurrentlyMoving = true;
-				// Scale screen distance to world distance
-				Vector2 delta = Vector2Scale(GetMouseDelta(), 1.0f / Canvas::Camera().GetZoom());
-				MoveBy(delta);
-			}
-
-			if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
-			{
-				m_CurrentlyMoving = false;
-			}
 
 			if (isFocused && IsKeyPressed(KEY_PAGE_UP))
 			{
@@ -46,15 +33,6 @@ namespace
 			{
 				m_Entity.Destroy();
 			}
-		}
-
-		void MoveBy(Vector2 positionChange)
-		{
-			Components::Transform& transform = m_Entity.GetComponent<Components::Transform>();
-			transform.Translation = Vector2Add(transform, positionChange);
-
-			Components::Focusable& focus = m_Entity.GetComponent<Components::Focusable>();
-			focus.FocusArea = m_Entity.AsRectangle();
 		}
 
 		void OnDestroy() override
@@ -72,6 +50,7 @@ ImageEntity::ImageEntity(const Entity& entity)
 	AddComponent<Components::Sprite>();
 	AddComponent<Components::Focusable>();
 	AddComponent<Components::NativeScript>().Bind<::Script>(*this);
+	GetComponent<Components::NativeScript>().Bind<MoveByDragScript>();
 }
 
 ImageEntity& ImageEntity::Build(Vector2 pos, uint8_t* data, int width, int height)
@@ -80,7 +59,7 @@ ImageEntity& ImageEntity::Build(Vector2 pos, uint8_t* data, int width, int heigh
 	// TODO: Is it a good idea to unload the texture in script's OnDestroy?
 	Texture().Texture = LoadTextureFromImage(image);
 	Transform().Translation = pos;
-	Focusable().FocusArea = AsRectangle();
+	Focusable().Size = { (float)image.width, (float)image.height };
 	UnloadImage(image);
 	return *this;
 }

@@ -2,12 +2,17 @@
 
 #include "raylib.h"
 #include "raymath.h"
-#include "ScriptableEntity.hpp"
+//#include "ScriptableEntity.hpp"
 #include "Utils/Print.hpp"
+
+
+class ScriptableEntity;
 
 
 namespace Components
 {
+	// TODO: Use Matrix with helper functions instead of Translation + Rotation
+	// TODO: Add helper function for getting Matrix
 	struct Transform
 	{
 		Vector2 Translation = { 0.0f, 0.0f };
@@ -42,6 +47,22 @@ namespace Components
 		operator Texture2D& () { return Texture; }
 	};
 
+	struct Arrow
+	{
+		Vector2 Origin = { 0.0f, 0.0f };
+		Vector2 End = { 0.0f, 0.0f };
+		Color FillColor = BLACK;
+		float Thickness = 1.0f;
+
+		enum Arrowhead
+		{
+			None, Sharp
+		};
+
+		Arrowhead BeginHead = Arrowhead::None;
+		Arrowhead EndHead = Arrowhead::None;
+	};
+
 	struct Text
 	{
 		std::string Content;
@@ -59,9 +80,12 @@ namespace Components
 		Components::Text& operator=(const std::string_view newText) { Content = newText; }
 	};
 
+	/*
 	struct NativeScript
 	{
 		using ScriptInstanceType = std::unique_ptr<ScriptableEntity>;
+
+		std::vector<ScriptInstanceType> vec;
 
 		ScriptInstanceType Instance;
 		bool Active = true;
@@ -70,8 +94,11 @@ namespace Components
 		std::function<void()> DestroyScript;
 
 		NativeScript() = default;
-		NativeScript(std::function<ScriptInstanceType()> instantiate) : Instantiate(std::move(instantiate)) {}
-		NativeScript(ScriptInstanceType ptr) : Instance{ std::move(ptr) } {}
+		NativeScript(NativeScript&& other) noexcept = default;
+		NativeScript& operator=(NativeScript&&) noexcept = default;
+		~NativeScript();
+		//NativeScript(std::function<ScriptInstanceType()> instantiate) : Instantiate(std::move(instantiate)) {}
+		//NativeScript(ScriptInstanceType ptr) : Instance{ std::move(ptr) } {}
 
 		// Passing arguments to script's constructors is an experimental feature.
 		// It should be avoided in general. If script needs some data, then it should
@@ -82,13 +109,83 @@ namespace Components
 			// C++20 feature
 			Instantiate = [...args = std::forward<Args>(args)]() mutable { return std::make_unique<T>(std::move(args)...);  };
 			DestroyScript = [this]() { Instance.reset(); };
+			//vec.push_back(std::make_unique<T>(std::move(args)...));
 		}
+	};*/
+
+	struct NativeScript
+	{
+		NativeScript() = default;
+		NativeScript(NativeScript&& other) noexcept = default;
+		NativeScript& operator=(NativeScript&&) noexcept = default;
+
+
+		struct Instance
+		{
+			using ScriptInstanceType = std::unique_ptr<ScriptableEntity>;
+
+			std::function<ScriptInstanceType()> Instantiate;
+
+			Instance() = default;
+			Instance(Instance&& other) noexcept = default;
+			Instance& operator=(Instance&&) noexcept = default;
+			~Instance(); // must be defined in different compilation unit
+
+			operator bool() { return m_Instance != nullptr; }
+			ScriptableEntity& operator*() { return *m_Instance; }
+			ScriptableEntity* operator->() { return &(* m_Instance); }
+
+		private:
+			ScriptInstanceType m_Instance;
+
+			friend class ScriptEngine;
+		};
+
+		std::vector<Instance> Instances;
+
+		template<typename T, typename ... Args>
+		void Bind(Args&&... args)
+		{
+			// C++20 feature
+			auto Instantiate = [...args = std::forward<Args>(args)]() mutable { return std::make_unique<T>(std::move(args)...);  };
+			Instance instance;
+			instance.Instantiate = std::move(Instantiate);
+
+			Instances.push_back(std::move(instance));
+		}
+
 	};
 
 	// TODO: FocusArea for rotated rects is not supported!
+	// TODO: Instead of Rectangle add: Vector2 origin (relative to Transform) + float width + float height
 	struct Focusable
 	{
+		Vector2 Origin = { 0.0f, 0.0f };
+		Vector2 Size = { 0.0f, 0.0f };
 		bool IsFocused = false;
-		Rectangle FocusArea = { 0 };
+
+		Vector2 GetBegin(const Transform& transform) const
+		{
+			return Vector2Rotate(Vector2Add(transform.Translation, Origin), transform.Rotation);
+		}
+		Vector2 GetEnd(const Transform& transform) const
+		{
+			Vector2 begin = Vector2Add(transform.Translation, Origin);
+			return Vector2Rotate(Vector2Add(begin, Size), transform.Rotation);
+		}
+
+		// WARNING: Rotation is not taken into account!!!
+		Rectangle AsRectangle(const Transform& transform) const
+		{
+			Vector2 begin = GetBegin(transform);
+			Vector2 end = GetEnd(transform);
+
+			float minX = std::min(begin.x, end.x);
+			float minY = std::min(begin.y, end.y);
+
+			return { minX, minY, std::fabs(end.x - begin.x), std::fabs(end.y - begin.y) };
+		}
+
+		//Rectangle FocusArea = { 0 };
 	};
 }

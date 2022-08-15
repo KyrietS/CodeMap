@@ -1,5 +1,7 @@
 #include "pch.hpp"
 #include "CanvasCamera.hpp"
+#include "raymath.h"
+
 
 CanvasCamera::CanvasCamera()
 {
@@ -18,11 +20,6 @@ Vector2 CanvasCamera::GetWorldToScreen(Vector2 worldTarget)
 {
 	return GetWorldToScreen2D(worldTarget, m_Camera);
 }
-
-//Vector2 CanvasCamera::GetWorldMousePosition()
-//{
-//	return GetScreenToWorld(GetMousePosition());
-//}
 
 void CanvasCamera::CenterAtScreen(Vector2 screenTarget)
 {

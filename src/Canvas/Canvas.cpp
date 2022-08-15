@@ -7,6 +7,7 @@
 #include "Components.hpp"
 #include "Entity.hpp"
 #include "Prefabs/ImageEntity.hpp"
+#include "Prefabs/LineEntity.hpp"
 #include "Utils/Print.hpp"
 #include "Scripts/ClickToAddTextScript.hpp"
 #include "Scripts/SelectionScript.hpp"
@@ -62,7 +63,6 @@ void Canvas::Draw()
 			}
 		}
 
-
 		// Draw sprites (order_by TrasnformComponent)
 		{
 			auto viewTexture = m_Registry.view<Components::Transform, Components::Sprite>().use<Components::Transform>();
@@ -72,15 +72,53 @@ void Canvas::Draw()
 			}
 		}
 
-		// Draw selection rects
+		// Draw arrows
 		{
-			auto viewFocus = m_Registry.view<Components::Focusable>();
-			for (auto [entity, focusable] : viewFocus.each())
+			auto viewLines = m_Registry.view<Components::Transform, Components::Arrow>().use<Components::Transform>();
+			for (auto [entity, transform, arrow] : viewLines.each())
 			{
+				Vector2 transform = m_Registry.get<Components::Transform>(entity).GetTransform();
+				Vector2 begin = Vector2Add(transform, arrow.Origin);
+				Vector2 end = Vector2Add(begin, arrow.End);
+				DrawLineEx(begin, end, arrow.Thickness, arrow.FillColor);
+
+				
+				if (arrow.EndHead != Components::Arrow::None)
+				{
+					// TODO: This arrowhead should be a separate component!
+					float angle = Vector2Angle({ 1.0f, 0.0f }, arrow.End);
+					float distance = Vector2Distance(begin, end);
+					const int ARROW_SIZE = 40;
+					Vector2 tip{ distance, 0.0f };
+					Vector2 tip2{ distance - ARROW_SIZE, -ARROW_SIZE / 2.0f };
+					Vector2 tip3{ distance - ARROW_SIZE, +ARROW_SIZE / 2.0f };
+
+					Vector2 rotatedTip = Vector2Add(begin, Vector2Rotate(tip, angle));
+					Vector2 rotatedTip2 = Vector2Add(begin, Vector2Rotate(tip2, angle));
+					Vector2 rotatedTip3 = Vector2Add(begin, Vector2Rotate(tip3, angle));
+
+					DrawTriangle(rotatedTip, rotatedTip2, rotatedTip3, ORANGE);
+					//DrawCircleV(rotatedTip, 15.0f, ORANGE);
+
+					//DrawTriangle()
+				}
+				
+			}
+		}
+
+		// Draw selection rects
+		if (m_DebugMode)
+		{
+			auto viewFocus = m_Registry.view<Components::Transform, Components::Focusable>();
+			for (auto [entity, transform, focusable] : viewFocus.each())
+			{
+				// TODO: This will not work with rotations:
+				const Rectangle rect = focusable.AsRectangle(transform);
+
 				if (focusable.IsFocused)
-					DrawRectangleLinesEx(focusable.FocusArea, 2.0f, BLUE);
-				else
-					DrawRectangleLinesEx(focusable.FocusArea, 1.0f, RED);
+					DrawRectangleLinesEx(rect, 2.0f, BLUE);
+				else // this is debug line. It should always be 1px thick
+					DrawRectangleLinesEx(rect, 1.0f / m_Camera.GetZoom(), RED);
 			}
 		}
 	}
@@ -96,25 +134,18 @@ void Canvas::Draw()
 
 void Canvas::OnUpdate()
 {
-	// Move it to some kinf ScriptEngine.
-	// Waste of time to check this if every frame.
-	//auto view = m_Registry.view<Components::NativeScript>();
-	//for (auto [entity, script] : view.each())
-	//{
-	//	if (!script.Instance)
-	//	{
-	//		script.Instance = script.Instantiate();
-	//		print("Instantiating script: {}", typeid(*(script.Instance)).name());
-	//		script.Instance->m_Entity = { entity, this };
-	//		script.Instance->OnCreate();
-	//	}
-	//	script.Instance->OnUpdate();
-	//}
-
 	// TODO: This code should go to NativeScript
 	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_V))
 	{
 		HandlePasteImage();
+	}
+	if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+	{
+		LineEntity(CreateEntity(Input::GetWorldMousePosition())).Build({0.0f, 0.0f});
+	}
+	if (IsKeyPressed(KEY_TAB))
+	{
+		m_DebugMode = !m_DebugMode;
 	}
 
 	// Remove entities scheduled for removal from scripts.
@@ -166,7 +197,12 @@ void Canvas::ScheduleEntityForDestruction(const entt::entity entity)
 	assert(m_Registry.valid(entity));
 	if (m_Registry.all_of<Components::NativeScript>(entity))
 	{
-		m_Registry.get<Components::NativeScript>(entity).Instance->OnDestroy();
+		auto& scripts = m_Registry.get<Components::NativeScript>(entity);
+		for (auto& script : scripts.Instances)
+		{
+			if (script)
+				script->OnDestroy();
+		}
 	}
 
 	// Schedule the removal so the script can remove itself.
