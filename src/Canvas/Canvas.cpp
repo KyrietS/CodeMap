@@ -93,9 +93,7 @@ void Canvas::Draw()
 			{
 				auto& text = entity.GetComponent<Components::Text>();
 				const auto& position = transform.Translation;
-				Font font = GetFontDefault();
-				float spacing = text.Size / 10.0f;
-				DrawTextEx(font, text, position, text.Size, spacing, text.FontColor);
+				DrawTextEx(text.Font, text, position, text.Size, text.Spacing, text.FontColor);
 			}
 		}
 
