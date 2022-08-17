@@ -1,0 +1,9 @@
+[submodule "lib/reasings"]
+	path = lib/reasings
+	url = git@github.com:raylib-extras/reasings.git
+[submodule "lib/clip"]
+	path = lib/clip
+	url = git@github.com:dacap/clip.git
+[submodule "lib/raylib"]
+	path = lib/raylib
+	url = git@github.com:raysan5/raylib.git
