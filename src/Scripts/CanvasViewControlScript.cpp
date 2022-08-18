@@ -5,10 +5,15 @@
 
 void CanvasViewControlScript::OnUpdate()
 {
-	float zoomChange = GetMouseWheelMove();
-	if (zoomChange != 0)
+	Vector2 wheelMove = GetMouseWheelMoveV();
+	if (wheelMove.y != 0)
 	{
-		ZoomCamera(zoomChange);
+		ZoomCamera(wheelMove.y);
+	}
+	if (wheelMove.x != 0)
+	{
+		Vector2 moveDelta = { wheelMove.x * 30.0f, 0.0f };
+		m_Camera.MoveOnScreenBy(moveDelta);
 	}
 
 	// Aerial view
