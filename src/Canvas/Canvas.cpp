@@ -8,11 +8,9 @@
 #include "Entity.hpp"
 #include "Prefabs/ImageEntity.hpp"
 #include "Prefabs/LineEntity.hpp"
-#include "Utils/Print.hpp"
 #include "Scripts/ClickToAddTextScript.hpp"
 #include "Scripts/SelectionScript.hpp"
 #include "Scripts/CanvasViewControlScript.hpp"
-#include "Utils/Print.hpp"
 #include "Input.hpp"
 
 
@@ -171,7 +169,7 @@ void TransformFromBgraToRgba(uint8_t* data, int size)
 Entity Canvas::CreateVoidEntity()
 {
 	Entity entity = { m_Registry.create(), this };
-	print("CREATED ENTITY id={}", (int)(entt::entity)entity);
+	LOG_DEBUG("Created entity id={}", (int)(entt::entity)entity);
 
 	return entity;
 }
@@ -181,7 +179,7 @@ void Canvas::HandlePasteImage()
 	clip::image clipboardImage;
 	if (!clip::get_image(clipboardImage))
 	{
-		return TraceLog(LOG_WARNING, "CLIPBOARD: Failed to paste an image from clipboard");
+		return LOG_WARN("CLIPBOARD: Failed to paste an image from clipboard");
 	}
 
 	clip::image_spec imageSpec = clipboardImage.spec();

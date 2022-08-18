@@ -2,7 +2,6 @@
 
 #include "raylib.h"
 #include "raymath.h"
-#include "Utils/Print.hpp"
 
 
 class ScriptableEntity;
@@ -22,7 +21,7 @@ namespace Components
 
 		Transform(const Vector2& translation, float rotation = 0.0f, int index = 0)
 			: Translation(translation), Rotation(rotation), Index(index) {}
-		~Transform() { print("Transform component destroyed"); }
+		~Transform() { LOG_DEBUG("Transform component destroyed"); }
 		operator Matrix () { return GetTransformMatrix(); }
 
 		Matrix GetTransformMatrix() const
@@ -50,7 +49,7 @@ namespace Components
 		Sprite(const Components::Sprite&) = default;
 		Sprite(Texture2D texture, Color tint = WHITE)
 			: Texture(texture), Tint(tint) {}
-		~Sprite() { print("Sprite component destroyed"); }
+		~Sprite() { LOG_DEBUG("Sprite component destroyed"); }
 
 		operator Texture2D& () { return Texture; }
 	};

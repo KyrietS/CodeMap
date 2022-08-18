@@ -69,7 +69,7 @@ Image ImageEntity::LoadImageFromRgba(uint8_t* data, int width, int height)
 	image.data = RL_MALLOC(size);
 	if (image.data == nullptr)
 	{
-		TraceLog(LOG_ERROR, "IMAGE: Cannot alocate memory for image");
+		LOG_ERROR("IMAGE: Cannot alocate memory for image");
 		return image;
 	}
 	memcpy(image.data, data, size);

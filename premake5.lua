@@ -9,10 +9,12 @@ workspace "CodeMap"
 	filter "configurations:Debug"
 		runtime "Debug"
 		symbols "On"
+        defines {"SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE"}
 
 	filter "configurations:Release"
 		runtime "Release"
 		optimize "On"	
+        defines {"SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_WARN"}
 
 	filter {}
 
@@ -36,7 +38,8 @@ workspace "CodeMap"
 			"lib/raylib/src",
 			"lib/clip/",
 			"lib/entt/include",
-            "lib/reasings/src"
+            "lib/reasings/src",
+            "lib/spdlog/include"
 		}
 		files {"src/**.cpp", "src/**.hpp"}
 
@@ -48,7 +51,13 @@ workspace "CodeMap"
 		libdirs {"build/bin/%{cfg.buildcfg}"}
 		
 		filter "action:vs*"
-			defines{"_WINSOCK_DEPRECATED_NO_WARNINGS", "_CRT_SECURE_NO_WARNINGS", "_WIN32"}
+			defines
+			{
+				"_WINSOCK_DEPRECATED_NO_WARNINGS", 
+				"_CRT_SECURE_NO_WARNINGS",
+				"_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING"
+			}
+
 			links 
 			{
 				"raylib.lib", "opengl32.lib", "kernel32.lib", 

@@ -4,12 +4,16 @@
 #include "Canvas/Canvas.hpp"
 #include "rlgl.h"
 
+
 App* App::m_Instance = nullptr;
 
 App::App(const AppConfig& appConfig) : m_AppConfig{appConfig}
 {
+	Logger::Init();
+
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(m_AppConfig.WindowWidth, m_AppConfig.WindowHeight, m_AppConfig.Name.c_str());
+	SetExitKey(KEY_NULL);
 	SetTargetFPS(60);
 	m_Instance = this;
 	m_Canvas = std::make_unique<Canvas>();
@@ -18,6 +22,7 @@ App::App(const AppConfig& appConfig) : m_AppConfig{appConfig}
 
 void App::Run()
 {
+	LOG_INFO("App started");
 	while (IsRunning())
 	{
 		m_ScriptEngine->OnScriptsUpdate();
@@ -25,6 +30,7 @@ void App::Run()
 		m_Canvas->Draw();
 	}
 
+	LOG_INFO("App stopped");
 	CloseWindow();
 }
 

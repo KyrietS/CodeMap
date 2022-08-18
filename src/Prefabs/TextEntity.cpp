@@ -39,14 +39,14 @@ namespace
 				auto& content = text.Content;
 				while (int character = GetCharPressed())
 				{
-					print("Char code = {}", character);
+					LOG_DEBUG("Char code = {}", character);
 					content += (char)character;
 				}
 				if (IsKeyPressed(KEY_ENTER)) content += '\n';
 
 				while (int keyCode = GetKeyPressed())
 				{
-					print("Key code = {}", keyCode);
+					LOG_DEBUG("Key code = {}", keyCode);
 					if (keyCode == KEY_BACKSPACE)
 					{
 						content = content.substr(0, content.size() - 1);

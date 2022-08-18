@@ -44,7 +44,7 @@ float Animation::ExecuteEaseFuncion()
 	case EasingType::ElasticInOut: return EaseElasticInOut(m_CurrentTime, m_Start, change, m_Duration);
 	// Should never occur
 	default: 
-		TraceLog(LOG_ERROR, "Unknown EasingType. Using Linear instead");
+		LOG_ERROR("Unknown EasingType. Using Linear instead");
 		return EaseLinearNone(m_CurrentTime, m_Start, change, m_Duration);
 	}
 }

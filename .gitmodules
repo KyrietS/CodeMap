@@ -7,3 +7,6 @@
 [submodule "lib/raylib"]
 	path = lib/raylib
 	url = git@github.com:raysan5/raylib.git
+[submodule "lib/spdlog"]
+	path = lib/spdlog
+	url = git@github.com:gabime/spdlog.git

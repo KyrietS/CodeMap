@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef _WIN32
+	#define NOMINMAX
+#endif
+
 #include <iostream>
 
 #include <list>
@@ -15,3 +19,5 @@
 #include <cstdint>
 #include <cmath>
 #include <cassert>
+
+#include "Logger.hpp"
