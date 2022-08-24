@@ -7,5 +7,5 @@ class TextEntity : public Entity
 {
 public:
 	TextEntity(const Entity& entity);
-	TextEntity& Build(const std::string_view text, float fontSize = 20.0f);
+	TextEntity& Build(const std::string_view text, float fontSize = 32.0f);
 };

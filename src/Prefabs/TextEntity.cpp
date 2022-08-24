@@ -3,10 +3,11 @@
 #include "Canvas/Components.hpp"
 #include "Scripts/MoveByDragScript.hpp"
 #include "Scripts/CommonCanvasEntityScript.hpp"
+#include "Utils/Strings.hpp"
+#include "Utils/System.hpp"
+#include "Input.hpp"
 
 #include "raylib.h"
-#include "external/glfw/include/GLFW/glfw3.h"
-
 
 namespace
 {
@@ -24,7 +25,7 @@ namespace
 
 		// void OnCreate() override
 		// {
-		// 	GLFWwindow* glfwWindow = glfwGetCurrentContext();
+		//  GLFWwindow* glfwWindow = glfwGetCurrentContext();
 		// 	glfwSetKeyCallback(glfwWindow, MyCallback);
 		// 	print("Registered new KeyCallback in glfw");
 		// }
@@ -36,35 +37,33 @@ namespace
 
 			if (focus.IsFocused)
 			{
-				auto& content = text.Content;
-				while (int character = GetCharPressed())
-				{
-					LOG_DEBUG("Char code = {}", character);
-					content += (char)character;
-				}
-				if (IsKeyPressed(KEY_ENTER)) content += '\n';
+				Input::BeginTextMode();
+				m_IsTextModeActive = true;
 
-				while (int keyCode = GetKeyPressed())
+				auto& content = text.Content;
+				while (char32_t character = Input::GetChar())
+				{
+					content += Utils::Strings::ToUtf8(character);
+				}
+				while (KeyCode keyCode = Input::GetKey())
 				{
 					LOG_DEBUG("Key code = {}", keyCode);
-					if (keyCode == KEY_BACKSPACE)
-					{
+					if (keyCode == Key::Backspace)
 						content = content.substr(0, content.size() - 1);
-					}
+					if (keyCode == Key::Enter)
+						content += '\n';
 				}
-
-				// Holding backspace doesn't work :-/
-				// It's gonna be difficult to overcome with raylib
-				if (IsKeyPressed(KEY_BACKSPACE))
-				{
-					content = content.substr(0, content.size() - 1);
-				}
+			}
+			else if (m_IsTextModeActive)
+			{
+				Input::EndTextMode();
+				m_IsTextModeActive = false;
 			}
 
 			focus.Size = MeasureTextEx(text.Font, text, text.Size, text.Spacing);
 		}
 
-
+		bool m_IsTextModeActive = false;
 	};
 }
 
@@ -85,6 +84,18 @@ TextEntity& TextEntity::Build(const std::string_view content, float fontSize)
 	auto& text = GetComponent<Components::Text>();
 	text = Components::Text(content, fontSize, BLACK);
 	text.Spacing = 1.0f;
+
+	// The last polish Unicode character is 380
+	std::array<int, 381> glyphs;
+	for (int i = 0; i < glyphs.size(); i++)
+	{
+		glyphs[i] = i;
+	}
+
+	// TODO: Load one font the entire program. Loading it for every text is a huge memory waste.
+	std::string fontPath = Utils::System::GetSystemFontDirPath() + "\\calibri.ttf";
+	text.Font = LoadFontEx(fontPath.c_str(), 64, glyphs.data(), (int)glyphs.size());
+	SetTextureFilter(text.Font.texture, TEXTURE_FILTER_BILINEAR);
 
 	auto& focus = GetComponent<Components::Focusable>();
 	focus.Size = MeasureTextEx(text.Font, text.Content.c_str(), text.Size, text.Spacing);

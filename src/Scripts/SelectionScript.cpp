@@ -4,7 +4,7 @@
 
 void SelectionScript::OnUpdate()
 {
-	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+	if (Input::IsMouseButtonPressed(Mouse::ButtonLeft))
 	{
 		// reset focus
 		for (auto [entity, focusable] : Canvas::GetAllEntitiesWith<Components::Focusable>().each())

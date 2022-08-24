@@ -12,6 +12,7 @@
 #include "Scripts/SelectionScript.hpp"
 #include "Scripts/CanvasViewControlScript.hpp"
 #include "Input.hpp"
+#include "Timer.hpp"
 
 
 Canvas* Canvas::m_PrimaryInstance = nullptr;
@@ -100,7 +101,10 @@ void Canvas::Draw()
 		for (auto [entity, transform, focusable] : viewFocus.each())
 		{
 			// TODO: This will not work with rotations:
-			const Rectangle rect = focusable.AsRectangle(transform);
+			Rectangle rect = focusable.AsRectangle(transform);
+			rect.x -=2;
+			rect.height += 2;
+			rect.width += 4;
 
 			if (focusable.IsFocused)
 				DrawRectangleLinesEx(rect, 2.0f, BLUE);
@@ -117,20 +121,22 @@ void Canvas::Draw()
 	DrawGui();
 	
 	EndDrawing();
+	SwapScreenBuffer();
 }
 
 void Canvas::OnUpdate()
 {
 	// TODO: This code should go to NativeScript
-	if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_V))
+	if (Input::IsKeyDown(Key::LeftControl) && Input::IsKeyPressed(Key::V))
 	{
 		HandlePasteImage();
 	}
-	if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+	if (Input::IsMouseButtonPressed(Mouse::ButtonRight))
 	{
 		LineEntity(CreateEntity(Input::GetWorldMousePosition())).Build({0.0f, 0.0f});
+		LOG_DEBUG("Created LineEntity");
 	}
-	if (IsKeyPressed(KEY_TAB))
+	if (Input::IsKeyPressed(Key::Tab))
 	{
 		m_DebugMode = !m_DebugMode;
 	}
@@ -243,4 +249,7 @@ void Canvas::DrawGui()
 	// Draw zoom level
 	std::string zoomLevelText = "zoom: " + std::to_string(int(m_Camera.GetZoom() * 100)) + "%";
 	DrawText(zoomLevelText.c_str(), 30, GetScreenHeight() - 30, 10, DARKGRAY);
+
+	std::string fps = std::to_string((int)Time::GetFPS()) + " FPS";
+	DrawText(fps.c_str(), 30, GetScreenHeight() - 43, 10, DARKGRAY);
 }

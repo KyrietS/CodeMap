@@ -5,7 +5,7 @@ project "raylib"
     kind "StaticLib"
     warnings "Off"
 
-    defines {"PLATFORM_DESKTOP", "GRAPHICS_API_OPENGL_33"}
+    defines {"PLATFORM_DESKTOP", "GRAPHICS_API_OPENGL_33", "SUPPORT_CUSTOM_FRAME_CONTROL"}
 
     filter "configurations:Debug OR Release"
 

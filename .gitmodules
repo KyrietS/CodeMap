@@ -10,3 +10,6 @@
 [submodule "lib/spdlog"]
 	path = lib/spdlog
 	url = git@github.com:gabime/spdlog.git
+[submodule "lib/utfcpp"]
+	path = lib/utfcpp
+	url = git@github.com:nemtrif/utfcpp.git

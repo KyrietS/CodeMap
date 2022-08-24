@@ -2,6 +2,8 @@
 #include "Animation.hpp"
 #include "raylib.h"
 #include "reasings.h"
+#include "Time.hpp"
+#include "App.hpp"
 
 
 float Animation::ExecuteEaseFuncion()
@@ -51,13 +53,20 @@ float Animation::ExecuteEaseFuncion()
 
 float Animation::Step()
 {
-	float deltaTime = GetFrameTime();
+	double deltaTime = Time::GetFrameTime();
+
 	if (m_CurrentTime + deltaTime > m_Duration)
 		m_Finished = true;
+
 	if (m_Finished)
+	{
 		m_CurrentValue = m_Stop;
+	}
 	else
+	{
 		m_CurrentValue = ExecuteEaseFuncion();
-	m_CurrentTime += deltaTime;
+		App::RequestRedraw();
+	}
+	m_CurrentTime += (float)deltaTime;
 	return m_CurrentValue;
 }

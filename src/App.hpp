@@ -20,6 +20,7 @@ public:
 	Canvas* GetCanvas() { return m_Canvas.get(); }
 
 	static App& Get() { return *m_Instance; }
+	static void RequestRedraw();
 private:
 	bool IsRunning();
 

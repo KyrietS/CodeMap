@@ -5,7 +5,7 @@
 
 void CanvasViewControlScript::OnUpdate()
 {
-	Vector2 wheelMove = GetMouseWheelMoveV();
+	Vector2 wheelMove = Input::GetMouseWheelMove();
 	if (wheelMove.y != 0)
 	{
 		ZoomCamera(wheelMove.y);
@@ -17,16 +17,16 @@ void CanvasViewControlScript::OnUpdate()
 	}
 
 	// Aerial view
-	if (IsKeyPressed(KEY_SPACE))
+	if (Input::IsKeyPressed(Key::Space))
 	{
 		m_ZoomAnimation = Animation(m_Camera.GetZoom(), 0.25f, 0.5f, Animation::EasingType::ExpoOut);
 	}
-	if (IsKeyDown(KEY_SPACE))
+	if (Input::IsKeyDown(Key::Space))
 	{
 		float newZoom = m_ZoomAnimation.Step();
 		m_Camera.SetZoom(newZoom);
 	}
-	if (IsKeyReleased(KEY_SPACE))
+	if (Input::IsKeyReleased(Key::Space))
 	{
 		m_ZoomAnimation = Animation(m_Camera.GetZoom(), m_ZoomBeforeAnimation, 0.35f, Animation::EasingType::ExpoIn);
 
@@ -34,7 +34,7 @@ void CanvasViewControlScript::OnUpdate()
 		Vector2 cameraStopPos = Input::GetWorldMousePosition();
 		m_CameraTargetAnimation = AnimationVec2(cameraStartPos, cameraStopPos, 0.35f, Animation::EasingType::ExpoOut);
 	}
-	if (IsKeyUp(KEY_SPACE) && !m_ZoomAnimation.Finished() || !m_CameraTargetAnimation.Finished())
+	if (Input::IsKeyUp(Key::Space) && !m_ZoomAnimation.Finished() || !m_CameraTargetAnimation.Finished())
 	{
 		float newZoom = m_ZoomAnimation.Step();
 		m_Camera.SetZoom(newZoom);
@@ -43,9 +43,9 @@ void CanvasViewControlScript::OnUpdate()
 		m_Camera.CenterAtWorld(newCameraCenter);
 	}
 
-	if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE))
+	if (Input::IsMouseButtonDown(Mouse::ButtonMiddle))
 	{
-		m_Camera.MoveOnScreenBy(GetMouseDelta());
+		m_Camera.MoveOnScreenBy(Input::GetMouseDelta());
 	}
 }
 
@@ -64,7 +64,7 @@ void CanvasViewControlScript::ZoomCamera(float zoomChange)
 	}
 
 	m_ZoomBeforeAnimation = zoomLevel;
-	m_Camera.SetZoomAt(GetMousePosition(), zoomLevel);
+	m_Camera.SetZoomAt(Input::GetScreenMousePosition(), zoomLevel);
 
 	for (auto [entity, texture] : Canvas::GetAllEntitiesWith<Components::Sprite>().each())
 	{

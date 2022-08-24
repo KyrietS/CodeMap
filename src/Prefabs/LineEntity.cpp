@@ -16,12 +16,12 @@ namespace
 		{
 			auto isFocused = GetComponent<Components::Focusable>().IsFocused;
 
-			if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+			if (Input::IsMouseButtonReleased(Mouse::ButtonRight))
 			{
 				m_EditMode = false;
 			}
 
-			if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && m_EditMode)
+			if (Input::IsMouseButtonDown(Mouse::ButtonRight) && m_EditMode)
 			{
 				auto& transform = GetComponent<Components::Transform>();
 				auto& line = GetComponent<Components::LineSegment>();
@@ -33,7 +33,7 @@ namespace
 
 				UpdateFocusArea(); 
 			}
-			if (isFocused && IsKeyPressed(KEY_DELETE))
+			if (isFocused && Input::IsKeyPressed(Key::Delete))
 			{
 				m_Entity.Destroy();
 			}

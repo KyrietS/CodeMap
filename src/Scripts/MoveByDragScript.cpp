@@ -17,16 +17,16 @@ void MoveByDragScript::OnUpdate()
 	auto& focus = GetComponent<const Components::Focusable>();
 	auto isFocused = focus.IsFocused;
 	Vector2 mouseWorldPos = Input::GetWorldMousePosition();
-	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && isFocused
+	if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && isFocused
 		&& (m_CurrentlyMoving || CheckCollisionPointRec(mouseWorldPos, focus.AsRectangle(transform))))
 	{
 		m_CurrentlyMoving = true;
 		// Scale screen distance to world distance
-		Vector2 delta = Vector2Scale(GetMouseDelta(), 1.0f / Canvas::Camera().GetZoom());
+		Vector2 delta = Vector2Scale(Input::GetMouseDelta(), 1.0f / Canvas::Camera().GetZoom());
 		MoveBy(delta);
 	}
 
-	if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+	if (Input::IsMouseButtonReleased(Mouse::ButtonLeft))
 	{
 		m_CurrentlyMoving = false;
 	}
