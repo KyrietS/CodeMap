@@ -35,6 +35,56 @@ Canvas::~Canvas()
 	m_PrimaryInstance = nullptr;
 }
 
+bool CompareTransforms(const Components::Transform& lhs, const Components::Transform& rhs)
+{
+	size_t currIndex = 0;
+	size_t end = std::min(lhs.IndexHierarchy.size(), rhs.IndexHierarchy.size());
+	while (currIndex < end)
+	{
+		if (lhs.IndexHierarchy[currIndex] != rhs.IndexHierarchy[currIndex])
+		{
+			return lhs.IndexHierarchy[currIndex] < rhs.IndexHierarchy[currIndex];
+		}
+		currIndex += 1;
+	}
+
+	return lhs.IndexHierarchy.size() < rhs.IndexHierarchy.size();
+}
+
+// TODO: Move to Canvas class
+void UpdateChildrenRecursively(Entity parent)
+{
+	if (!parent.HasComponent<Components::Hierarchy>())
+		return;
+
+	auto& children = parent.GetComponent<Components::Hierarchy>().Children;
+	for (Entity child : children)
+	{
+		auto parentTransform = parent.HasComponent<Components::Transform>() 
+			? std::make_optional(std::ref(parent.GetComponent<Components::Transform>())) 
+			: std::nullopt;
+		if (child.HasComponent<Components::Transform>())
+		{
+			child.GetComponent<Components::Transform>().Update(parentTransform);
+		}
+		UpdateChildrenRecursively(child);
+	}
+}
+
+void UpdateHierarchy(entt::registry& registry)
+{
+	auto view = registry.view<Components::Transform, Components::Hierarchy>();
+	for (auto &&[entity, transform, hierarchy]: view.each())
+	{
+		bool isRootEntity = (hierarchy.Parent == entt::null);
+		if (isRootEntity)
+		{
+			transform.Update(std::nullopt);
+			UpdateChildrenRecursively(entity);
+		}
+	}
+}
+
 void Canvas::Draw()
 {
 	BeginDrawing();
@@ -44,11 +94,10 @@ void Canvas::Draw()
 	BeginMode2D(m_Camera);
 	{
 		DrawGrid();
-
-		// TODO: Layer system so that GUI is never "under" canvas elements.
-		m_Registry.sort<Components::Transform>([](const auto& lhs, const auto& rhs) {
-			return lhs.Index < rhs.Index;
-		}, entt::insertion_sort{}); // Insertion sort is O(n) for nearly sorted arrays
+		// Transform hierarchy update
+		UpdateHierarchy(m_Registry);
+		// Insertion sort is O(n) for nearly sorted arrays
+		m_Registry.sort<Components::Transform>(CompareTransforms, entt::insertion_sort{});
 
 		// Draw entities in order of their z-Index
 		auto drawables = m_Registry.view<Components::Transform>();
@@ -155,6 +204,7 @@ Entity Canvas::CreateEntity(Vector2 initialPosition)
 	static int s_LastIndex = 0;
 
 	Entity entity = CreateVoidEntity();
+	entity.AddComponent<Components::Hierarchy>();
 	auto& transform = entity.AddComponent<Components::Transform>(initialPosition);
 	transform.Index = s_LastIndex;
 

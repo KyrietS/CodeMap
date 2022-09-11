@@ -2,6 +2,7 @@
 
 #include "raylib.h"
 #include "raymath.h"
+#include "entt.hpp"
 
 
 class ScriptableEntity;
@@ -9,12 +10,12 @@ class ScriptableEntity;
 
 namespace Components
 {
-	// TODO: Remove legacy GetTransform()
 	struct Transform
 	{
 		Vector2 Translation = { 0.0f, 0.0f };
 		float Rotation = 0.0f;
 		int Index = 0;
+		std::vector<int> IndexHierarchy;
 
 		Transform() = default;
 		Transform(const Transform&) noexcept = default;
@@ -23,6 +24,18 @@ namespace Components
 			: Translation(translation), Rotation(rotation), Index(index) {}
 		~Transform() { LOG_DEBUG("Transform component destroyed"); }
 		operator Matrix () { return GetTransformMatrix(); }
+
+		void Update(const std::optional<std::reference_wrapper<Transform>> parent)
+		{
+			// TODO: update translation and rotation
+			IndexHierarchy.clear();
+			if (parent)
+			{
+				//GlobalTranslation = Vector2Add(LocalTranslation, parent->get().GlobalTranslation);
+				IndexHierarchy = parent->get().IndexHierarchy;
+			}
+			IndexHierarchy.emplace_back(Index);
+		}
 
 		Matrix GetTransformMatrix() const
 		{
@@ -38,6 +51,12 @@ namespace Components
 		{
 			return MatrixRotateZ(Rotation);
 		}
+	};
+
+	struct Hierarchy
+	{
+		entt::entity Parent = entt::null;
+		std::vector<entt::entity> Children = {};
 	};
 
 	struct Sprite
