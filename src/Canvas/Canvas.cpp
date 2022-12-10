@@ -189,6 +189,18 @@ void Canvas::OnUpdate()
 	{
 		m_DebugMode = !m_DebugMode;
 	}
+	if (Input::IsKeyPressed(Key::D))
+	{
+		LOG_DEBUG("Debug button pressed");
+		Entity parent = CreateEntity(Input::GetWorldMousePosition());
+
+		Entity child = CreateEntity();
+		auto &ah = child.AddComponent<Components::Arrowhead>();
+		ah.Height = 50.0f;
+		ah.Width = 50.0f;
+
+		parent.AddChild(child);
+	}
 
 	// Remove entities scheduled for removal from scripts.
 	for (auto entity : m_ToBeRemoved)

@@ -15,7 +15,7 @@ void SelectionScript::OnUpdate()
 		auto view = Canvas::GetAllEntitiesWith<Components::Transform>();
 		for (const Entity entity : view | std::views::reverse)
 		{
-			if (!entity.HasComponent<Components::Focusable>())
+			if (not entity.HasComponent<Components::Focusable>())
 				continue;
 			auto& transform = entity.GetComponent<Components::Transform>();
 			auto& focusable = entity.GetComponent<Components::Focusable>();
