@@ -3,10 +3,12 @@
 #include "raylib.h"
 #include "entt.hpp"
 #include "CanvasCamera.hpp"
+#include <glm/vec2.hpp>
+#include "Render/VColor.hpp"
 
 struct CanvasProps
 {
-	Color BackgroundColor = RAYWHITE;
+	glm::vec4 BackgroundColor = VColor::RayWhite;
 };
 
 class Entity;
@@ -21,7 +23,7 @@ public:
 	void Draw();
 	void OnUpdate();
 
-	Entity CreateEntity(Vector2 = { 0, 0 });
+	Entity CreateEntity(glm::vec2 = { 0, 0 });
 
 	template<typename... Components>
 	static auto GetAllEntitiesWith()

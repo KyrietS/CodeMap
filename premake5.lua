@@ -40,7 +40,8 @@ workspace "CodeMap"
 			"lib/entt/include",
             "lib/reasings/src",
             "lib/spdlog/include",
-            "lib/utfcpp/source"
+            "lib/utfcpp/source",
+			"lib/glm"
 		}
 		files {"src/**.cpp", "src/**.hpp"}
 

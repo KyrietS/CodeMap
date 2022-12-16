@@ -11,9 +11,9 @@ std::array<Input::InputState, GLFW_MOUSE_BUTTON_LAST+1> Input::s_MouseState;
 std::array<Input::InputState, GLFW_KEY_LAST + 1> Input::s_KeyState;
 
 
-Vector2 Input::s_MousePosition;
-Vector2 Input::s_LastMousePos;
-Vector2 Input::s_MouseScroll;
+glm::vec2 Input::s_MousePosition;
+glm::vec2 Input::s_LastMousePos;
+glm::vec2 Input::s_MouseScroll;
 
 bool Input::s_IsTextMode = false;
 std::queue<KeyCode> Input::s_KeyQueue;
@@ -54,27 +54,27 @@ void Input::PollEventsOrWait()
 	Time::Resume();
 }
 
-Vector2 Input::GetScreenMousePosition()
+glm::vec2 Input::GetScreenMousePosition()
 {
 	return s_MousePosition;
 }
 
-Vector2 Input::GetWorldMousePosition()
+glm::vec2 Input::GetWorldMousePosition()
 {
 	return Canvas::Camera().GetScreenToWorld(s_MousePosition);
 }
 
-Vector2 Input::GetWorldMousePositionRelativeTo(Vector2 origin)
+glm::vec2 Input::GetWorldMousePositionRelativeTo(glm::vec2 origin)
 {
-	return Vector2Subtract(GetWorldMousePosition(), origin);
+	return GetWorldMousePosition() - origin;
 }
 
-Vector2 Input::GetMouseDelta()
+glm::vec2 Input::GetMouseDelta()
 {
-	return Vector2Subtract(s_MousePosition, s_LastMousePos);
+	return s_MousePosition - s_LastMousePos;
 }
 
-Vector2 Input::GetMouseWheelMove()
+glm::vec2 Input::GetMouseWheelMove()
 {
 	return s_MouseScroll;
 }

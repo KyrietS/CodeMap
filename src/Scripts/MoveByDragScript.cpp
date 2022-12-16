@@ -16,13 +16,13 @@ void MoveByDragScript::OnUpdate()
 	auto& transform = GetComponent<const Components::Transform>();
 	auto& focus = GetComponent<const Components::Focusable>();
 	auto isFocused = focus.IsFocused;
-	Vector2 mouseWorldPos = Input::GetWorldMousePosition();
+	glm::vec2 mouseVecPos = Input::GetWorldMousePosition();
 	if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && isFocused
-		&& (m_CurrentlyMoving || CheckCollisionPointRec(mouseWorldPos, focus.AsRectangle(transform))))
+		&& (m_CurrentlyMoving || focus.AsBox(transform).Contains(mouseVecPos)))
 	{
 		m_CurrentlyMoving = true;
 		// Scale screen distance to world distance
-		Vector2 delta = Vector2Scale(Input::GetMouseDelta(), 1.0f / Canvas::Camera().GetZoom());
+		glm::vec2 delta = Input::GetMouseDelta() * (1.0f / Canvas::Camera().GetZoom());
 		MoveBy(delta);
 	}
 
@@ -32,8 +32,10 @@ void MoveByDragScript::OnUpdate()
 	}
 }
 
-void MoveByDragScript::MoveBy(Vector2 positionChange)
+void MoveByDragScript::MoveBy(glm::vec2 positionChange)
 {
+	glm::vec2 posChange = { positionChange.x, positionChange.y };
 	auto& transform = GetComponent<Components::Transform>();
-	transform.Translation = Vector2Add(transform.Translation, positionChange);
+	//transform.Translation = Vector2Add(transform.Translation, positionChange);
+	transform.Translation += posChange;
 }

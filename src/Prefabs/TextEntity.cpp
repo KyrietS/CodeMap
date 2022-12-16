@@ -6,8 +6,8 @@
 #include "Utils/Strings.hpp"
 #include "Utils/System.hpp"
 #include "Input.hpp"
-
-#include "raylib.h"
+#include "Render/Renderer.hpp"
+#include "Render/VColor.hpp"
 
 namespace
 {
@@ -60,7 +60,7 @@ namespace
 				m_IsTextModeActive = false;
 			}
 
-			focus.Size = MeasureTextEx(text.Font, text, text.Size, text.Spacing);
+			focus.Size = Renderer::MeasureText(text);
 		}
 
 		bool m_IsTextModeActive = false;
@@ -82,8 +82,7 @@ TextEntity::TextEntity(const Entity& entity)
 TextEntity& TextEntity::Build(const std::string_view content, float fontSize)
 {
 	auto& text = GetComponent<Components::Text>();
-	text = Components::Text(content, fontSize, BLACK);
-	text.Spacing = 1.0f;
+	text = Components::Text{ content.data(), fontSize, 1.0f, VColor::Black};
 
 	// The last polish Unicode character is 380
 	std::array<int, 381> glyphs;
@@ -93,12 +92,12 @@ TextEntity& TextEntity::Build(const std::string_view content, float fontSize)
 	}
 
 	// TODO: Load one font the entire program. Loading it for every text is a huge memory waste.
-	std::string fontPath = Utils::System::GetSystemFontDirPath() + "\\calibri.ttf";
-	text.Font = LoadFontEx(fontPath.c_str(), 64, glyphs.data(), (int)glyphs.size());
-	SetTextureFilter(text.Font.texture, TEXTURE_FILTER_BILINEAR);
+	//std::string fontPath = Utils::System::GetSystemFontDirPath() + "\\calibri.ttf";
+	//text.Font = LoadFontEx(fontPath.c_str(), 64, glyphs.data(), (int)glyphs.size());
+	//SetTextureFilter(text.Font.texture, TEXTURE_FILTER_BILINEAR);
 
 	auto& focus = GetComponent<Components::Focusable>();
-	focus.Size = MeasureTextEx(text.Font, text.Content.c_str(), text.Size, text.Spacing);
+	focus.Size = Renderer::MeasureText(text);
 	focus.IsFocused = true;
 
 	return *this;

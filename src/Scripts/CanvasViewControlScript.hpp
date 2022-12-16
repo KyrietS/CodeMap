@@ -12,7 +12,7 @@ struct CanvasViewControlScript : ScriptableEntity
 
 	void OnUpdate() override;
 	void ZoomCamera(float zoomChange);
-	void AdjustFilterToZoomLevel(float zoom, Texture2D& texture);
+	void AdjustFilterToZoomLevel(float zoom, const Components::Image& texture);
 
 	float m_ZoomBeforeAnimation = 1.0f;
 

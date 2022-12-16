@@ -1,7 +1,5 @@
 #pragma once
 
-
-#include "raylib.h"
 #include "entt.hpp"
 #include "Canvas.hpp"
 #include "Components.hpp"

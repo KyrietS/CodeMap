@@ -5,6 +5,9 @@
 #include "Scripts/MoveByDragScript.hpp"
 #include "Scripts/CommonCanvasEntityScript.hpp"
 #include "Input.hpp"
+#include "Render/VColor.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtx/vector_angle.hpp>
 
 
 namespace
@@ -25,9 +28,10 @@ namespace
 			{
 				auto& transform = GetComponent<Components::Transform>();
 				auto& line = GetComponent<Components::LineSegment>();
-				Vector2 lineVector = Vector2Subtract(Input::GetWorldMousePosition(), transform.Translation);
-				line.Length = Vector2Length(lineVector);
-				transform.Rotation = Vector2Angle({ 1.0f, 0.0f }, lineVector);
+
+				glm::vec2 lineVector = Input::GetWorldMousePosition() - transform.Translation;
+				line.Length = glm::length(lineVector);
+				transform.Rotation = glm::orientedAngle({ 1.0f, 0.0f }, glm::normalize(lineVector));
 
 				GetComponent<Components::Arrowhead>().Offset = line.GetLocalEnd();
 
@@ -45,15 +49,15 @@ namespace
 			auto& line = GetComponent<const Components::LineSegment>();
 			auto& focus = GetComponent<Components::Focusable>();
 
-			Vector2 begin = line.GetBegin(transform);
-			Vector2 end = line.GetEnd(transform);
+			glm::vec2 begin = line.GetBegin(transform);
+			glm::vec2 end = line.GetEnd(transform);
 
 			float minX = std::min(begin.x, end.x);
 			float minY = std::min(begin.y, end.y);
 			float width = std::fabs(begin.x - end.x);
 			float height = std::fabs(begin.y - end.y);
 
-			focus.Origin = Vector2Subtract({minX, minY}, begin);
+			focus.Origin = glm::vec2{ minX, minY } - glm::vec2{ begin.x, begin.y };
 			focus.Size = {width, height};
 		}
 
@@ -81,7 +85,7 @@ LineEntity& LineEntity::Build(Vector2 end)
 	auto& line = GetComponent<Components::LineSegment>();
 	line.Origin = {0.0f, 0.0f};
 	line.Length = 0.0f;
-	line.StrokeColor = BLUE;
+	line.StrokeColor = VColor::Blue;
 	line.Thickness = 5.0f;
 
 	auto& arrowhead = GetComponent<Components::Arrowhead>();

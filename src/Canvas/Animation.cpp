@@ -1,6 +1,5 @@
 #include "pch.hpp"
 #include "Animation.hpp"
-#include "raylib.h"
 #include "reasings.h"
 #include "Time.hpp"
 #include "App.hpp"

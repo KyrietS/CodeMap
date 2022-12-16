@@ -4,6 +4,7 @@
 #include "external/glfw/include/GLFW/glfw3.h"
 #include "MouseCodes.hpp"
 #include "KeyCodes.hpp"
+#include <glm/vec2.hpp>
 
 
 struct GLFWwindow;
@@ -15,11 +16,11 @@ public:
 	static void PollEvents();
 	static void PollEventsOrWait();
 
-	static Vector2 GetScreenMousePosition();
-	static Vector2 GetWorldMousePosition();
-	static Vector2 GetWorldMousePositionRelativeTo(Vector2 origin);
-	static Vector2 GetMouseDelta();
-	static Vector2 GetMouseWheelMove();
+	static glm::vec2 GetScreenMousePosition();
+	static glm::vec2 GetWorldMousePosition();
+	static glm::vec2 GetWorldMousePositionRelativeTo(glm::vec2 origin);
+	static glm::vec2 GetMouseDelta();
+	static glm::vec2 GetMouseWheelMove();
 
 	static bool IsMouseButtonPressed(MouseCode);
 	static bool IsMouseButtonDown(MouseCode);
@@ -58,9 +59,9 @@ private:
 	static std::array<InputState, GLFW_MOUSE_BUTTON_LAST+1> s_MouseState;
 	static std::array<InputState, GLFW_KEY_LAST + 1> s_KeyState;
 
-	static Vector2 s_MousePosition;
-	static Vector2 s_LastMousePos;
-	static Vector2 s_MouseScroll;
+	static glm::vec2 s_MousePosition;
+	static glm::vec2 s_LastMousePos;
+	static glm::vec2 s_MouseScroll;
 
 	static bool s_IsTextMode;
 	static std::queue<KeyCode> s_KeyQueue;

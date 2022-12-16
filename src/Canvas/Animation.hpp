@@ -1,6 +1,6 @@
 #pragma once
 
-#include "raylib.h"
+#include <glm/vec2.hpp>
 
 
 class Animation
@@ -53,10 +53,10 @@ class AnimationVec2
 {
 public:
 	AnimationVec2() = default;
-	AnimationVec2(Vector2 start, Vector2 stop, float duration, Animation::EasingType easing = Animation::EasingType::Linear)
+	AnimationVec2(glm::vec2 start, glm::vec2 stop, float duration, Animation::EasingType easing = Animation::EasingType::Linear)
 		: xAnim(start.x, stop.x, duration, easing), yAnim(start.y, stop.y, duration, easing) {}
 
-	Vector2 Step()
+	glm::vec2 Step()
 	{
 		return { xAnim.Step(), yAnim.Step() };
 	}

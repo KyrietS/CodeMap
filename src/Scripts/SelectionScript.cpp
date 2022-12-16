@@ -19,9 +19,9 @@ void SelectionScript::OnUpdate()
 				continue;
 			auto& transform = entity.GetComponent<Components::Transform>();
 			auto& focusable = entity.GetComponent<Components::Focusable>();
-			Vector2 worldPos = Input::GetWorldMousePosition();
+			glm::vec2 vecWorldPos = Input::GetWorldMousePosition();
 			// TODO: Rotation is not taken into account!
-			if (CheckCollisionPointRec(worldPos, focusable.AsRectangle(transform)))
+			if (focusable.AsBox(transform).Contains(vecWorldPos))
 			{
 				focusable.IsFocused = true;
 				break;

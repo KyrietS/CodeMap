@@ -1,18 +1,19 @@
 #include "pch.hpp"
 #include "CanvasViewControlScript.hpp"
 #include "Input.hpp"
+#include "Render/Renderer.hpp"
 
 
 void CanvasViewControlScript::OnUpdate()
 {
-	Vector2 wheelMove = Input::GetMouseWheelMove();
+	glm::vec2 wheelMove = Input::GetMouseWheelMove();
 	if (wheelMove.y != 0)
 	{
 		ZoomCamera(wheelMove.y);
 	}
 	if (wheelMove.x != 0)
 	{
-		Vector2 moveDelta = { wheelMove.x * 30.0f, 0.0f };
+		glm::vec2 moveDelta = { wheelMove.x * 30.0f, 0.0f };
 		m_Camera.MoveOnScreenBy(moveDelta);
 	}
 
@@ -30,8 +31,8 @@ void CanvasViewControlScript::OnUpdate()
 	{
 		m_ZoomAnimation = Animation(m_Camera.GetZoom(), m_ZoomBeforeAnimation, 0.35f, Animation::EasingType::ExpoIn);
 
-		Vector2 cameraStartPos = m_Camera.GetCenter();
-		Vector2 cameraStopPos = Input::GetWorldMousePosition();
+		glm::vec2 cameraStartPos = m_Camera.GetCenter();
+		glm::vec2 cameraStopPos = Input::GetWorldMousePosition();
 		m_CameraTargetAnimation = AnimationVec2(cameraStartPos, cameraStopPos, 0.35f, Animation::EasingType::ExpoOut);
 	}
 	if (Input::IsKeyUp(Key::Space) && !m_ZoomAnimation.Finished() || !m_CameraTargetAnimation.Finished())
@@ -39,7 +40,7 @@ void CanvasViewControlScript::OnUpdate()
 		float newZoom = m_ZoomAnimation.Step();
 		m_Camera.SetZoom(newZoom);
 		
-		Vector2 newCameraCenter = m_CameraTargetAnimation.Step();
+		glm::vec2 newCameraCenter = m_CameraTargetAnimation.Step();
 		m_Camera.CenterAtWorld(newCameraCenter);
 	}
 
@@ -55,7 +56,7 @@ void CanvasViewControlScript::ZoomCamera(float zoomChange)
 	float zoomLevel = m_Camera.GetZoom() * (zoomChange > 0 ? zoomFactor : (1.0f / zoomFactor));
 
 	// Limits
-	zoomLevel = Clamp(zoomLevel, 0.1f, 10.0f);
+	zoomLevel = glm::clamp(zoomLevel, 0.1f, 10.0f);
 
 	// Snap to 1.0
 	if (zoomLevel > 0.95f && zoomLevel < 1.05f)
@@ -66,16 +67,16 @@ void CanvasViewControlScript::ZoomCamera(float zoomChange)
 	m_ZoomBeforeAnimation = zoomLevel;
 	m_Camera.SetZoomAt(Input::GetScreenMousePosition(), zoomLevel);
 
-	for (auto [entity, texture] : Canvas::GetAllEntitiesWith<Components::Sprite>().each())
+	for (auto [entity, texture] : Canvas::GetAllEntitiesWith<Components::Image>().each())
 	{
 		AdjustFilterToZoomLevel(zoomLevel, texture);
 	}
 }
 
-void CanvasViewControlScript::AdjustFilterToZoomLevel(float zoom, Texture2D& texture)
+void CanvasViewControlScript::AdjustFilterToZoomLevel(float zoom, const Components::Image& sprite)
 {
 	if (zoom < 1.0f)
-		SetTextureFilter(texture, TEXTURE_FILTER_BILINEAR);
+		Renderer::SetImageFilter(sprite.TextureId, ImageFilter::Linear);
 	else
-		SetTextureFilter(texture, TEXTURE_FILTER_POINT);
+		Renderer::SetImageFilter(sprite.TextureId, ImageFilter::Nearest);
 }

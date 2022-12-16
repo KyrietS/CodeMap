@@ -1,7 +1,9 @@
 #pragma once
 
+// TODO Hide raylib in cpp file
 #include "raylib.h"
-
+#include <glm/vec2.hpp>
+#include "Render/CameraData.hpp"
 
 class CanvasCamera
 {
@@ -9,21 +11,22 @@ public:
 	CanvasCamera();
 	CanvasCamera(const CanvasCamera&) = delete;
 
-	Vector2 GetScreenToWorld(Vector2 screenTarget);
-	Vector2 GetWorldToScreen(Vector2 worldTarget);
-	Vector2 GetCenter();
+	glm::vec2 GetScreenToWorld(glm::vec2 screenTarget);
+	glm::vec2 GetWorldToScreen(glm::vec2 worldTarget);
+	glm::vec2 GetCenter();
+	CameraData GetData();
 
-	void CenterAtScreen(Vector2 screenTarget);
-	void CenterAtWorld(Vector2 worldTarget);
+	void CenterAtScreen(glm::vec2 screenTarget);
+	void CenterAtWorld(glm::vec2 worldTarget);
 
-	void MoveOnScreenBy(Vector2 screenDelta);
-	void MoveInWorldBy(Vector2 worldDelta);
+	void MoveOnScreenBy(glm::vec2 screenDelta);
+	void MoveInWorldBy(glm::vec2 worldDelta);
 
 	float GetZoom();
 	void SetZoom(float zoomLevel);
-	void SetZoomAt(Vector2 screenPos, float zoomLevel);
+	void SetZoomAt(glm::vec2 screenPos, float zoomLevel);
 
-	static Vector2 GetScreenCenter()
+	static glm::vec2 GetScreenCenter()
 	{
 		return { GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f };
 	}

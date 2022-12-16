@@ -1,8 +1,6 @@
 #include "pch.hpp"
 
 #include "Canvas.hpp"
-#include "raylib.h"
-#include "raymath.h"
 #include "clip.h"
 #include "Components.hpp"
 #include "Entity.hpp"
@@ -13,6 +11,8 @@
 #include "Scripts/CanvasViewControlScript.hpp"
 #include "Input.hpp"
 #include "Timer.hpp"
+#include "Render/Renderer.hpp"
+#include "Render/VColor.hpp"
 
 
 Canvas* Canvas::m_PrimaryInstance = nullptr;
@@ -87,11 +87,11 @@ void UpdateHierarchy(entt::registry& registry)
 
 void Canvas::Draw()
 {
-	BeginDrawing();
-	ClearBackground(m_Props.BackgroundColor);
+	Renderer::BeginFrame();
+	Renderer::ClearScreen(m_Props.BackgroundColor);
 	
 	// Canvas world drawing
-	BeginMode2D(m_Camera);
+	Renderer::BeginCameraView(m_Camera.GetData());
 	{
 		DrawGrid();
 		// Transform hierarchy update
@@ -106,42 +106,42 @@ void Canvas::Draw()
 			auto& transform = entity.GetComponent<Components::Transform>();
 
 			// Draw sprite
-			if (entity.HasComponent<Components::Sprite>())
+			if (entity.HasComponent<Components::Image>())
 			{
-				auto& sprite = entity.GetComponent<Components::Sprite>();
-				DrawTextureV(sprite, transform.Translation, WHITE);
+				auto& sprite = entity.GetComponent<Components::Image>();
+				Renderer::DrawImage(transform.Translation, sprite);
 			}
 
 			// Draw line
 			if (entity.HasComponent<Components::LineSegment>())
 			{
 				auto& line = entity.GetComponent<Components::LineSegment>();
-				Vector2 begin = line.GetBegin(transform);
-				Vector2 end = line.GetEnd(transform);
-				DrawLineEx(begin, end, line.Thickness, line.StrokeColor);
+				glm::vec2 begin = line.GetBegin(transform);
+				glm::vec2 end = line.GetEnd(transform);
+				Renderer::DrawLine(begin, end, line.Thickness, line.StrokeColor);
 			}
 
 			// Draw arrowhead
 			if (entity.HasComponent<Components::Arrowhead>())
 			{
 				auto& arrowhead = entity.GetComponent<Components::Arrowhead>();
-				Vector2 tip1 = arrowhead.Offset;
-				Vector2 tip2 = { tip1.x - arrowhead.Width, tip1.y - arrowhead.Height };
-				Vector2 tip3 = { tip1.x - arrowhead.Width, tip1.y + arrowhead.Height };
+				glm::vec2 tip1 = arrowhead.Offset;
+				glm::vec2 tip2 = { tip1.x - arrowhead.Width, tip1.y - arrowhead.Height };
+				glm::vec2 tip3 = { tip1.x - arrowhead.Width, tip1.y + arrowhead.Height };
 
-				tip1 = Vector2Transform(tip1, transform.GetTransformMatrix());
-				tip2 = Vector2Transform(tip2, transform.GetTransformMatrix());
-				tip3 = Vector2Transform(tip3, transform.GetTransformMatrix());
+				tip1 = transform.GetTransform() * glm::vec4{ tip1.x, tip1.y, 0.0f, 1.0f };
+				tip2 = transform.GetTransform() * glm::vec4{ tip2.x, tip2.y, 0.0f, 1.0f };
+				tip3 = transform.GetTransform() * glm::vec4{ tip3.x, tip3.y, 0.0f, 1.0f };
 
-				DrawTriangle(tip1, tip2, tip3, ORANGE);
+				Renderer::DrawTriangle(tip1, tip2, tip3, VColor::Orange);
 			}
 
 			// Draw text
 			if (entity.HasComponent<Components::Text>())
 			{
-				auto& text = entity.GetComponent<Components::Text>();
+				const auto& text = entity.GetComponent<Components::Text>();
 				const auto& position = transform.Translation;
-				DrawTextEx(text.Font, text, position, text.Size, text.Spacing, text.FontColor);
+				Renderer::DrawText(position, text);
 			}
 		}
 
@@ -149,32 +149,33 @@ void Canvas::Draw()
 		auto viewFocus = m_Registry.view<Components::Transform, Components::Focusable>();
 		for (auto [entity, transform, focusable] : viewFocus.each())
 		{
-			// TODO: This will not work with rotations:
-			Rectangle rect = focusable.AsRectangle(transform);
-			rect.x -=2;
-			rect.height += 2;
-			rect.width += 4;
-
+			Box box = focusable.AsBox(transform);
 			if (focusable.IsFocused)
-				DrawRectangleLinesEx(rect, 2.0f, BLUE);
+				Renderer::DrawRectangleLines(box.GetPosition(), box.width, box.height, 2.0f, VColor::Blue);
 			else if (m_DebugMode) // this is debug line. It should always be 1px thick
-				DrawRectangleLinesEx(rect, 1.0f / m_Camera.GetZoom(), RED);
+				Renderer::DrawRectangleLines(box.GetPosition(), box.width, box.height, 1.0f / m_Camera.GetZoom(), VColor::Red);
 		}
 		
+		
 	}
-	EndMode2D();
+	Renderer::EndCameraView();
 
+	// REWORK: I agree, GUI must be defined as a separate class and comunicate with Canvas via events
+	// system. This communication should work in both ways though, because only Canvas knows what
+	// element a user clicked on and only Gui knows which option user has chosen (eg. remove element)
 	// TODO: Move GUI outside the Canvas class. Everything here should be rendered "inside" camera.
 	//       Overlay with GUI should still have access to Canvas to manipulate it via provided API.
 	//       (without friendship would be great)
 	DrawGui();
 	
-	EndDrawing();
-	SwapScreenBuffer();
+	Renderer::EndFrame();
 }
 
 void Canvas::OnUpdate()
 {
+	// REWORK: This code should go to a function implementing EventListener interface.
+	// Canvas class can implement this interface too, but in the long run I would like to
+	// separate this Canvas controll logic into a separate class.
 	// TODO: This code should go to NativeScript
 	if (Input::IsKeyDown(Key::LeftControl) && Input::IsKeyPressed(Key::V))
 	{
@@ -182,6 +183,10 @@ void Canvas::OnUpdate()
 	}
 	if (Input::IsMouseButtonPressed(Mouse::ButtonRight))
 	{
+		// REWORK: Creation of CanvasElements (currently Entities) should be moved to some
+		// factory class that can be pass around allowing different parts of code to create
+		// new CnvasElements.
+		// But... Canvas still needs to have a container with all CanvasElements created.
 		LineEntity(CreateEntity(Input::GetWorldMousePosition())).Build({0.0f, 0.0f});
 		LOG_DEBUG("Created LineEntity");
 	}
@@ -202,6 +207,11 @@ void Canvas::OnUpdate()
 		parent.AddChild(child);
 	}
 
+	// REWORK: A simillar yer even more complicated mechanism will be needed for
+	// CanvasElements removal. There will be no "Script" capable of removing elements
+	// from canvas, but events requesting element deletion. This needs to be handled
+	// with care, because the element that is to be removed might be registered
+	// as a listener in some dispatchers!
 	// Remove entities scheduled for removal from scripts.
 	for (auto entity : m_ToBeRemoved)
 	{
@@ -211,7 +221,7 @@ void Canvas::OnUpdate()
 	m_ToBeRemoved.clear();
 }
 
-Entity Canvas::CreateEntity(Vector2 initialPosition)
+Entity Canvas::CreateEntity(glm::vec2 initialPosition)
 {
 	static int s_LastIndex = 0;
 
@@ -254,7 +264,7 @@ void Canvas::HandlePasteImage()
 	int size = (int)imageSpec.required_data_size();
 	uint8_t* data = reinterpret_cast<uint8_t*>(clipboardImage.data());
 	TransformFromBgraToRgba(data, size);
-	Vector2 imagePos = Input::GetWorldMousePosition();
+	glm::vec2 imagePos = Input::GetWorldMousePosition();
 
 	ImageEntity(CreateEntity()).Build(imagePos, data, imageSpec.width, imageSpec.height);
 }
@@ -288,9 +298,9 @@ void Canvas::DrawGrid()
 		DOT_SIZE *= (2.0f - zoom);
 	}
 
-	Vector2 dotScreenPos = { 0, 0 };
-	Vector2 dotWorldPos = m_Camera.GetScreenToWorld(dotScreenPos);
-	Vector2 firstDotScreenPos = {
+	glm::vec2 dotScreenPos = { 0, 0 };
+	glm::vec2 dotWorldPos = m_Camera.GetScreenToWorld(dotScreenPos);
+	glm::vec2 firstDotScreenPos = {
 		DOT_GAP_SIZE * ceil(dotWorldPos.x / DOT_GAP_SIZE) - DOT_GAP_SIZE,
 		DOT_GAP_SIZE * ceil(dotWorldPos.y / DOT_GAP_SIZE) - DOT_GAP_SIZE
 	};
@@ -301,7 +311,7 @@ void Canvas::DrawGrid()
 		for (int k = 0; k < NUM_OF_DOTS_HORIZONTAL; k++)
 		{
 			float dotX = firstDotScreenPos.x + (k * DOT_GAP_SIZE);
-			DrawRectangleV({ dotX, dotY }, { DOT_SIZE, DOT_SIZE }, LIGHTGRAY);
+			Renderer::DrawRectangle({ dotX, dotY }, DOT_SIZE, DOT_SIZE, VColor::LightGray);
 		}
 	}
 }
@@ -310,8 +320,8 @@ void Canvas::DrawGui()
 {
 	// Draw zoom level
 	std::string zoomLevelText = "zoom: " + std::to_string(int(m_Camera.GetZoom() * 100)) + "%";
-	DrawText(zoomLevelText.c_str(), 30, GetScreenHeight() - 30, 10, DARKGRAY);
+	Renderer::DrawText({ 30, GetScreenHeight() - 30 }, zoomLevelText, 10, VColor::DarkGray);
 
 	std::string fps = std::to_string((int)Time::GetFPS()) + " FPS";
-	DrawText(fps.c_str(), 30, GetScreenHeight() - 43, 10, DARKGRAY);
+	Renderer::DrawText({ 30, GetScreenHeight() - 43 }, fps, 10, VColor::DarkGray);
 }

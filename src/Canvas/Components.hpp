@@ -1,8 +1,11 @@
 #pragma once
 
-#include "raylib.h"
-#include "raymath.h"
 #include "entt.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/transform.hpp>
+#include "Canvas/Box.hpp"
+#include "Render/VColor.hpp"
 
 
 class ScriptableEntity;
@@ -12,18 +15,33 @@ namespace Components
 {
 	struct Transform
 	{
-		Vector2 Translation = { 0.0f, 0.0f };
-		float Rotation = 0.0f;
+		glm::vec2 Translation = { 0.0f, 0.0f };
+		float Rotation = 0.0f; // In radians
 		int Index = 0;
 		std::vector<int> IndexHierarchy;
+
+		glm::mat4 GetTranslationMatrix2() const
+		{
+			return glm::translate(glm::vec3{ Translation.x, Translation.y, 0.0f });
+		}
+
+		glm::mat4 GetRotationMatrix2() const
+		{
+			// Rotation along Z-axis
+			return glm::rotate(Rotation, glm::vec3{ 0.0f, 0.0f, 1.0f });
+		}
+
+		glm::mat4 GetTransform() const
+		{
+			return GetTranslationMatrix2() * GetRotationMatrix2();
+		}
 
 		Transform() = default;
 		Transform(const Transform&) noexcept = default;
 
-		Transform(const Vector2& translation, float rotation = 0.0f, int index = 0)
+		Transform(const glm::vec2& translation, float rotation = 0.0f, int index = 0)
 			: Translation(translation), Rotation(rotation), Index(index) {}
 		~Transform() { LOG_DEBUG("Transform component destroyed"); }
-		operator Matrix () { return GetTransformMatrix(); }
 
 		void Update(const std::optional<std::reference_wrapper<Transform>> parent)
 		{
@@ -36,21 +54,6 @@ namespace Components
 			}
 			IndexHierarchy.emplace_back(Index);
 		}
-
-		Matrix GetTransformMatrix() const
-		{
-			return MatrixMultiply(GetRotationMatrix(), GetTranslationMatrix());
-		}
-
-		Matrix GetTranslationMatrix() const
-		{
-			return MatrixTranslate(Translation.x, Translation.y, 0.0f);
-		}
-
-		Matrix GetRotationMatrix() const
-		{
-			return MatrixRotateZ(Rotation);
-		}
 	};
 
 	struct Hierarchy
@@ -59,37 +62,32 @@ namespace Components
 		std::vector<entt::entity> Children = {};
 	};
 
-	struct Sprite
+	struct Image
 	{
-		Texture2D Texture = { 0 };
-		Color Tint = WHITE;
-
-		Sprite() = default;
-		Sprite(const Components::Sprite&) = default;
-		Sprite(Texture2D texture, Color tint = WHITE)
-			: Texture(texture), Tint(tint) {}
-		~Sprite() { LOG_DEBUG("Sprite component destroyed"); }
-
-		operator Texture2D& () { return Texture; }
+		unsigned int TextureId = 0;
+		int Width = 0;
+		int Height = 0;
 	};
 
 	struct LineSegment
 	{
-		Vector2 Origin = { 0.0f, 0.0f };
+		glm::vec2 Origin = { 0.0f, 0.0f };
 		float Length = 0.0f;
-		Color StrokeColor = BLACK;
+		glm::vec4 StrokeColor = VColor::Black;
 		float Thickness = 1.0f;
 
-		Vector2 GetBegin(const Transform& transform) const
+		glm::vec2 GetBegin(const Transform& transform) const
 		{
-			return Vector2Transform(Origin, transform.GetTransformMatrix());
+			return transform.GetTransform() * glm::vec4{ Origin.x, Origin.y, 0.0f, 1.0f };
 		}
-		Vector2 GetEnd(const Transform& transform) const
+
+		glm::vec2 GetEnd(const Transform& transform) const
 		{
-			Vector2 endRelative = { Origin.x + Length, Origin.y };
-			return Vector2Transform(endRelative, transform.GetTransformMatrix());
+			glm::vec4 endRelative = { Origin.x + Length, Origin.y, 0.0f, 1.0f };
+			return transform.GetTransform() * endRelative;
 		}
-		Vector2 GetLocalEnd() const
+
+		glm::vec2 GetLocalEnd() const
 		{
 			return { Origin.x + Length, Origin.y };
 		}
@@ -97,32 +95,24 @@ namespace Components
 
 	struct Arrowhead
 	{
-		Vector2 Offset = { 0.0f, 0.0f };
+		glm::vec2 Offset = { 0.0f, 0.0f };
 		float Width = 0.0f;
 		float Height = 0.0f;
 
-		Vector2 GetTip(const Transform& transform)
+		glm::vec2 GetTip(const Transform& transform)
 		{
-			return Vector2Transform(Offset, transform.GetTransformMatrix());
+			return transform.GetTransform() * glm::vec4{ Offset.x, Offset.y, 0.0f, 1.0f };
 		}
 	};
 
 	struct Text
 	{
 		std::string Content = "";
-		float Size = 0.0f;
-		float Spacing = 0.0f;
-		Color FontColor = { 0 };
-		Font Font = { 0 };
+		float FontSize = 0.0f;
+		float LetterSpacing = 0.0f;
+		glm::vec4 FontColor = {};
 
-		Text() = default;
-		Text(const Components::Text&) = default;
-		Text(const std::string_view text, float size, const Color& color)
-			: Content(text), Size(size), Spacing(size / 10.0f), FontColor(color), Font(GetFontDefault()) {}
-
-		operator std::string_view() const { return Content; }
-		operator const char* () const { return Content.c_str(); }
-		Components::Text& operator=(const std::string_view newText) { Content = newText; }
+		// TODO: Font
 	};
 
 	struct NativeScript
@@ -171,24 +161,25 @@ namespace Components
 	// TODO: FocusArea for rotated rects is not supported!
 	struct Focusable
 	{
-		Vector2 Origin = { 0.0f, 0.0f };
-		Vector2 Size = { 0.0f, 0.0f };
+		glm::vec2 Origin = { 0.0f, 0.0f };
+		glm::vec2 Size = { 0.0f, 0.0f };
+
 		bool IsFocused = false;
 
-		Vector2 GetBegin(const Transform& transform) const
+		glm::vec2 GetBegin(const Transform& transform) const
 		{
-			return Vector2Add(transform.Translation, Origin);
-		}
-		Vector2 GetEnd(const Transform& transform) const
-		{
-			return Vector2Add(GetBegin(transform), Size);
+			return transform.Translation + Origin;
 		}
 
-		// WARNING: Rotation is not taken into account!!!
-		Rectangle AsRectangle(const Transform& transform) const
+		glm::vec2 GetEnd(const Transform& transform) const
 		{
-			Vector2 begin = GetBegin(transform);
-			Vector2 end = GetEnd(transform);
+			return GetBegin(transform) + Size;
+		}
+
+		Box AsBox(const Transform& transform) const
+		{
+			glm::vec2 begin = GetBegin(transform);
+			glm::vec2 end = GetEnd(transform);
 
 			float minX = std::min(begin.x, end.x);
 			float minY = std::min(begin.y, end.y);
