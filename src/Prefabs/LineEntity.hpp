@@ -7,6 +7,6 @@ class LineEntity : public Entity
 {
 public:
 	LineEntity(const Entity& entity);
-	LineEntity& Build(Vector2 end);
+	LineEntity& Build();
 };
 

@@ -80,7 +80,7 @@ LineEntity::LineEntity(const Entity& entity)
 }
 
 
-LineEntity& LineEntity::Build(Vector2 end)
+LineEntity& LineEntity::Build()
 {
 	auto& line = GetComponent<Components::LineSegment>();
 	line.Origin = {0.0f, 0.0f};

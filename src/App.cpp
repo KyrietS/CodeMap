@@ -1,10 +1,10 @@
 #include "pch.hpp"
 #include "App.hpp"
-#include "raylib.h"
 #include "Canvas/Canvas.hpp"
 #include "rlgl.h"
 #include "Input.hpp"
 #include "Time.hpp"
+#include "Window.hpp"
 
 
 App* App::m_Instance = nullptr;
@@ -12,18 +12,10 @@ App* App::m_Instance = nullptr;
 App::App(const AppConfig& appConfig) : m_AppConfig{appConfig}
 {
 	Logger::Init();
-
-	// Rework: These settings should be abstracted in some Window class
-	// We don't want to use raylib directly here. It's too low level. 
-	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-	InitWindow(m_AppConfig.WindowWidth, m_AppConfig.WindowHeight, m_AppConfig.Name.c_str());
-	SetExitKey(KEY_NULL);
-	SetTargetFPS(60);
-
-	Time::LockFPS(61.0);
-
+	Window::Init(appConfig.WindowWidth, appConfig.WindowHeight, appConfig.Name);
 	Input::Init();
 	Time::Init();
+	Time::LockFPS(61.0);
 
 	m_Instance = this;
 	m_Canvas = std::make_unique<Canvas>();
@@ -50,12 +42,12 @@ void App::Run()
 	}
 
 	LOG_INFO("App stopped");
-	CloseWindow();
+	Window::Close();
 }
 
 void App::Close()
 {
-	m_Running = true;
+	m_Running = false;
 }
 
 void App::RequestRedraw()
@@ -65,5 +57,5 @@ void App::RequestRedraw()
 
 bool App::IsRunning()
 {
-	return m_Running && !WindowShouldClose();
+	return m_Running && !Window::ShouldClose();
 }

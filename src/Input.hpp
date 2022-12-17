@@ -1,6 +1,5 @@
 #pragma once
 
-#include "raylib.h"
 #include "external/glfw/include/GLFW/glfw3.h"
 #include "MouseCodes.hpp"
 #include "KeyCodes.hpp"
@@ -56,7 +55,7 @@ private:
 		bool IsReleased = false;
 	};
 
-	static std::array<InputState, GLFW_MOUSE_BUTTON_LAST+1> s_MouseState;
+	static std::array<InputState, GLFW_MOUSE_BUTTON_LAST + 1> s_MouseState;
 	static std::array<InputState, GLFW_KEY_LAST + 1> s_KeyState;
 
 	static glm::vec2 s_MousePosition;

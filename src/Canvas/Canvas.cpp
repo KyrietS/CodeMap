@@ -13,6 +13,7 @@
 #include "Timer.hpp"
 #include "Render/Renderer.hpp"
 #include "Render/VColor.hpp"
+#include "Window.hpp"
 
 
 Canvas* Canvas::m_PrimaryInstance = nullptr;
@@ -187,7 +188,7 @@ void Canvas::OnUpdate()
 		// factory class that can be pass around allowing different parts of code to create
 		// new CnvasElements.
 		// But... Canvas still needs to have a container with all CanvasElements created.
-		LineEntity(CreateEntity(Input::GetWorldMousePosition())).Build({0.0f, 0.0f});
+		LineEntity(CreateEntity(Input::GetWorldMousePosition())).Build();
 		LOG_DEBUG("Created LineEntity");
 	}
 	if (Input::IsKeyPressed(Key::Tab))
@@ -290,8 +291,8 @@ void Canvas::DrawGrid()
 {
 	const float zoom = m_Camera.GetZoom();
 	const int DOT_GAP_SIZE = 50;
-	const int NUM_OF_DOTS_HORIZONTAL = static_cast<int>((GetScreenWidth() / zoom) / DOT_GAP_SIZE + 2);
-	const int NUM_OF_DOTS_VERTICAL = static_cast<int>((GetScreenHeight() / zoom) / DOT_GAP_SIZE + 2);
+	const int NUM_OF_DOTS_HORIZONTAL = static_cast<int>((Window::GetWidth() / zoom) / DOT_GAP_SIZE + 2);
+	const int NUM_OF_DOTS_VERTICAL = static_cast<int>((Window::GetHeight() / zoom) / DOT_GAP_SIZE + 2);
 	float DOT_SIZE = 4;
 	if (zoom < 1.0f)
 	{
@@ -320,8 +321,8 @@ void Canvas::DrawGui()
 {
 	// Draw zoom level
 	std::string zoomLevelText = "zoom: " + std::to_string(int(m_Camera.GetZoom() * 100)) + "%";
-	Renderer::DrawText({ 30, GetScreenHeight() - 30 }, zoomLevelText, 10, VColor::DarkGray);
+	Renderer::DrawText({ 30, Window::GetWidth() - 30}, zoomLevelText, 10, VColor::DarkGray);
 
 	std::string fps = std::to_string((int)Time::GetFPS()) + " FPS";
-	Renderer::DrawText({ 30, GetScreenHeight() - 43 }, fps, 10, VColor::DarkGray);
+	Renderer::DrawText({ 30, Window::GetHeight() - 43}, fps, 10, VColor::DarkGray);
 }

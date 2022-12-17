@@ -1,6 +1,5 @@
 #pragma once
 
-#include "raylib.h"
 #include "entt.hpp"
 #include "CanvasCamera.hpp"
 #include <glm/vec2.hpp>

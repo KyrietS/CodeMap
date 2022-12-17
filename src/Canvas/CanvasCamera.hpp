@@ -1,9 +1,9 @@
 #pragma once
 
-// TODO Hide raylib in cpp file
-#include "raylib.h"
 #include <glm/vec2.hpp>
+#include <glm/mat4x4.hpp>
 #include "Render/CameraData.hpp"
+
 
 class CanvasCamera
 {
@@ -26,20 +26,14 @@ public:
 	void SetZoom(float zoomLevel);
 	void SetZoomAt(glm::vec2 screenPos, float zoomLevel);
 
-	static glm::vec2 GetScreenCenter()
-	{
-		return { GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f };
-	}
+	glm::vec2 GetScreenCenter();
+
+	glm::mat4 GetTransform();
 
 private:
-	operator Camera2D& () 
-	{ 
-		return m_Camera; 
-	}
-
-private:
-	Camera2D m_Camera;
-
-	friend class Canvas;
+	glm::vec2 m_Offset;         // Camera offset (displacement from target)
+	glm::vec2 m_Target;         // Camera target (rotation and zoom origin)
+	float m_Rotation;           // Camera rotation in degrees. DO NOT USE!
+	float m_Zoom;               // Camera zoom (scaling), should be 1.0f by default
 };
 

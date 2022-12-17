@@ -1,75 +1,72 @@
 #include "pch.hpp"
 #include "CanvasCamera.hpp"
-#include "raymath.h"
-#include <glm/vec2.hpp>
-
+#include "Window.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
 
 CanvasCamera::CanvasCamera()
 {
-	m_Camera.offset = { 0, 0 };
-	m_Camera.target = { 0, 0 };
-	m_Camera.rotation = 0.0f;
-	m_Camera.zoom = 1.0f;
+	m_Offset = { 0, 0 };
+	m_Target = { 0, 0 };
+	m_Rotation = 0.0f;
+	m_Zoom = 1.0f;
+}
+
+glm::mat4 CanvasCamera::GetTransform()
+{
+	glm::mat4 offset = glm::translate(glm::vec3{ m_Offset.x, m_Offset.y, 0.0f });
+	glm::mat4 target = glm::translate(glm::vec3{ -m_Target.x, -m_Target.y, 0.0f });
+	glm::mat4 scale = glm::scale(glm::vec3{ m_Zoom, m_Zoom, 1.0f });
+	glm::mat4 rotation = glm::rotate(glm::radians(m_Rotation), glm::vec3{ 0.0f, 0.0f, 1.0f });
+
+	return offset * ((rotation * scale) * target);
 }
 
 glm::vec2 CanvasCamera::GetScreenToWorld(glm::vec2 screenTarget)
 {
-	Vector2 pos = { screenTarget.x, screenTarget.y };
-	Vector2 result = GetScreenToWorld2D(pos, m_Camera);
-	return { result.x, result.y };
+	return glm::inverse(GetTransform()) * glm::vec4{ screenTarget.x, screenTarget.y, 0.0f, 1.0f };
 }
 
 glm::vec2 CanvasCamera::GetWorldToScreen(glm::vec2 worldTarget)
 {
-	Vector2 pos = { worldTarget.x, worldTarget.y };
-	Vector2 result = GetWorldToScreen2D(pos, m_Camera);
-	return { result.x, result.y };
+	return GetTransform() * glm::vec4{ worldTarget.x, worldTarget.y, 0.0f, 1.0f };
 }
 
 void CanvasCamera::CenterAtScreen(glm::vec2 screenTarget)
 {
-	Vector2 target = { screenTarget.x, screenTarget.y };
-	Vector2 pos = GetScreenToWorld2D(target, m_Camera);
-	CenterAtWorld({pos.x, pos.y});
+	CenterAtWorld(GetScreenToWorld(screenTarget));
 }
 
 void CanvasCamera::CenterAtWorld(glm::vec2 worldTarget)
 {
-	m_Camera.target = { worldTarget.x, worldTarget.y };
-	m_Camera.offset = { GetScreenWidth() / 2.0f, GetScreenHeight() / 2.0f };
+	m_Target = worldTarget;
+	m_Offset = { Window::GetWidth() / 2.0f, Window::GetHeight() / 2.0f };
 }
 
 void CanvasCamera::MoveOnScreenBy(glm::vec2 screenDelta)
 {
-	glm::vec2 worldDelta = screenDelta * (-1.0f / m_Camera.zoom);
+	glm::vec2 worldDelta = screenDelta * (-1.0f / m_Zoom);
 	MoveInWorldBy(worldDelta);
 }
 
 void CanvasCamera::MoveInWorldBy(glm::vec2 worldDelta)
 {
-	glm::vec2 result = glm::vec2{ m_Camera.target.x, m_Camera.target.y } + worldDelta;
-	m_Camera.target = { result.x, result.y };
+	m_Target = m_Target + worldDelta;
 }
 
 float CanvasCamera::GetZoom()
 {
-	return m_Camera.zoom;
+	return m_Zoom;
 }
 
 glm::vec2 CanvasCamera::GetCenter()
 {
-	Vector2 center = { GetScreenCenter().x, GetScreenCenter().y };
-	Vector2 result = GetScreenToWorld2D(center,  m_Camera);
-	return { result.x, result.y };
+	return GetScreenToWorld(GetScreenCenter());
 }
 
 CameraData CanvasCamera::GetData()
 {
-	glm::vec2 offset = { m_Camera.offset.x, m_Camera.offset.y };
-	glm::vec2 target = { m_Camera.target.x, m_Camera.target.y };
-	float rotation = m_Camera.rotation;
-	float zoom = m_Camera.zoom;
-	return CameraData{ offset, target, rotation, zoom };
+	return CameraData{ m_Offset, m_Target, m_Rotation, m_Zoom };
 }
 
 void CanvasCamera::SetZoom(float zoomLevel)
@@ -79,10 +76,13 @@ void CanvasCamera::SetZoom(float zoomLevel)
 
 void CanvasCamera::SetZoomAt(glm::vec2 screenPos, float zoomLevel)
 {
-	Vector2 pos = { screenPos.x, screenPos.y };
-	Vector2 worldPos = GetScreenToWorld2D(pos, m_Camera);
-	m_Camera.offset = { screenPos.x, screenPos.y };
-	m_Camera.target = worldPos;
+	m_Target = GetScreenToWorld(screenPos);
+	m_Offset = screenPos;
 
-	m_Camera.zoom = zoomLevel;
+	m_Zoom = zoomLevel;
+}
+
+glm::vec2 CanvasCamera::GetScreenCenter()
+{
+	return { Window::GetWidth() / 2.0f, Window::GetHeight() / 2.0f };
 }
