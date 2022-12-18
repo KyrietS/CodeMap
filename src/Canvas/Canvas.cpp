@@ -21,7 +21,7 @@ Canvas* Canvas::m_PrimaryInstance = nullptr;
 
 Canvas::Canvas(bool primary) : m_Props{}
 {
-	// TODO: I'm not sure if this is good place for creating scripts...
+	// TODO: These should be implemented as controllers
 	CreateVoidEntity().AddComponent<Components::NativeScript>().Bind<SelectionScript>();
 	CreateVoidEntity().AddComponent<Components::NativeScript>().Bind<CanvasViewControlScript>();
 	CreateVoidEntity().AddComponent<Components::NativeScript>().Bind<ClickToAddTextScript>();
@@ -161,12 +161,7 @@ void Canvas::Draw()
 	}
 	Renderer::EndCameraView();
 
-	// REWORK: I agree, GUI must be defined as a separate class and comunicate with Canvas via events
-	// system. This communication should work in both ways though, because only Canvas knows what
-	// element a user clicked on and only Gui knows which option user has chosen (eg. remove element)
-	// TODO: Move GUI outside the Canvas class. Everything here should be rendered "inside" camera.
-	//       Overlay with GUI should still have access to Canvas to manipulate it via provided API.
-	//       (without friendship would be great)
+	// TODO: Move to a separate layer
 	DrawGui();
 	
 	Renderer::EndFrame();
@@ -174,20 +169,13 @@ void Canvas::Draw()
 
 void Canvas::OnUpdate()
 {
-	// REWORK: This code should go to a function implementing EventListener interface.
-	// Canvas class can implement this interface too, but in the long run I would like to
-	// separate this Canvas controll logic into a separate class.
-	// TODO: This code should go to NativeScript
+	// TODO: Move to a controller with event dispatcher
 	if (Input::IsKeyDown(Key::LeftControl) && Input::IsKeyPressed(Key::V))
 	{
 		HandlePasteImage();
 	}
 	if (Input::IsMouseButtonPressed(Mouse::ButtonRight))
 	{
-		// REWORK: Creation of CanvasElements (currently Entities) should be moved to some
-		// factory class that can be pass around allowing different parts of code to create
-		// new CnvasElements.
-		// But... Canvas still needs to have a container with all CanvasElements created.
 		LineEntity(CreateEntity(Input::GetWorldMousePosition())).Build();
 		LOG_DEBUG("Created LineEntity");
 	}
@@ -208,11 +196,6 @@ void Canvas::OnUpdate()
 		parent.AddChild(child);
 	}
 
-	// REWORK: A simillar yer even more complicated mechanism will be needed for
-	// CanvasElements removal. There will be no "Script" capable of removing elements
-	// from canvas, but events requesting element deletion. This needs to be handled
-	// with care, because the element that is to be removed might be registered
-	// as a listener in some dispatchers!
 	// Remove entities scheduled for removal from scripts.
 	for (auto entity : m_ToBeRemoved)
 	{
@@ -319,7 +302,6 @@ void Canvas::DrawGrid()
 
 void Canvas::DrawGui()
 {
-	// Draw zoom level
 	std::string zoomLevelText = "zoom: " + std::to_string(int(m_Camera.GetZoom() * 100)) + "%";
 	Renderer::DrawText({ 30, Window::GetHeight() - 30}, zoomLevelText, 10, VColor::DarkGray);
 
