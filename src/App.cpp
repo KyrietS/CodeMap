@@ -13,7 +13,7 @@ App::App(const AppConfig& appConfig) : m_AppConfig{appConfig}
 {
 	Logger::Init();
 	Window::Init(appConfig.WindowWidth, appConfig.WindowHeight, appConfig.Name);
-	Input::Init();
+	Window::SetEventCallback(BIND_EVENT(App::OnEvent));
 	Time::Init();
 	Time::LockFPS(61.0);
 
@@ -27,7 +27,8 @@ void App::Run()
 	LOG_INFO("App started");
 	while (IsRunning())
 	{
-		Input::PollEventsOrWait();
+		Input::ResetStates();
+		Window::PollEventsOrWait();
 		m_ScriptEngine->OnScriptsUpdate();
 		// Rework: For now it's ok, to call OnUpdate() and Draw() here, but at some point
 		// I want to register the Canvas object in some EventDispatcher and send events
@@ -58,4 +59,9 @@ void App::RequestRedraw()
 bool App::IsRunning()
 {
 	return m_Running && !Window::ShouldClose();
+}
+
+void App::OnEvent(Event& event)
+{
+	Input::OnEvent(event);
 }

@@ -4,17 +4,14 @@
 #include "MouseCodes.hpp"
 #include "KeyCodes.hpp"
 #include <glm/vec2.hpp>
+#include "Events/Event.hpp"
+#include "Events/MouseEvent.hpp"
+#include "Events/KeyEvent.hpp"
 
-
-struct GLFWwindow;
 
 class Input
 {
 public:
-	static void Init();
-	static void PollEvents();
-	static void PollEventsOrWait();
-
 	static glm::vec2 GetScreenMousePosition();
 	static glm::vec2 GetWorldMousePosition();
 	static glm::vec2 GetWorldMousePositionRelativeTo(glm::vec2 origin);
@@ -27,12 +24,14 @@ public:
 	static bool IsMouseButtonUp(MouseCode);
 	static bool IsMouseButtonDoubleClicked(MouseCode);
 
-	static void MousePositionCallback(GLFWwindow* window, double xpos, double ypos);
-	static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-	static void MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-
-	static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-	static void CharCallback(GLFWwindow* window, unsigned int codepoint);
+	static void OnEvent(Event&);
+	static void OnMouseMoved(MouseMovedEvent&);
+	static void OnMousePressed(MousePressedEvent&);
+	static void OnMouseReleased(MouseReleasedEvent&);
+	static void OnMouseScrolled(MouseScrolledEvent&);
+	static void OnKeyPressed(KeyPressedEvent&);
+	static void OnKeyReleased(KeyReleasedEvent&);
+	static void OnKeyTyped(KeyTypedEvent&);
 
 	static void BeginTextMode();
 	static void EndTextMode();
@@ -44,10 +43,10 @@ public:
 	static uint32_t GetChar();
 
 private:
+	friend class App;
 	static void ResetStates();
 
 private:
-	static GLFWwindow* s_GlfwWindow;
 	struct InputState
 	{
 		bool IsDown = false;
@@ -55,8 +54,8 @@ private:
 		bool IsReleased = false;
 	};
 
-	static std::array<InputState, GLFW_MOUSE_BUTTON_LAST + 1> s_MouseState;
-	static std::array<InputState, GLFW_KEY_LAST + 1> s_KeyState;
+	static std::array<InputState, Mouse::LastCode + 1> s_MouseState;
+	static std::array<InputState, Key::LastCode + 1> s_KeyState;
 
 	static glm::vec2 s_MousePosition;
 	static glm::vec2 s_LastMousePos;

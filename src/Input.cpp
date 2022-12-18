@@ -6,10 +6,8 @@
 #include "Time.hpp"
 
 
-GLFWwindow* Input::s_GlfwWindow;
 std::array<Input::InputState, GLFW_MOUSE_BUTTON_LAST+1> Input::s_MouseState;
 std::array<Input::InputState, GLFW_KEY_LAST + 1> Input::s_KeyState;
-
 
 glm::vec2 Input::s_MousePosition;
 glm::vec2 Input::s_LastMousePos;
@@ -19,40 +17,6 @@ bool Input::s_IsTextMode = false;
 std::queue<KeyCode> Input::s_KeyQueue;
 std::queue<uint32_t> Input::s_CharQueue;
 
-void Input::Init()
-{
-	// Set GLFW callbacks
-	s_GlfwWindow = glfwGetCurrentContext();
-
-	glfwSetCursorPosCallback(s_GlfwWindow, Input::MousePositionCallback);
-	glfwSetMouseButtonCallback(s_GlfwWindow, Input::MouseButtonCallback);
-	glfwSetScrollCallback(s_GlfwWindow, Input::MouseScrollCallback);
-	glfwSetKeyCallback(s_GlfwWindow, Input::KeyCallback);
-	glfwSetCharCallback(s_GlfwWindow, Input::CharCallback);
-
-	s_LastMousePos = { 0.0f, 0.0f };
-}
-
-void Input::PollEvents()
-{
-	ResetStates();
-	glfwPollEvents(); // callbacks will be invoked here
-}
-
-void Input::PollEventsOrWait()
-{
-	// I need to pause frame-time to make sure that it is calculated correctly.
-	// For example, if we waited 2 secods for an event, then calling GetFrameTime 
-	// would return 2 seconds and every time-frame-related code like Animation would break.
-	// By using Pause and Resume I can subtraxt the time spent on waiting
-	// So that user of Time::GetFrameTime is not aware of the waiting.
-
-	ResetStates();
-
-	Time::Pause();
-	glfwWaitEvents();
-	Time::Resume();
-}
 
 glm::vec2 Input::GetScreenMousePosition()
 {
@@ -117,62 +81,68 @@ bool Input::IsMouseButtonDoubleClicked(MouseCode mouseCode)
 	return false;
 }
 
-void Input::MousePositionCallback(GLFWwindow* window, double xpos, double ypos)
+void Input::OnEvent(Event& event)
 {
-	s_MousePosition = { (float)xpos, (float)ypos };
+	EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<MouseMovedEvent>(Input::OnMouseMoved);
+	dispatcher.Dispatch<MousePressedEvent>(Input::OnMousePressed);
+	dispatcher.Dispatch<MouseReleasedEvent>(Input::OnMouseReleased);
+	dispatcher.Dispatch<MouseScrolledEvent>(Input::OnMouseScrolled);
+	dispatcher.Dispatch<KeyPressedEvent>(Input::OnKeyPressed);
+	dispatcher.Dispatch<KeyReleasedEvent>(Input::OnKeyReleased);
+	dispatcher.Dispatch<KeyTypedEvent>(Input::OnKeyTyped);
 }
 
-void Input::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+void Input::OnMouseMoved(MouseMovedEvent& event)
 {
-	LOG_DEBUG("MouseButtonCallback: button={}, action={}, mods={:#b}", button, action, mods);
-	if (action == GLFW_PRESS)
-	{
-		s_MouseState[button].IsDown = true;
-		s_MouseState[button].IsPressed = true;
-	}
-	if (action == GLFW_RELEASE)
-	{
-		s_MouseState[button].IsDown = false;
-		s_MouseState[button].IsReleased = true;
-	}
+	s_MousePosition = { event.GetX(), event.GetY() };
 }
 
-void Input::MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+void Input::OnMousePressed(MousePressedEvent& event)
 {
-	s_MouseScroll = { (float)xoffset, (float)yoffset };
+	s_MouseState[event.GetButton()].IsDown = true;
+	s_MouseState[event.GetButton()].IsPressed = true;
 }
 
-void Input::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void Input::OnMouseReleased(MouseReleasedEvent& event)
 {
-	LOG_DEBUG("KeyCallback: key={}, scancode={}, action={}, mods={:#b}", key, scancode, action, mods);
-	if (key == GLFW_KEY_UNKNOWN)
-	{
-		LOG_WARN("KeyCallback: unknown key - ignoring.");
-		return;
-	}
-	if (action == GLFW_PRESS)
+	s_MouseState[event.GetButton()].IsDown = false;
+	s_MouseState[event.GetButton()].IsReleased = true;
+}
+
+void Input::OnMouseScrolled(MouseScrolledEvent& event)
+{
+	s_MouseScroll = { event.GetXOffset(), event.GetYOffset() };
+}
+
+void Input::OnKeyPressed(KeyPressedEvent& event)
+{
+	KeyCode key = event.GetKey();
+
+	if (not event.IsRepeated())
 	{
 		s_KeyState[key].IsDown = true;
 		s_KeyState[key].IsPressed = true;
 	}
-	if (action == GLFW_RELEASE)
-	{
-		s_KeyState[key].IsDown = false;
-		s_KeyState[key].IsReleased = true;
-	}
-
+	
 	if (s_IsTextMode)
 	{
-		if (action == GLFW_PRESS || action == GLFW_REPEAT)
-			s_KeyQueue.push(key);
+		s_KeyQueue.push(key);
 	}
 }
 
-void Input::CharCallback(GLFWwindow* window, unsigned int codepoint)
+void Input::OnKeyReleased(KeyReleasedEvent& event)
+{
+	KeyCode key = event.GetKey();
+	s_KeyState[key].IsDown = false;
+	s_KeyState[key].IsReleased = true;
+}
+
+void Input::OnKeyTyped(KeyTypedEvent& event)
 {
 	if (s_IsTextMode)
 	{
-		s_CharQueue.push(codepoint);
+		s_CharQueue.push(event.GetCodePoint());
 	}
 }
 

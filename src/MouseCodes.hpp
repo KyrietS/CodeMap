@@ -18,6 +18,8 @@ namespace Mouse
 
 		ButtonLeft = Button0,
 		ButtonRight = Button1,
-		ButtonMiddle = Button2
+		ButtonMiddle = Button2,
+
+		LastCode = Button7
 	};
 }

@@ -321,7 +321,7 @@ void Canvas::DrawGui()
 {
 	// Draw zoom level
 	std::string zoomLevelText = "zoom: " + std::to_string(int(m_Camera.GetZoom() * 100)) + "%";
-	Renderer::DrawText({ 30, Window::GetWidth() - 30}, zoomLevelText, 10, VColor::DarkGray);
+	Renderer::DrawText({ 30, Window::GetHeight() - 30}, zoomLevelText, 10, VColor::DarkGray);
 
 	std::string fps = std::to_string((int)Time::GetFPS()) + " FPS";
 	Renderer::DrawText({ 30, Window::GetHeight() - 43}, fps, 10, VColor::DarkGray);

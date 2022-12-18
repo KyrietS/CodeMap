@@ -1,6 +1,7 @@
 #pragma once
 #include "Canvas/Canvas.hpp"
 #include "ScriptEngine.hpp"
+#include "Events/Event.hpp"
 
 
 struct AppConfig
@@ -17,6 +18,8 @@ public:
 	App(const AppConfig&);
 	void Run();
 	void Close();
+	void OnEvent(Event&);
+
 	Canvas* GetCanvas() { return m_Canvas.get(); }
 
 	static App& Get() { return *m_Instance; }
