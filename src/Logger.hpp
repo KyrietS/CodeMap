@@ -2,19 +2,8 @@
 
 #pragma warning(push, 0)
 
-// Hack to prevent linker conflict between raylib and Windows.h
-#if defined(_WIN32)           
-	#define NOGDI             // All GDI defines and routines
-	#define NOUSER            // All USER defines and routines
-#endif
-
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
-
-#if defined(_WIN32)
-	#undef near
-	#undef far
-#endif
 
 #pragma warning(pop)
 

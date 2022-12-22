@@ -4,6 +4,9 @@
 #include <glm/glm.hpp>
 #include <span>
 
+// <Windows.h> I hate you so much!!!
+#undef DrawText
+
 namespace Components
 {
 struct Text;

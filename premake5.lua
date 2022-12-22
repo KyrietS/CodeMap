@@ -22,6 +22,7 @@ workspace "CodeMap"
 	group "Dependencies"
 		include "lib/raylib.lua"
 		include "lib/clip.lua"
+		include "lib/imgui.lua"
 	group ""
 
 	project "CodeMap"
@@ -36,19 +37,21 @@ workspace "CodeMap"
 		includedirs {
 			"src/",
 			"lib/raylib/src",
+			"lib/raylib/src/external/glfw/include",
 			"lib/clip/",
 			"lib/entt/include",
             "lib/reasings/src",
             "lib/spdlog/include",
             "lib/utfcpp/source",
-			"lib/glm"
+			"lib/glm",
+			"lib/imgui"
 		}
 		files {"src/**.cpp", "src/**.hpp"}
 
 		vpaths { ["*"] = "src" }
 		
-		links {"raylib", "clip"}
-		dependson {"raylib", "clip"}
+		links {"raylib", "clip", "imgui"}
+		dependson {"raylib", "clip", "imgui"}
 		
 		libdirs {"build/bin/%{cfg.buildcfg}"}
 		

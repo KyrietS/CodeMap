@@ -88,7 +88,6 @@ void UpdateHierarchy(entt::registry& registry)
 
 void Canvas::Draw()
 {
-	Renderer::BeginFrame();
 	Renderer::ClearScreen(m_Props.BackgroundColor);
 	
 	// Canvas world drawing
@@ -163,8 +162,6 @@ void Canvas::Draw()
 
 	// TODO: Move to a separate layer
 	DrawGui();
-	
-	Renderer::EndFrame();
 }
 
 void Canvas::OnUpdate()

@@ -6,7 +6,7 @@
 	url = git@github.com:dacap/clip.git
 [submodule "lib/raylib"]
 	path = lib/raylib
-	url = git@github.com:raysan5/raylib.git
+	url = git@github.com:KyrietS/raylib.git
 [submodule "lib/spdlog"]
 	path = lib/spdlog
 	url = git@github.com:gabime/spdlog.git
@@ -16,3 +16,6 @@
 [submodule "lib/glm"]
 	path = lib/glm
 	url = git@github.com:g-truc/glm.git
+[submodule "lib/imgui"]
+	path = lib/imgui
+	url = git@github.com:ocornut/imgui.git

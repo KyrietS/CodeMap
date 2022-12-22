@@ -24,8 +24,8 @@
 #include <cassert>
 #include <locale>
 
-#include "Logger.hpp"
-
 #ifdef _WIN32
 	#include <Windows.h>
 #endif
+
+#include "Logger.hpp"

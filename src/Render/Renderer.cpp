@@ -69,7 +69,7 @@ void Renderer::DrawRectangle(const glm::vec2& position, float width, float heigh
 
 void Renderer::DrawRectangleLines(const glm::vec2& position, float width, float height, float thickness, const glm::vec4& color)
 {
-	Rectangle rectangle{ position.x, position.y, width, height };
+	rl_Rectangle rectangle{ position.x, position.y, width, height };
 	Color strokeColor = vec4ToColor(color);
 	::DrawRectangleLinesEx(rectangle, thickness, strokeColor);
 }
@@ -94,7 +94,7 @@ void Renderer::DrawImage(const glm::vec2& position, const Components::Image& ima
 
 void Renderer::DrawText(const glm::vec2& position, std::string_view text, float fontSize, const glm::vec4& fontColor)
 {
-	DrawText(position, Components::Text{ text.data(), fontSize, 1.0f, fontColor});
+	Renderer::DrawText(position, Components::Text{ text.data(), fontSize, 1.0f, fontColor});
 }
 
 void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
@@ -102,7 +102,7 @@ void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
 	// TODO: Custom Font
 	Vector2 textPosition{ position.x, position.y };
 	Color fontColor = vec4ToColor(text.FontColor);
-	::DrawTextEx(GetFontDefault(), text.Content.c_str(), textPosition, text.FontSize, text.LetterSpacing, fontColor);
+	::rl_DrawTextEx(GetFontDefault(), text.Content.c_str(), textPosition, text.FontSize, text.LetterSpacing, fontColor);
 }
 
 glm::vec2 Renderer::MeasureText(const Components::Text& text)

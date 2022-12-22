@@ -54,7 +54,7 @@ void Window::Init(uint32_t width, uint32_t height, const std::string& title)
 			LOG_WARN("KeyCallback: unknown key - ignoring.");
 			return;
 		}
-		
+
 		KeyCode keyCode = key;
 
 		if (action == GLFW_PRESS)
@@ -97,7 +97,7 @@ void Window::PollEvents()
 void Window::PollEventsOrWait()
 {
 	// I need to pause frame-time to make sure that it is calculated correctly.
-	// For example, if we waited 2 secods for an event, then calling GetFrameTime 
+	// For example, if we waited 2 secods for an event, then calling GetFrameTime
 	// would return 2 seconds and every time-frame-related code like Animation would break.
 	// By using Pause and Resume I can subtraxt the time spent on waiting
 	// So that user of Time::GetFrameTime is not aware of the waiting.
@@ -113,7 +113,7 @@ void Window::SetEventCallback(std::function<void(Event&)> eventCallback)
 
 void Window::Close()
 {
-	CloseWindow();
+	rl_CloseWindow();
 }
 
 bool Window::ShouldClose()

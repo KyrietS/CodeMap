@@ -5,6 +5,8 @@
 #include "Input.hpp"
 #include "Time.hpp"
 #include "Window.hpp"
+#include "Gui.hpp"
+#include "Render/Renderer.hpp"
 
 
 App* App::m_Instance = nullptr;
@@ -16,6 +18,7 @@ App::App(const AppConfig& appConfig) : m_AppConfig{appConfig}
 	Window::SetEventCallback(BIND_EVENT(App::OnEvent));
 	Time::Init();
 	Time::LockFPS(61.0);
+	InitGui();
 
 	m_Instance = this;
 	m_Canvas = std::make_unique<Canvas>();
@@ -30,19 +33,19 @@ void App::Run()
 		Input::ResetStates();
 		Window::PollEventsOrWait();
 		m_ScriptEngine->OnScriptsUpdate();
-		// Rework: For now it's ok, to call OnUpdate() and Draw() here, but at some point
-		// I want to register the Canvas object in some EventDispatcher and send events
-		// from lower layers: RedrawEvent, AnimationTickEvent, KeyPressedEvent, etc.
-		// This way I can achieve event-based application and stop writing code that is
-		// executed every frame in OnUpdate() function, which is nice, but not for GUI
-		// apps like this one.
 		m_Canvas->OnUpdate();
-		m_Canvas->Draw();
 
+		Renderer::BeginFrame();
+		{
+			m_Canvas->Draw();
+			DrawGui();
+		}
+		Renderer::EndFrame();
 		Time::EndFrame();
 	}
 
 	LOG_INFO("App stopped");
+	DestroyGui();
 	Window::Close();
 }
 
