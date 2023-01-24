@@ -5,8 +5,9 @@
 #include "Input.hpp"
 #include "Time.hpp"
 #include "Window.hpp"
-#include "Gui.hpp"
+#include "GuiLayer.hpp"
 #include "Render/Renderer.hpp"
+#include "CanvasLayer.hpp"
 
 
 App* App::m_Instance = nullptr;
@@ -18,11 +19,17 @@ App::App(const AppConfig& appConfig) : m_AppConfig{appConfig}
 	Window::SetEventCallback(BIND_EVENT(App::OnEvent));
 	Time::Init();
 	Time::LockFPS(61.0);
-	InitGui();
 
 	m_Instance = this;
 	m_Canvas = std::make_unique<Canvas>();
 	m_ScriptEngine = std::make_unique<ScriptEngine>(*m_Canvas);
+
+	m_Layers.push_back(std::make_unique<CanvasLayer>(*m_Canvas));
+	m_Layers.push_back(std::make_unique<GuiLayer>());
+
+	auto dearImGuiLayer = std::make_unique<DearImGuiLayer>();
+	m_DearImGuiLayer = dearImGuiLayer.get();
+	m_Layers.push_back(std::move(dearImGuiLayer));
 }
 
 void App::Run()
@@ -30,23 +37,16 @@ void App::Run()
 	LOG_INFO("App started");
 	while (IsRunning())
 	{
-		Input::ResetStates();
-		Window::PollEventsOrWait();
-		m_ScriptEngine->OnScriptsUpdate();
-		m_Canvas->OnUpdate();
+		FetchEvents();
+		ExecuteScripts();
 
-		Renderer::BeginFrame();
-		{
-			m_Canvas->Draw();
-			DrawGui();
-		}
-		Renderer::EndFrame();
-		Time::EndFrame();
+		BeginFrame();
+		UpdateLayers();
+		EndFrame();
 	}
 
 	LOG_INFO("App stopped");
-	DestroyGui();
-	Window::Close();
+	ReleaseResources();
 }
 
 void App::Close()
@@ -59,12 +59,55 @@ void App::RequestRedraw()
 	glfwPostEmptyEvent();
 }
 
+void App::FetchEvents()
+{
+	Input::ResetStates();
+	Window::PollEventsOrWait();
+}
+
+void App::ExecuteScripts()
+{
+	m_ScriptEngine->OnScriptsUpdate();
+}
+
+void App::UpdateLayers()
+{
+	for (auto& layer : m_Layers)
+	{
+		layer->OnUpdate();
+	}
+}
+
 bool App::IsRunning()
 {
 	return m_Running && !Window::ShouldClose();
 }
 
+void App::BeginFrame()
+{
+	Renderer::BeginFrame();
+	m_DearImGuiLayer->Begin();
+}
+
+void App::EndFrame()
+{
+	m_DearImGuiLayer->End();
+	Renderer::EndFrame();
+	Time::EndFrame();
+}
+
+void App::ReleaseResources()
+{
+	m_Layers.clear(); // remove all layers and free ImGui Context
+	Window::Close();
+}
+
 void App::OnEvent(Event& event)
 {
-	Input::OnEvent(event);
+	for (auto it = m_Layers.rbegin(); it != m_Layers.rend(); ++it)
+	{
+		if (event.Handled)
+			break;
+		(*it)->OnEvent(event);
+	}
 }

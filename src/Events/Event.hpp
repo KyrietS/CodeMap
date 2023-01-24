@@ -18,6 +18,8 @@ public:
 	virtual ~Event() = default;
 
 	virtual EventType GetEventType() = 0;
+
+	bool Handled = false;
 };
 
 template <typename T>
