@@ -1,8 +1,12 @@
 #include "pch.hpp"
-#include "SelectionScript.hpp"
+#include "SelectionController.hpp"
 #include "Input.hpp"
+#include "Canvas/Canvas.hpp"
+#include "Canvas/Components.hpp"
+#include "Canvas/Entity.hpp"
 
-void SelectionScript::OnUpdate()
+
+void SelectionController::OnUpdate()
 {
 	if (Input::IsMouseButtonPressed(Mouse::ButtonLeft))
 	{

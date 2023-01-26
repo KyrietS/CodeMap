@@ -6,14 +6,14 @@
 #include "Entity.hpp"
 #include "Prefabs/ImageEntity.hpp"
 #include "Prefabs/LineEntity.hpp"
-#include "Scripts/ClickToAddTextScript.hpp"
-#include "Scripts/SelectionScript.hpp"
-#include "Scripts/CanvasViewControlScript.hpp"
 #include "Input.hpp"
 #include "Timer.hpp"
 #include "Render/Renderer.hpp"
 #include "Render/VColor.hpp"
 #include "Window.hpp"
+#include "Controllers/CameraController.hpp"
+#include "Controllers/SelectionController.hpp"
+#include "Controllers/AddTextController.hpp"
 
 
 Canvas* Canvas::m_PrimaryInstance = nullptr;
@@ -22,10 +22,9 @@ Canvas* Canvas::m_PrimaryInstance = nullptr;
 Canvas::Canvas(bool primary) : m_Props{}
 {
 	// TODO: These should be implemented as controllers
-	CreateVoidEntity().AddComponent<Components::NativeScript>().Bind<SelectionScript>();
-	CreateVoidEntity().AddComponent<Components::NativeScript>().Bind<CanvasViewControlScript>();
-	CreateVoidEntity().AddComponent<Components::NativeScript>().Bind<ClickToAddTextScript>();
-
+	m_Controllers.push_back(std::make_unique<CameraController>(m_Camera));
+	m_Controllers.push_back(std::make_unique<SelectionController>());
+	m_Controllers.push_back(std::make_unique<AddTextController>());
 
 	if (primary)
 		m_PrimaryInstance = this;
@@ -166,7 +165,12 @@ void Canvas::Draw()
 
 void Canvas::OnUpdate()
 {
-	// TODO: Move to a controller with event dispatcher
+	for (const auto& controller : m_Controllers)
+	{
+		controller->OnUpdate();
+	}
+
+	// TODO: Move to a controller
 	if (Input::IsKeyDown(Key::LeftControl) && Input::IsKeyPressed(Key::V))
 	{
 		HandlePasteImage();
@@ -200,6 +204,14 @@ void Canvas::OnUpdate()
 			m_Registry.destroy(entity);
 	}
 	m_ToBeRemoved.clear();
+}
+
+void Canvas::OnEvent(Event& event)
+{
+	for (const auto& controller : m_Controllers)
+	{
+		controller->OnEvent(event);
+	}
 }
 
 Entity Canvas::CreateEntity(glm::vec2 initialPosition)

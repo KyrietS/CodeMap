@@ -4,6 +4,7 @@
 #include "CanvasCamera.hpp"
 #include <glm/vec2.hpp>
 #include "Render/VColor.hpp"
+#include "Controllers/IController.hpp"
 
 struct CanvasProps
 {
@@ -21,6 +22,7 @@ public:
 	//       This separation is very artificial and doesn't make much sense.
 	void Draw();
 	void OnUpdate();
+	void OnEvent(Event&);
 
 	Entity CreateEntity(glm::vec2 = { 0, 0 });
 
@@ -43,11 +45,11 @@ private:
 	void DrawGui();
 
 private:
-
-
 	entt::registry m_Registry;
 	CanvasProps m_Props;
 	CanvasCamera m_Camera;
+
+	std::vector<std::unique_ptr<IController>> m_Controllers;
 	std::list<entt::entity> m_ToBeRemoved;
 
 	bool m_DebugMode = true;

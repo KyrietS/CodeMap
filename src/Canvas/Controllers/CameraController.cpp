@@ -1,10 +1,24 @@
 #include "pch.hpp"
-#include "CanvasViewControlScript.hpp"
-#include "Input.hpp"
+#include "CameraController.hpp"
 #include "Render/Renderer.hpp"
+#include "Input.hpp"
+#include "Canvas/Components.hpp"
+#include "Canvas/Canvas.hpp"
 
 
-void CanvasViewControlScript::OnUpdate()
+namespace
+{
+	void AdjustFilterToZoomLevel(float zoom, const Components::Image& sprite)
+	{
+		if (zoom < 1.0f)
+			Renderer::SetImageFilter(sprite.TextureId, ImageFilter::Linear);
+		else
+			Renderer::SetImageFilter(sprite.TextureId, ImageFilter::Nearest);
+	}
+}
+
+
+void CameraController::OnUpdate()
 {
 	glm::vec2 wheelMove = Input::GetMouseWheelMove();
 	if (wheelMove.y != 0)
@@ -39,7 +53,7 @@ void CanvasViewControlScript::OnUpdate()
 	{
 		float newZoom = m_ZoomAnimation.Step();
 		m_Camera.SetZoom(newZoom);
-		
+
 		glm::vec2 newCameraCenter = m_CameraTargetAnimation.Step();
 		m_Camera.CenterAtWorld(newCameraCenter);
 	}
@@ -50,7 +64,7 @@ void CanvasViewControlScript::OnUpdate()
 	}
 }
 
-void CanvasViewControlScript::ZoomCamera(float zoomChange)
+void CameraController::ZoomCamera(float zoomChange)
 {
 	const float zoomFactor = 1.1f;
 	float zoomLevel = m_Camera.GetZoom() * (zoomChange > 0 ? zoomFactor : (1.0f / zoomFactor));
@@ -71,12 +85,4 @@ void CanvasViewControlScript::ZoomCamera(float zoomChange)
 	{
 		AdjustFilterToZoomLevel(zoomLevel, texture);
 	}
-}
-
-void CanvasViewControlScript::AdjustFilterToZoomLevel(float zoom, const Components::Image& sprite)
-{
-	if (zoom < 1.0f)
-		Renderer::SetImageFilter(sprite.TextureId, ImageFilter::Linear);
-	else
-		Renderer::SetImageFilter(sprite.TextureId, ImageFilter::Nearest);
 }
