@@ -1,11 +1,11 @@
 #include "pch.hpp"
-#include "AddTextController.hpp"
+#include "TextController.hpp"
 #include "Canvas/Canvas.hpp"
 #include "Input.hpp"
 #include "Prefabs/TextEntity.hpp"
 
 
-void AddTextController::OnUpdate()
+void TextController::OnUpdate()
 {
 	if (Input::IsMouseButtonDoubleClicked(Mouse::ButtonLeft))
 	{

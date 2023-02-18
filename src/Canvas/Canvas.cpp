@@ -13,7 +13,9 @@
 #include "Window.hpp"
 #include "Controllers/CameraController.hpp"
 #include "Controllers/SelectionController.hpp"
-#include "Controllers/AddTextController.hpp"
+#include "Controllers/TextController.hpp"
+#include "Controllers/ImageController.hpp"
+#include "Controllers/LineController.hpp"
 
 
 Canvas* Canvas::m_PrimaryInstance = nullptr;
@@ -21,10 +23,11 @@ Canvas* Canvas::m_PrimaryInstance = nullptr;
 
 Canvas::Canvas(bool primary) : m_Props{}
 {
-	// TODO: These should be implemented as controllers
 	m_Controllers.push_back(std::make_unique<CameraController>(m_Camera));
 	m_Controllers.push_back(std::make_unique<SelectionController>());
-	m_Controllers.push_back(std::make_unique<AddTextController>());
+	m_Controllers.push_back(std::make_unique<TextController>());
+	m_Controllers.push_back(std::make_unique<ImageController>());
+	m_Controllers.push_back(std::make_unique<LineController>());
 
 	if (primary)
 		m_PrimaryInstance = this;
@@ -170,31 +173,9 @@ void Canvas::OnUpdate()
 		controller->OnUpdate();
 	}
 
-	// TODO: Move to a controller
-	if (Input::IsKeyDown(Key::LeftControl) && Input::IsKeyPressed(Key::V))
-	{
-		HandlePasteImage();
-	}
-	if (Input::IsMouseButtonPressed(Mouse::ButtonRight))
-	{
-		LineEntity(CreateEntity(Input::GetWorldMousePosition())).Build();
-		LOG_DEBUG("Created LineEntity");
-	}
 	if (Input::IsKeyPressed(Key::Tab))
 	{
 		m_DebugMode = !m_DebugMode;
-	}
-	if (Input::IsKeyPressed(Key::D))
-	{
-		LOG_DEBUG("Debug button pressed");
-		Entity parent = CreateEntity(Input::GetWorldMousePosition());
-
-		Entity child = CreateEntity();
-		auto &ah = child.AddComponent<Components::Arrowhead>();
-		ah.Height = 50.0f;
-		ah.Width = 50.0f;
-
-		parent.AddChild(child);
 	}
 
 	// Remove entities scheduled for removal from scripts.
@@ -228,38 +209,12 @@ Entity Canvas::CreateEntity(glm::vec2 initialPosition)
 	return entity;
 }
 
-void TransformFromBgraToRgba(uint8_t* data, int size)
-{
-	for (int i = 0; i < size / 4; i++)
-	{
-		// Swap first and third byte in pixel.
-		std::swap(data[i * 4 + 0], data[i * 4 + 2]);
-	}
-}
-
 Entity Canvas::CreateVoidEntity()
 {
 	Entity entity = { m_Registry.create(), this };
 	LOG_DEBUG("Created entity id={}", (int)(entt::entity)entity);
 
 	return entity;
-}
-
-void Canvas::HandlePasteImage()
-{
-	clip::image clipboardImage;
-	if (!clip::get_image(clipboardImage))
-	{
-		return LOG_WARN("CLIPBOARD: Failed to paste an image from clipboard");
-	}
-
-	clip::image_spec imageSpec = clipboardImage.spec();
-	int size = (int)imageSpec.required_data_size();
-	uint8_t* data = reinterpret_cast<uint8_t*>(clipboardImage.data());
-	TransformFromBgraToRgba(data, size);
-	glm::vec2 imagePos = Input::GetWorldMousePosition();
-
-	ImageEntity(CreateEntity()).Build(imagePos, data, imageSpec.width, imageSpec.height);
 }
 
 void Canvas::ScheduleEntityForDestruction(const entt::entity entity)

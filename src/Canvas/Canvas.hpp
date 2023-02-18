@@ -24,6 +24,9 @@ public:
 	void OnUpdate();
 	void OnEvent(Event&);
 
+	// Move this function to some Factory class
+	// To pass it around and make it possible for controllers
+	// to create their own entities.
 	Entity CreateEntity(glm::vec2 = { 0, 0 });
 
 	template<typename... Components>
