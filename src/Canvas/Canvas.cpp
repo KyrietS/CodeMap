@@ -161,9 +161,6 @@ void Canvas::Draw()
 		
 	}
 	Renderer::EndCameraView();
-
-	// TODO: Move to a separate layer
-	DrawGui();
 }
 
 void Canvas::OnUpdate()
@@ -262,13 +259,4 @@ void Canvas::DrawGrid()
 			Renderer::DrawRectangle({ dotX, dotY }, DOT_SIZE, DOT_SIZE, VColor::LightGray);
 		}
 	}
-}
-
-void Canvas::DrawGui()
-{
-	std::string zoomLevelText = "zoom: " + std::to_string(int(m_Camera.GetZoom() * 100)) + "%";
-	Renderer::DrawText({ 30, Window::GetHeight() - 30}, zoomLevelText, 10, VColor::DarkGray);
-
-	std::string fps = std::to_string((int)Time::GetFPS()) + " FPS";
-	Renderer::DrawText({ 30, Window::GetHeight() - 43}, fps, 10, VColor::DarkGray);
 }
