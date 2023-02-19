@@ -18,8 +18,7 @@ class Canvas
 public:
 	Canvas(bool primary = true);
 	~Canvas();
-	// TODO: Draw() and OnUpdate() should be the same function.
-	//       This separation is very artificial and doesn't make much sense.
+
 	void Draw();
 	void OnUpdate();
 	void OnEvent(Event&);
@@ -40,12 +39,11 @@ public:
 
 private:
 	Entity CreateVoidEntity();
-	void HandlePasteImage();
 	void ScheduleEntityForDestruction(const entt::entity entity);
+	void UpdateHierarchy();
+	void UpdateChildrenOf(Entity parent);
 
-	// Drawing
 	void DrawGrid();
-	void DrawGui();
 
 private:
 	entt::registry m_Registry;

@@ -20,9 +20,17 @@ namespace Components
 		int Index = 0;
 		std::vector<int> IndexHierarchy;
 
+		// This includes parent's translation
+		glm::vec2 GlobalTranslation = { 0.0f, 0.0f };
+
 		glm::mat4 GetTranslationMatrix2() const
 		{
 			return glm::translate(glm::vec3{ Translation.x, Translation.y, 0.0f });
+		}
+
+		glm::mat4 GetGlobalTranslationMatrix2() const
+		{
+			return glm::translate(glm::vec3{ GlobalTranslation.x, GlobalTranslation.y, 0.0f });
 		}
 
 		glm::mat4 GetRotationMatrix2() const
@@ -31,9 +39,14 @@ namespace Components
 			return glm::rotate(Rotation, glm::vec3{ 0.0f, 0.0f, 1.0f });
 		}
 
-		glm::mat4 GetTransform() const
+		glm::mat4 GetLocalTransform() const
 		{
 			return GetTranslationMatrix2() * GetRotationMatrix2();
+		}
+
+		glm::mat4 GetTransform() const
+		{
+			return GetGlobalTranslationMatrix2() * GetRotationMatrix2();
 		}
 
 		Transform() = default;
@@ -45,11 +58,12 @@ namespace Components
 
 		void Update(const std::optional<std::reference_wrapper<Transform>> parent)
 		{
-			// TODO: update translation and rotation
+			// TODO: update rotation
 			IndexHierarchy.clear();
+			GlobalTranslation = Translation;
 			if (parent)
 			{
-				//GlobalTranslation = Vector2Add(LocalTranslation, parent->get().GlobalTranslation);
+				GlobalTranslation = Translation + parent->get().GlobalTranslation;
 				IndexHierarchy = parent->get().IndexHierarchy;
 			}
 			IndexHierarchy.emplace_back(Index);

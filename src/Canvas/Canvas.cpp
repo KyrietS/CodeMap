@@ -18,6 +18,26 @@
 #include "Controllers/LineController.hpp"
 
 
+namespace
+{
+	bool CompareTransforms(const Components::Transform& lhs, const Components::Transform& rhs)
+	{
+		size_t currIndex = 0;
+		size_t end = std::min(lhs.IndexHierarchy.size(), rhs.IndexHierarchy.size());
+		while (currIndex < end)
+		{
+			if (lhs.IndexHierarchy[currIndex] != rhs.IndexHierarchy[currIndex])
+			{
+				return lhs.IndexHierarchy[currIndex] < rhs.IndexHierarchy[currIndex];
+			}
+			currIndex += 1;
+		}
+
+		return lhs.IndexHierarchy.size() < rhs.IndexHierarchy.size();
+	}
+}
+
+
 Canvas* Canvas::m_PrimaryInstance = nullptr;
 
 
@@ -38,56 +58,6 @@ Canvas::~Canvas()
 	m_PrimaryInstance = nullptr;
 }
 
-bool CompareTransforms(const Components::Transform& lhs, const Components::Transform& rhs)
-{
-	size_t currIndex = 0;
-	size_t end = std::min(lhs.IndexHierarchy.size(), rhs.IndexHierarchy.size());
-	while (currIndex < end)
-	{
-		if (lhs.IndexHierarchy[currIndex] != rhs.IndexHierarchy[currIndex])
-		{
-			return lhs.IndexHierarchy[currIndex] < rhs.IndexHierarchy[currIndex];
-		}
-		currIndex += 1;
-	}
-
-	return lhs.IndexHierarchy.size() < rhs.IndexHierarchy.size();
-}
-
-// TODO: Move to Canvas class
-void UpdateChildrenRecursively(Entity parent)
-{
-	if (!parent.HasComponent<Components::Hierarchy>())
-		return;
-
-	auto& children = parent.GetComponent<Components::Hierarchy>().Children;
-	for (Entity child : children)
-	{
-		auto parentTransform = parent.HasComponent<Components::Transform>() 
-			? std::make_optional(std::ref(parent.GetComponent<Components::Transform>())) 
-			: std::nullopt;
-		if (child.HasComponent<Components::Transform>())
-		{
-			child.GetComponent<Components::Transform>().Update(parentTransform);
-		}
-		UpdateChildrenRecursively(child);
-	}
-}
-
-void UpdateHierarchy(entt::registry& registry)
-{
-	auto view = registry.view<Components::Transform, Components::Hierarchy>();
-	for (auto &&[entity, transform, hierarchy]: view.each())
-	{
-		bool isRootEntity = (hierarchy.Parent == entt::null);
-		if (isRootEntity)
-		{
-			transform.Update(std::nullopt);
-			UpdateChildrenRecursively(entity);
-		}
-	}
-}
-
 void Canvas::Draw()
 {
 	Renderer::ClearScreen(m_Props.BackgroundColor);
@@ -97,7 +67,7 @@ void Canvas::Draw()
 	{
 		DrawGrid();
 		// Transform hierarchy update
-		UpdateHierarchy(m_Registry);
+		UpdateHierarchy();
 		// Insertion sort is O(n) for nearly sorted arrays
 		m_Registry.sort<Components::Transform>(CompareTransforms, entt::insertion_sort{});
 
@@ -229,6 +199,39 @@ void Canvas::ScheduleEntityForDestruction(const entt::entity entity)
 
 	// Schedule the removal so the script can remove itself.
 	m_ToBeRemoved.push_back(entity);
+}
+
+void Canvas::UpdateChildrenOf(Entity parent)
+{
+	if (!parent.HasComponent<Components::Hierarchy>())
+		return;
+
+	auto& children = parent.GetComponent<Components::Hierarchy>().Children;
+	for (Entity child : children)
+	{
+		auto parentTransform = parent.HasComponent<Components::Transform>()
+			? std::make_optional(std::ref(parent.GetComponent<Components::Transform>()))
+			: std::nullopt;
+		if (child.HasComponent<Components::Transform>())
+		{
+			child.GetComponent<Components::Transform>().Update(parentTransform);
+		}
+		UpdateChildrenOf(child);
+	}
+}
+
+void Canvas::UpdateHierarchy()
+{
+	auto view = m_Registry.view<Components::Transform, Components::Hierarchy>();
+	for (auto&& [entity, transform, hierarchy] : view.each())
+	{
+		bool isRootEntity = (hierarchy.Parent == entt::null);
+		if (isRootEntity)
+		{
+			transform.Update(std::nullopt);
+			UpdateChildrenOf(entity);
+		}
+	}
 }
 
 void Canvas::DrawGrid()

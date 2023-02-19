@@ -51,7 +51,7 @@ public:
 		assert(child.HasComponent<Components::Hierarchy>());
 		assert(child.GetComponent<Components::Hierarchy>().Parent == entt::null);
 
-		auto& childHierarchy = GetComponent<Components::Hierarchy>();
+		auto& childHierarchy = child.GetComponent<Components::Hierarchy>();
 		auto& parentHierarchy = GetComponent<Components::Hierarchy>();
 		parentHierarchy.Children.push_back(child);
 		childHierarchy.Parent = *this;
