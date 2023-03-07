@@ -5,7 +5,7 @@
 #include "Components.hpp"
 #include "Entity.hpp"
 #include "Prefabs/ImageEntity.hpp"
-#include "Prefabs/LineEntity.hpp"
+#include "Prefabs/ArrowEntity.hpp"
 #include "Input.hpp"
 #include "Timer.hpp"
 #include "Render/Renderer.hpp"
@@ -84,26 +84,30 @@ void Canvas::Draw()
 				Renderer::DrawImage(transform.Translation, sprite);
 			}
 
-			// Draw line
-			if (entity.HasComponent<Components::LineSegment>())
+			// Draw arrow
+			if (entity.HasComponent<Components::Arrow>())
 			{
-				auto& line = entity.GetComponent<Components::LineSegment>();
-				glm::vec2 begin = line.GetBegin(transform);
-				glm::vec2 end = line.GetEnd(transform);
-				Renderer::DrawLine(begin, end, line.Thickness, line.StrokeColor);
-			}
+				auto& arrow = entity.GetComponent<Components::Arrow>();
+				glm::vec2 begin = arrow.GetBegin(transform);
+				glm::vec2 end = arrow.GetEnd(transform);
+				Renderer::DrawLine(begin, end, arrow.Thickness, arrow.StrokeColor);
 
-			// Draw arrowhead
-			if (entity.HasComponent<Components::Arrowhead>())
-			{
-				auto& arrowhead = entity.GetComponent<Components::Arrowhead>();
-				glm::vec2 tip1 = arrowhead.Offset;
-				glm::vec2 tip2 = { tip1.x - arrowhead.Width, tip1.y - arrowhead.Height };
-				glm::vec2 tip3 = { tip1.x - arrowhead.Width, tip1.y + arrowhead.Height };
+				// arrowhead directed to the right and pointing at (0,0)
+				float arrowheadSize = 20.0f;
+				glm::vec2 tip1{ -30.0f, -10.0f };
+				glm::vec2 tip2{ -30.0f, +10.0f };
+				glm::vec2 tip3{ 0.0f, 0.0f };
 
-				tip1 = transform.GetTransform() * glm::vec4{ tip1.x, tip1.y, 0.0f, 1.0f };
-				tip2 = transform.GetTransform() * glm::vec4{ tip2.x, tip2.y, 0.0f, 1.0f };
-				tip3 = transform.GetTransform() * glm::vec4{ tip3.x, tip3.y, 0.0f, 1.0f };
+				// rotate relative to (0,0)
+				float angle = arrow.GetAngle();
+				tip1 = glm::rotate(tip1, angle);
+				tip2 = glm::rotate(tip2, angle);
+				tip3 = glm::rotate(tip3, angle); // redundant rotation of (0,0)
+
+				// translate
+				tip1 += arrow.GetEnd(transform);
+				tip2 += arrow.GetEnd(transform);
+				tip3 += arrow.GetEnd(transform);
 
 				Renderer::DrawTriangle(tip1, tip2, tip3, VColor::Orange);
 			}

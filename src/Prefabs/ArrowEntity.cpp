@@ -1,5 +1,5 @@
 #include "pch.hpp"
-#include "LineEntity.hpp"
+#include "ArrowEntity.hpp"
 #include "Canvas/Components.hpp"
 #include "Canvas/ScriptableEntity.hpp"
 #include "Scripts/MoveByDragScript.hpp"
@@ -14,7 +14,7 @@ namespace
 {
 	struct Script : ScriptableEntity
 	{
-		
+
 		void OnUpdate() override
 		{
 			auto isFocused = GetComponent<Components::Focusable>().IsFocused;
@@ -27,15 +27,10 @@ namespace
 			if (Input::IsMouseButtonDown(Mouse::ButtonRight) && m_EditMode)
 			{
 				auto& transform = GetComponent<Components::Transform>();
-				auto& line = GetComponent<Components::LineSegment>();
+				auto& arrow = GetComponent<Components::Arrow>();
 
-				glm::vec2 lineVector = Input::GetWorldMousePosition() - transform.Translation;
-				line.Length = glm::length(lineVector);
-				transform.Rotation = glm::orientedAngle({ 1.0f, 0.0f }, glm::normalize(lineVector));
-
-				GetComponent<Components::Arrowhead>().Offset = line.GetLocalEnd();
-
-				UpdateFocusArea(); 
+				arrow.End = Input::GetWorldMousePosition() - transform.Translation;
+				UpdateFocusArea();
 			}
 			if (isFocused && Input::IsKeyPressed(Key::Delete))
 			{
@@ -46,11 +41,11 @@ namespace
 		void UpdateFocusArea()
 		{
 			auto& transform = GetComponent<Components::Transform>();
-			auto& line = GetComponent<const Components::LineSegment>();
+			auto& arrow = GetComponent<const Components::Arrow>();
 			auto& focus = GetComponent<Components::Focusable>();
 
-			glm::vec2 begin = line.GetBegin(transform);
-			glm::vec2 end = line.GetEnd(transform);
+			glm::vec2 begin = arrow.GetBegin(transform);
+			glm::vec2 end = arrow.GetEnd(transform);
 
 			float minX = std::min(begin.x, end.x);
 			float minY = std::min(begin.y, end.y);
@@ -58,7 +53,7 @@ namespace
 			float height = std::fabs(begin.y - end.y);
 
 			focus.Origin = glm::vec2{ minX, minY } - glm::vec2{ begin.x, begin.y };
-			focus.Size = {width, height};
+			focus.Size = { width, height };
 		}
 
 		bool m_EditMode = true;
@@ -67,11 +62,10 @@ namespace
 
 
 
-LineEntity::LineEntity(const Entity& entity)
-	: Entity(entity) 
+ArrowEntity::ArrowEntity(const Entity& entity)
+	: Entity(entity)
 {
-	AddComponent<Components::LineSegment>();
-	AddComponent<Components::Arrowhead>();
+	AddComponent<Components::Arrow>();
 	AddComponent<Components::Focusable>();
 
 	AttachScript<::Script>();
@@ -80,18 +74,12 @@ LineEntity::LineEntity(const Entity& entity)
 }
 
 
-LineEntity& LineEntity::Build()
+ArrowEntity& ArrowEntity::Build()
 {
-	auto& line = GetComponent<Components::LineSegment>();
-	line.Origin = {0.0f, 0.0f};
-	line.Length = 0.0f;
-	line.StrokeColor = VColor::Blue;
-	line.Thickness = 5.0f;
-
-	auto& arrowhead = GetComponent<Components::Arrowhead>();
-	arrowhead.Offset = { 0.0f, 0.0f };
-	arrowhead.Height = 10.0f;
-	arrowhead.Width = 30.0f;
+	auto& arrow = GetComponent<Components::Arrow>();
+	arrow.End = { 10.0f, 0.0f };
+	arrow.StrokeColor = VColor::Blue;
+	arrow.Thickness = 5.0f;
 
 	return *this;
 }

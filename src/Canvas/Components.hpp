@@ -3,6 +3,7 @@
 #include "entt.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/vector_angle.hpp>
 #include <glm/gtx/transform.hpp>
 #include "Canvas/Box.hpp"
 #include "Render/VColor.hpp"
@@ -83,39 +84,30 @@ namespace Components
 		int Height = 0;
 	};
 
-	struct LineSegment
+	struct Arrow
 	{
-		glm::vec2 Origin = { 0.0f, 0.0f };
-		float Length = 0.0f;
+		glm::vec2 End = { 1.0f, 0.0f };
 		glm::vec4 StrokeColor = VColor::Black;
 		float Thickness = 1.0f;
 
 		glm::vec2 GetBegin(const Transform& transform) const
 		{
-			return transform.GetTransform() * glm::vec4{ Origin.x, Origin.y, 0.0f, 1.0f };
+			return transform.Translation;
 		}
 
 		glm::vec2 GetEnd(const Transform& transform) const
 		{
-			glm::vec4 endRelative = { Origin.x + Length, Origin.y, 0.0f, 1.0f };
-			return transform.GetTransform() * endRelative;
+			return transform.GetTransform() * glm::vec4{ End.x, End.y, 0.0f, 1.0f };
 		}
 
-		glm::vec2 GetLocalEnd() const
+		float GetLength() const
 		{
-			return { Origin.x + Length, Origin.y };
+			return glm::length(End);
 		}
-	};
 
-	struct Arrowhead
-	{
-		glm::vec2 Offset = { 0.0f, 0.0f };
-		float Width = 0.0f;
-		float Height = 0.0f;
-
-		glm::vec2 GetTip(const Transform& transform)
+		float GetAngle() const
 		{
-			return transform.GetTransform() * glm::vec4{ Offset.x, Offset.y, 0.0f, 1.0f };
+			return glm::orientedAngle(glm::vec2{ 1.0f, 0.0f }, glm::normalize(End));
 		}
 	};
 
