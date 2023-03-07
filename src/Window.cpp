@@ -13,7 +13,7 @@ std::function<void(Event&)> Window::s_EventCallback;
 
 void Window::Init(uint32_t width, uint32_t height, const std::string& title)
 {
-	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+	SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT);
 	InitWindow(width, height, title.c_str());
 	SetExitKey(KEY_NULL);
 	SetTargetFPS(60);
