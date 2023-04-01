@@ -14,28 +14,60 @@ namespace
 {
 	struct Script : ScriptableEntity
 	{
-
 		void OnUpdate() override
 		{
-			auto isFocused = GetComponent<Components::Focusable>().IsFocused;
+			auto& isFocused = GetComponent<Components::Focusable>().IsFocused;
 
-			if (Input::IsMouseButtonReleased(Mouse::ButtonRight))
+			// Drag end edit point
+			if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && IsMouseOverEndPoint())
 			{
-				m_EditMode = false;
+				isFocused = false;
+				m_EditMode = EditMode::End;
 			}
 
-			if (Input::IsMouseButtonDown(Mouse::ButtonRight) && m_EditMode)
+			// Drag begin edit point
+			if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && IsMouseOverBeginPoint())
 			{
-				auto& transform = GetComponent<Components::Transform>();
-				auto& arrow = GetComponent<Components::Arrow>();
-
-				arrow.End = Input::GetWorldMousePosition() - transform.Translation;
-				UpdateFocusArea();
+				isFocused = false;
+				m_EditMode = EditMode::Begin;
 			}
+
+			// Fnish all drag edits
+			if (Input::IsMouseButtonReleased(Mouse::ButtonRight) || Input::IsMouseButtonReleased(Mouse::ButtonLeft))
+			{
+				m_EditMode = EditMode::None;
+			}
+
+			switch (m_EditMode)
+			{
+			case EditMode::End: SetEndAt(Input::GetWorldMousePosition()); break;
+			case EditMode::Begin: SetBeginAt(Input::GetWorldMousePosition()); break;
+			default: break;
+			}
+
 			if (isFocused && Input::IsKeyPressed(Key::Delete))
 			{
 				m_Entity.Destroy();
 			}
+		}
+
+		void SetEndAt(glm::vec2 pos)
+		{
+			auto& transform = GetComponent<Components::Transform>();
+			auto& arrow = GetComponent<Components::Arrow>();
+
+			arrow.End = pos - transform.Translation;
+			UpdateFocusArea();
+		}
+
+		void SetBeginAt(glm::vec2 pos)
+		{
+			auto& transform = GetComponent<Components::Transform>();
+			auto& arrow = GetComponent<Components::Arrow>();
+
+			arrow.End -= (pos - transform.Translation);
+			transform.Translation = pos;
+			UpdateFocusArea();
 		}
 
 		void UpdateFocusArea()
@@ -56,7 +88,33 @@ namespace
 			focus.Size = { width, height };
 		}
 
-		bool m_EditMode = true;
+		bool IsMouseOverEndPoint()
+		{
+			auto& transform = GetComponent<Components::Transform>();
+			auto& arrow = GetComponent<const Components::Arrow>();
+			return IsMouseOverEditPoint(arrow.GetEnd(transform));
+		}
+
+		bool IsMouseOverBeginPoint()
+		{
+			auto& transform = GetComponent<Components::Transform>();
+			auto& arrow = GetComponent<const Components::Arrow>();
+			return IsMouseOverEditPoint(arrow.GetBegin(transform));
+		}
+
+		bool IsMouseOverEditPoint(glm::vec2 editPoint)
+		{
+			float radius = ArrowEntity::EDIT_POINT_RADIUS / Canvas::Camera().GetZoom();
+			auto distanceFromTheCenter = glm::length(Input::GetWorldMousePosition() - editPoint);
+			return distanceFromTheCenter <= radius;
+		}
+
+		enum class EditMode
+		{
+			None, End, Begin
+		};
+
+		EditMode m_EditMode = EditMode::End;
 	};
 }
 

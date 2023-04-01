@@ -113,6 +113,13 @@ void Canvas::Draw()
 				tip3 += arrow.GetEnd(transform);
 
 				Renderer::DrawTriangle(tip1, tip2, tip3, VColor::Orange);
+				
+				if (entity.GetComponent<Components::Focusable>().IsFocused)
+				{
+					float radius = ArrowEntity::EDIT_POINT_RADIUS / m_Camera.GetZoom();
+					Renderer::DrawCircleOutline(begin, radius, VColor::Blue);
+					Renderer::DrawCircleOutline(end, radius, VColor::Blue);
+				}
 			}
 
 			// Draw text

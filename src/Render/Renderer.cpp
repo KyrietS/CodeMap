@@ -112,6 +112,11 @@ void Renderer::DrawRectangleLines(const glm::vec2& position, float width, float 
 	::DrawRectangleLinesEx(rectangle, thickness, strokeColor);
 }
 
+void Renderer::DrawCircleOutline(const glm::vec2& position, float radius, const glm::vec4& color)
+{
+	::DrawCircleLines(position.x, position.y, radius, vec4ToColor(color));
+}
+
 void Renderer::DrawImage(const glm::vec2& position, const Components::Image& image)
 {
 	int mipmaps = 1;
