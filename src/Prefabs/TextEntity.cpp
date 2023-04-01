@@ -11,25 +11,8 @@
 
 namespace
 {
-
-
 	struct Script : ScriptableEntity
 	{
-		// static void MyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-		// {
-		// 	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == KEY_BACKSPACE)
-		// 	{
-		// 		print("Key = {} ({})", key, key == KEY_BACKSPACE);
-		// 	}
-		// }
-
-		// void OnCreate() override
-		// {
-		//  GLFWwindow* glfwWindow = glfwGetCurrentContext();
-		// 	glfwSetKeyCallback(glfwWindow, MyCallback);
-		// 	print("Registered new KeyCallback in glfw");
-		// }
-
 		void OnUpdate() override
 		{
 			auto& focus = GetComponent<Components::Focusable>();
@@ -83,18 +66,6 @@ TextEntity& TextEntity::Build(const std::string_view content, float fontSize)
 {
 	auto& text = GetComponent<Components::Text>();
 	text = Components::Text{ content.data(), fontSize, 1.0f, VColor::Black};
-
-	// The last polish Unicode character is 380
-	std::array<int, 381> glyphs;
-	for (int i = 0; i < glyphs.size(); i++)
-	{
-		glyphs[i] = i;
-	}
-
-	// TODO: Load one font the entire program. Loading it for every text is a huge memory waste.
-	//std::string fontPath = Utils::System::GetSystemFontDirPath() + "\\calibri.ttf";
-	//text.Font = LoadFontEx(fontPath.c_str(), 64, glyphs.data(), (int)glyphs.size());
-	//SetTextureFilter(text.Font.texture, TEXTURE_FILTER_BILINEAR);
 
 	auto& focus = GetComponent<Components::Focusable>();
 	focus.Size = Renderer::MeasureText(text);

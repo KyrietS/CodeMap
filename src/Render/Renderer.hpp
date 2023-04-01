@@ -37,6 +37,8 @@ public:
 	static void DrawImage(const glm::vec2& position, const Components::Image& image);
 	static void DrawText(const glm::vec2& position, std::string_view text, float fontSize, const glm::vec4& fontColor);
 	static void DrawText(const glm::vec2& position, const Components::Text& text);
+	static void LoadFont();
+	static void UnloadFont();
 
 	static glm::vec2 MeasureText(const Components::Text& text);
 
@@ -45,5 +47,7 @@ public:
 	static TextureId LoadTextureFromBytes(std::span<uint8_t> data, int width, int height);
 	static void UnloadImage(TextureId);
 	static void SetImageFilter(TextureId, ImageFilter);
+
+	static void* s_FontData;
 };
 

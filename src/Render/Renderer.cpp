@@ -3,7 +3,8 @@
 #include "raylib.h"
 #include "rlgl.h"
 #include "Canvas/Components.hpp"
-
+#include <Utils/System.hpp>
+#include "Fonts/Arial.h"
 
 namespace
 {
@@ -16,8 +17,45 @@ namespace
 
 		return Color{ r, g, b, a };
 	}
+
+	Font GetFont()
+	{
+		return Renderer::s_FontData ? *((Font*)Renderer::s_FontData) : GetFontDefault();
+	}
+
+	// Helper function for development purposes
+	[[maybe_unused]] void ExportFontToHeaderFile()
+	{
+		auto fontPath = Utils::System::GetSystemFontDirPath() + "\\arial.ttf";
+		// The last polish Unicode character is 380
+		std::array<int, 381> glyphs;
+		for (int i = 0; i < glyphs.size(); i++)
+		{
+			glyphs[i] = i;
+		}
+
+		Font font = LoadFontEx(fontPath.c_str(), 64, glyphs.data(), (int)glyphs.size());
+		if (not ExportFontAsCode(font, "Arial.h"))
+		{
+			LOG_ERROR("Failed to export the font!");
+		}
+	}
 }
 
+void* Renderer::s_FontData = nullptr;
+
+void Renderer::LoadFont()
+{
+	Font font = LoadFont_Arial();
+	SetImageFilter(font.texture.id, ImageFilter::Linear);
+	Renderer::s_FontData = new Font(font);
+}
+
+void Renderer::UnloadFont()
+{
+	delete Renderer::s_FontData;
+	s_FontData = nullptr;
+}
 
 void Renderer::BeginFrame()
 {
@@ -99,16 +137,14 @@ void Renderer::DrawText(const glm::vec2& position, std::string_view text, float 
 
 void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
 {
-	// TODO: Custom Font
 	Vector2 textPosition{ position.x, position.y };
 	Color fontColor = vec4ToColor(text.FontColor);
-	::rl_DrawTextEx(GetFontDefault(), text.Content.c_str(), textPosition, text.FontSize, text.LetterSpacing, fontColor);
+	::rl_DrawTextEx(GetFont(), text.Content.c_str(), textPosition, text.FontSize, text.LetterSpacing, fontColor);
 }
 
 glm::vec2 Renderer::MeasureText(const Components::Text& text)
 {
-	// TODO: Custom Font
-	auto vec = ::MeasureTextEx(GetFontDefault(), text.Content.c_str(), text.FontSize, text.LetterSpacing);
+	auto vec = ::MeasureTextEx(GetFont(), text.Content.c_str(), text.FontSize, text.LetterSpacing);
 	return { vec.x, vec.y };
 }
 
