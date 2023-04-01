@@ -15,6 +15,10 @@ void MoveByDragScript::OnUpdate()
 {
 	auto& transform = GetComponent<const Components::Transform>();
 	auto& focus = GetComponent<const Components::Focusable>();
+
+	if (not focus.IsDraggable)
+		return;
+
 	auto isFocused = focus.IsFocused;
 	glm::vec2 mouseVecPos = Input::GetWorldMousePosition();
 	if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && isFocused

@@ -89,6 +89,7 @@ namespace Components
 		glm::vec2 End = { 1.0f, 0.0f };
 		glm::vec4 StrokeColor = VColor::Black;
 		float Thickness = 1.0f;
+		std::optional<glm::vec2> ControlPoint = std::nullopt;
 
 		glm::vec2 GetBegin(const Transform& transform) const
 		{
@@ -100,14 +101,21 @@ namespace Components
 			return transform.GetTransform() * glm::vec4{ End.x, End.y, 0.0f, 1.0f };
 		}
 
+		glm::vec2 GetControlPoint(const Transform& transform) const
+		{
+			glm::vec2 control = ControlPoint.value_or(glm::mix(glm::vec2{ 0.0f, 0.0f }, End, 0.5f));
+			return transform.GetTransform() * glm::vec4{ control.x, control.y, 0.0f, 1.0f };
+		}
+
 		float GetLength() const
 		{
 			return glm::length(End);
 		}
 
-		float GetAngle() const
+		float GetEndAngle() const
 		{
-			return glm::orientedAngle(glm::vec2{ 1.0f, 0.0f }, glm::normalize(End));
+			glm::vec2 control = ControlPoint.value_or(glm::vec2{ 0.0f, 0.0f });
+			return glm::orientedAngle(glm::vec2{ 1.0f, 0.0f }, glm::normalize(End - control));
 		}
 	};
 
@@ -171,6 +179,7 @@ namespace Components
 		glm::vec2 Size = { 0.0f, 0.0f };
 
 		bool IsFocused = false;
+		bool IsDraggable = true;
 
 		glm::vec2 GetBegin(const Transform& transform) const
 		{

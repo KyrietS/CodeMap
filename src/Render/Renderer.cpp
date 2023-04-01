@@ -95,6 +95,15 @@ void Renderer::DrawLine(const glm::vec2& p0, const glm::vec2 p1, float thickness
 	::DrawLineEx(begin, end, thickness, strokeColor);
 }
 
+void Renderer::DrawBezier(const glm::vec2 p0, const glm::vec2 p1, const glm::vec2 p2, float thickness, const glm::vec4& color)
+{
+	Vector2 begin{ p0.x, p0.y };
+	Vector2 end{ p2.x, p2.y };
+	Vector2 controlPoint{ p1.x, p1.y };
+	Color strokeColor = vec4ToColor(color);
+	::DrawLineBezierQuad(begin, end, controlPoint, thickness, strokeColor);
+}
+
 void Renderer::DrawTriangle(const glm::vec2& p0, const glm::vec2& p1, const glm::vec2& p2, const glm::vec4& color)
 {
 	::DrawTriangle({ p0.x, p0.y }, { p1.x, p1.y }, {p2.x, p2.y}, vec4ToColor(color));
@@ -114,7 +123,9 @@ void Renderer::DrawRectangleLines(const glm::vec2& position, float width, float 
 
 void Renderer::DrawCircleOutline(const glm::vec2& position, float radius, const glm::vec4& color)
 {
-	::DrawCircleLines(position.x, position.y, radius, vec4ToColor(color));
+	int x = (int)std::round(position.x);
+	int y = (int)std::round(position.y);
+	::DrawCircleLines(x, y, radius, vec4ToColor(color));
 }
 
 void Renderer::DrawImage(const glm::vec2& position, const Components::Image& image)

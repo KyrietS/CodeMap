@@ -93,7 +93,9 @@ void Canvas::Draw()
 				auto& arrow = entity.GetComponent<Components::Arrow>();
 				glm::vec2 begin = arrow.GetBegin(transform);
 				glm::vec2 end = arrow.GetEnd(transform);
-				Renderer::DrawLine(begin, end, arrow.Thickness, arrow.StrokeColor);
+				glm::vec2 controlPoint = arrow.GetControlPoint(transform);
+
+				Renderer::DrawBezier(begin, controlPoint, end, arrow.Thickness, arrow.StrokeColor);
 
 				// arrowhead directed to the right and pointing at (0,0)
 				float arrowheadSize = 20.0f;
@@ -101,22 +103,28 @@ void Canvas::Draw()
 				glm::vec2 tip2{ -30.0f, +10.0f };
 				glm::vec2 tip3{ 0.0f, 0.0f };
 
-				// rotate relative to (0,0)
-				float angle = arrow.GetAngle();
+				// rotate relative to bezier control point
+				float angle = arrow.GetEndAngle();
 				tip1 = glm::rotate(tip1, angle);
 				tip2 = glm::rotate(tip2, angle);
 				tip3 = glm::rotate(tip3, angle); // redundant rotation of (0,0)
 
 				// translate
-				tip1 += arrow.GetEnd(transform);
-				tip2 += arrow.GetEnd(transform);
-				tip3 += arrow.GetEnd(transform);
+				tip1 += end;
+				tip2 += end;
+				tip3 += end;
 
 				Renderer::DrawTriangle(tip1, tip2, tip3, VColor::Orange);
-				
+
 				if (entity.GetComponent<Components::Focusable>().IsFocused)
 				{
 					float radius = ArrowEntity::EDIT_POINT_RADIUS / m_Camera.GetZoom();
+					float thickness = 1.0f / m_Camera.GetZoom();
+
+					Renderer::DrawCircleOutline(controlPoint, radius, VColor::Blue);
+					Renderer::DrawLine(begin, controlPoint, thickness, VColor::Blue);
+					Renderer::DrawLine(controlPoint, end, thickness, VColor::Blue);
+
 					Renderer::DrawCircleOutline(begin, radius, VColor::Blue);
 					Renderer::DrawCircleOutline(end, radius, VColor::Blue);
 				}

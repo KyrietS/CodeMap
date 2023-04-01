@@ -16,25 +16,34 @@ namespace
 	{
 		void OnUpdate() override
 		{
-			auto& isFocused = GetComponent<Components::Focusable>().IsFocused;
+			const auto& isFocused = GetComponent<Components::Focusable>().IsFocused;
+			auto& isDraggable = GetComponent<Components::Focusable>().IsDraggable;
 
 			// Drag end edit point
 			if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && IsMouseOverEndPoint())
 			{
-				isFocused = false;
+				isDraggable = false;
 				m_EditMode = EditMode::End;
 			}
 
 			// Drag begin edit point
 			if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && IsMouseOverBeginPoint())
 			{
-				isFocused = false;
+				isDraggable = false;
 				m_EditMode = EditMode::Begin;
+			}
+
+			// Drag bezier control point
+			if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && IsMouserOverControlPoint())
+			{
+				isDraggable = false;
+				m_EditMode = EditMode::Bezier;
 			}
 
 			// Fnish all drag edits
 			if (Input::IsMouseButtonReleased(Mouse::ButtonRight) || Input::IsMouseButtonReleased(Mouse::ButtonLeft))
 			{
+				isDraggable = true;
 				m_EditMode = EditMode::None;
 			}
 
@@ -42,6 +51,7 @@ namespace
 			{
 			case EditMode::End: SetEndAt(Input::GetWorldMousePosition()); break;
 			case EditMode::Begin: SetBeginAt(Input::GetWorldMousePosition()); break;
+			case EditMode::Bezier: SetControlPointAt(Input::GetWorldMousePosition()); break;
 			default: break;
 			}
 
@@ -70,6 +80,15 @@ namespace
 			UpdateFocusArea();
 		}
 
+		void SetControlPointAt(glm::vec2 pos)
+		{
+			auto& transform = GetComponent<Components::Transform>();
+			auto& arrow = GetComponent<Components::Arrow>();
+
+			arrow.ControlPoint = pos - transform.Translation;
+			UpdateFocusArea();
+		}
+
 		void UpdateFocusArea()
 		{
 			auto& transform = GetComponent<Components::Transform>();
@@ -78,11 +97,14 @@ namespace
 
 			glm::vec2 begin = arrow.GetBegin(transform);
 			glm::vec2 end = arrow.GetEnd(transform);
+			glm::vec2 control = arrow.GetControlPoint(transform);
 
-			float minX = std::min(begin.x, end.x);
-			float minY = std::min(begin.y, end.y);
-			float width = std::fabs(begin.x - end.x);
-			float height = std::fabs(begin.y - end.y);
+			float minX = std::min({ begin.x, end.x, control.x });
+			float minY = std::min({ begin.y, end.y, control.y });
+			float maxX = std::max({ begin.x, end.x, control.x });
+			float maxY = std::max({ begin.y, end.y, control.y });
+			float width = std::fabs(maxX - minX);
+			float height = std::fabs(maxY - minY);
 
 			focus.Origin = glm::vec2{ minX, minY } - glm::vec2{ begin.x, begin.y };
 			focus.Size = { width, height };
@@ -102,6 +124,13 @@ namespace
 			return IsMouseOverEditPoint(arrow.GetBegin(transform));
 		}
 
+		bool IsMouserOverControlPoint()
+		{
+			auto& transform = GetComponent<Components::Transform>();
+			auto& arrow = GetComponent<const Components::Arrow>();
+			return IsMouseOverEditPoint(arrow.GetControlPoint(transform));
+		}
+
 		bool IsMouseOverEditPoint(glm::vec2 editPoint)
 		{
 			float radius = ArrowEntity::EDIT_POINT_RADIUS / Canvas::Camera().GetZoom();
@@ -111,7 +140,7 @@ namespace
 
 		enum class EditMode
 		{
-			None, End, Begin
+			None, End, Begin, Bezier
 		};
 
 		EditMode m_EditMode = EditMode::End;

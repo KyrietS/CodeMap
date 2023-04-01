@@ -30,7 +30,10 @@ public:
 	static void EndCameraView();
 
 	static void ClearScreen(const glm::vec4 & color);
+
 	static void DrawLine(const glm::vec2& p0, const glm::vec2 p1, float thickness, const glm::vec4& color);
+	static void DrawBezier(const glm::vec2 p0, const glm::vec2 p1, const glm::vec2 p2, float thickness, const glm::vec4& color);
+
 	static void DrawTriangle(const glm::vec2& p0, const glm::vec2& p1, const glm::vec2& p2, const glm::vec4& color);
 	static void DrawRectangle(const glm::vec2& position, float width, float height, const glm::vec4& color);
 	static void DrawRectangleLines(const glm::vec2& position, float width, float height, float thickness, const glm::vec4& color);
