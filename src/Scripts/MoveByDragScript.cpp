@@ -25,7 +25,8 @@ void MoveByDragScript::OnUpdate()
 		&& (m_CurrentlyMoving || focus.AsBox(transform).Contains(mouseVecPos)))
 	{
 		m_CurrentlyMoving = true;
-		glm::vec2 delta = Canvas::Camera().GetScreenToWorld(Input::GetMouseDelta());
+		// Scale screen distance to world distance
+		glm::vec2 delta = Input::GetMouseDelta() * (1.0f / Canvas::Camera().GetZoom());
 		MoveBy(delta);
 	}
 
