@@ -58,6 +58,10 @@ namespace Components
 
 		Transform() = default;
 		Transform(const Transform&) noexcept = default;
+		Transform(Transform&&) noexcept = default;
+		Transform& operator=(const Transform&) noexcept = default;
+		Transform& operator=(Transform&&) noexcept = default;
+		
 
 		Transform(const glm::vec2& translation, float rotation = 0.0f, int index = 0)
 			: Translation(translation), Rotation(rotation), Index(index) {}
