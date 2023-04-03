@@ -92,7 +92,7 @@ namespace
 		void UpdateFocusArea()
 		{
 			auto& transform = GetComponent<Components::Transform>();
-			auto& arrow = GetComponent<const Components::Arrow>();
+			auto& arrow = GetComponent<Components::Arrow>();
 			auto& focus = GetComponent<Components::Focusable>();
 
 			glm::vec2 begin = arrow.GetBegin(transform);
