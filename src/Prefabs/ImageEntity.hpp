@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Canvas/ScriptableEntity.hpp"
-#include "entt.hpp"
 #include "Canvas/Components.hpp"
 #include <glm/vec2.hpp>
 

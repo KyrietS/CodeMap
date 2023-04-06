@@ -65,7 +65,7 @@ TextEntity::TextEntity(const Entity& entity)
 TextEntity& TextEntity::Build(const std::string_view content, float fontSize)
 {
 	auto& text = GetComponent<Components::Text>();
-	text = Components::Text{ content.data(), fontSize, 1.0f, VColor::Black};
+	text = Components::Text{ content.data(), fontSize, 0.0f, VColor::Black};
 
 	auto& focus = GetComponent<Components::Focusable>();
 	focus.Size = Renderer::MeasureText(text);

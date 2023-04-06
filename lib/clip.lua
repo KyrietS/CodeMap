@@ -6,8 +6,6 @@ project "clip"
     kind "StaticLib"
     warnings "Off"
 
-    filter "configurations:Debug OR Release"
-
     filter "configurations:Debug"
         symbols "On"
 

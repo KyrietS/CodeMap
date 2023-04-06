@@ -46,7 +46,14 @@ void* Renderer::s_FontData = nullptr;
 
 void Renderer::LoadFont()
 {
-	Font font = LoadFont_Arial();
+	//Font font = LoadFont_Arial();
+
+	std::array<int, 381> glyphs;
+	for (int i = 0; i < glyphs.size(); i++)
+	{
+		glyphs[i] = i;
+	}
+	Font font = LoadFontEx("C:\\Windows\\Fonts\\arial.ttf", 64, glyphs.data(), (int)glyphs.size());
 	SetImageFilter(font.texture.id, ImageFilter::Linear);
 	Renderer::s_FontData = new Font(font);
 }

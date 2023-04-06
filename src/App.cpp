@@ -25,7 +25,7 @@ App::App(const AppConfig& appConfig) : m_AppConfig{appConfig}
 	m_ScriptEngine = std::make_unique<ScriptEngine>(*m_Canvas);
 
 	m_Layers.push_back(std::make_unique<CanvasLayer>(*m_Canvas));
-	m_Layers.push_back(std::make_unique<GuiLayer>());
+	m_Layers.push_back(std::make_unique<GuiLayer>(m_Canvas->GetSerializer()));
 
 	auto dearImGuiLayer = std::make_unique<DearImGuiLayer>();
 	m_DearImGuiLayer = dearImGuiLayer.get();

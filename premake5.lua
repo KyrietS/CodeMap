@@ -23,6 +23,7 @@ workspace "CodeMap"
 		include "lib/raylib.lua"
 		include "lib/clip.lua"
 		include "lib/imgui.lua"
+		include "lib/tinyxml2.lua"
 	group ""
 
 	project "CodeMap"
@@ -44,14 +45,15 @@ workspace "CodeMap"
             "lib/spdlog/include",
             "lib/utfcpp/source",
 			"lib/glm",
-			"lib/imgui"
+			"lib/imgui",
+			"lib/tinyxml2"
 		}
 		files {"src/**.cpp", "src/**.hpp"}
 
 		vpaths { ["*"] = "src" }
 		
-		links {"raylib", "clip", "imgui"}
-		dependson {"raylib", "clip", "imgui"}
+		links {"raylib", "clip", "imgui", "tinyxml2"}
+		dependson {"raylib", "clip", "imgui", "tinyxml2"}
 		
 		libdirs {"build/bin/%{cfg.buildcfg}"}
 		

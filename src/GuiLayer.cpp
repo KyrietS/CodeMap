@@ -38,7 +38,14 @@ void ShowMetaInfoOverlay()
     ImGui::End();
 }
 
-void ShowMainMenuBar()
+void GuiLayer::SaveCanvasToFile(std::string_view filename)
+{
+    LOG_DEBUG("Saving canvas to: {}", filename);
+    LOG_DEBUG("Serialized: {}", m_SvgSerializer->Serialize());
+    // TODO: save serializer output to a file
+}
+
+void GuiLayer::ShowMainMenuBar()
 {
     if (ImGui::BeginMainMenuBar())
     {
@@ -46,7 +53,10 @@ void ShowMainMenuBar()
         {
             if (ImGui::MenuItem("New")) {}
             if (ImGui::MenuItem("Open", "Ctrl+O")) {}
-            if (ImGui::MenuItem("Save", "Ctrl+S")) {}
+            if (ImGui::MenuItem("Save", "Ctrl+S")) 
+            {
+                SaveCanvasToFile("canvas.xml");
+            }
             if (ImGui::MenuItem("Save As..")) {}
             if (ImGui::MenuItem("Quit", "Alt+F4")) 
             {
@@ -67,6 +77,9 @@ void ShowMainMenuBar()
         ImGui::EndMainMenuBar();
     }
 }
+
+GuiLayer::GuiLayer(std::unique_ptr<CanvasSerializer> serializer)
+    : m_SvgSerializer(std::move(serializer)) {}
 
 void GuiLayer::OnUpdate()
 {

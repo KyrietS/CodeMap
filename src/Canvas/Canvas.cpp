@@ -16,7 +16,7 @@
 #include "Controllers/TextController.hpp"
 #include "Controllers/ImageController.hpp"
 #include "Controllers/LineController.hpp"
-
+#include "Serializer/SVG/SvgSerializer.hpp"
 
 namespace
 {
@@ -98,6 +98,9 @@ void Canvas::Draw()
 				Renderer::DrawBezier(begin, controlPoint, end, arrow.Thickness, arrow.StrokeColor);
 
 				// arrowhead directed to the right and pointing at (0,0)
+				// FIXME: Arrohead size should be relative to arrow.Thickness,
+				//        e.g. arrowHeadWidth = arrow.Thickness * 6.0f
+				//             arrowHeadHeight = arrow.Thickness * 4.0f
 				float arrowheadSize = 20.0f;
 				glm::vec2 tip1{ -30.0f, -10.0f };
 				glm::vec2 tip2{ -30.0f, +10.0f };
@@ -171,7 +174,10 @@ void Canvas::OnUpdate()
 	for (auto entity : m_ToBeRemoved)
 	{
 		if (m_Registry.valid(entity))
+		{
 			m_Registry.destroy(entity);
+			LOG_DEBUG("Entity {} destroyed", (int)entity);
+		}
 	}
 	m_ToBeRemoved.clear();
 }
@@ -204,6 +210,11 @@ Entity Canvas::CreateVoidEntity()
 	LOG_DEBUG("Created entity id={}", (int)(entt::entity)entity);
 
 	return entity;
+}
+
+std::unique_ptr<CanvasSerializer> Canvas::GetSerializer()
+{
+	return std::make_unique<SvgSerializer>(m_Registry);
 }
 
 void Canvas::ScheduleEntityForDestruction(const entt::entity entity)
