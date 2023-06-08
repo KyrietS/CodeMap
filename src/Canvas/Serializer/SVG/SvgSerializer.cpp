@@ -3,6 +3,7 @@
 #include "Canvas/Components.hpp"
 #include "Canvas/Entity.hpp"
 #include <tinyxml2.h>
+#include <sstream>
 
 
 namespace

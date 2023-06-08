@@ -10,23 +10,17 @@
 
 ## Building
 
-This project uses [Premake5](https://premake.github.io/download) to generate project files. 
+This project uses CMake to generate project files. It should work the same way on all supported platforms.
 
-### Windows
-Run Premake in the root folder of the project:
-
+```bash
+git clone https://github.com/KyrietS/CodeMap.git
+cmake -S CodeMap -B CodeMapBuild
+cmake --build CodeMapBuild
 ```
-premake5 vs2022
-```
-
-Then use Visual Studio IDE to compile the CodeMap binary.
-
-### Linux
-TBD 🚧
 
 ## Dependencies
 
-The project relies on a various open source C++ libraries. Most of them are included using git submodules so make sure to clone the repository with `--recurse-submodules` option. All libraries are located at `/lib` directory.
+The project relies on a various open source C++ libraries. All of them are fetched automatically during the CMake configuration process.
 
 * **clip** - multiplatform cliboard implementation
 * **entt** - fast and reliable entity-compontn system

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entt.hpp"
+#include "entt/entt.hpp"
 #include "CanvasCamera.hpp"
 #include <glm/vec2.hpp>
 #include "Render/VColor.hpp"

@@ -1,5 +1,5 @@
 #pragma once
-#include "entt.hpp"
+#include "entt/entt.hpp"
 #include <glm/vec2.hpp>
 #include "Canvas/Serializer/CanvasSerializer.hpp"
 #include "Canvas/Entity.hpp"

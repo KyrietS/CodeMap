@@ -1,6 +1,6 @@
 #pragma once
 
-#include "entt.hpp"
+#include "entt/entt.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
@@ -10,7 +10,7 @@
 
 
 class ScriptableEntity;
-
+class ScriptEngine;
 
 namespace Components
 {
@@ -134,7 +134,7 @@ namespace Components
 
 	struct Text
 	{
-		std::string Content = "";
+		std::string Content = ""; // In UTF-8
 		float FontSize = 0.0f;
 		float LetterSpacing = 0.0f;
 		glm::vec4 FontColor = {};
@@ -167,7 +167,7 @@ namespace Components
 		private:
 			ScriptInstanceType m_Instance;
 
-			friend class ScriptEngine;
+			friend class ::ScriptEngine;
 		};
 
 		std::vector<Instance> Instances;
