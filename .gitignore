@@ -5,6 +5,8 @@
 *.vcxproj.user
 *.vcxproj.filters
 
+# IntelliJ / CLion
+.idea/
 
 build/
 imgui.ini
