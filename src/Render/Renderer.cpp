@@ -220,12 +220,8 @@ void DrawTextWithAtlas(const char* text, const glm::vec2& position)
 
 void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
 {
-//	Vector2 textPosition{ position.x, position.y };
-//	Color fontColor = vec4ToColor(text.FontColor);
-//	::rl_DrawTextEx(GetFont(), text.Content.c_str(), textPosition, text.FontSize, text.LetterSpacing, fontColor);
     float textHeight = MeasureText(text).y;
     DrawTextWithAtlas(text.Content.c_str(), {position.x, position.y + textHeight});
-    DrawLine({position.x, position.y}, {position.x + 100, position.y}, 1, VColor::Red);
 }
 
 // FIXME: Use Trex::TextShaper to measure text
