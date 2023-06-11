@@ -46,6 +46,11 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/skypjack/entt.git
     GIT_TAG        v3.11.1
 )
+FetchContent_Declare(
+    trex
+    GIT_REPOSITORY https://github.com/KyrietS/trex.git
+    GIT_TAG        master # TODO: Change to a tag once the library is stable
+)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT CodeMap)
@@ -57,7 +62,7 @@ set(CMAKE_CXX_STANDARD 20)
 file(GLOB_RECURSE SOURCES "src/**.cpp" "src/**.hpp")
 add_executable(CodeMap ${SOURCES})
 target_include_directories(CodeMap PRIVATE src)
-target_link_libraries(CodeMap raylib clip imgui tinyxml2 spdlog glm utf8cpp EnTT)
+target_link_libraries(CodeMap raylib clip imgui tinyxml2 spdlog glm utf8cpp EnTT trex)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${SOURCES})
 
 set(CLIP_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -74,6 +79,7 @@ FetchContent_MakeAvailable(
     imgui
     tinyxml2
     EnTT
+    trex
 )
 
 target_compile_definitions(raylib PRIVATE SUPPORT_CUSTOM_FRAME_CONTROL)

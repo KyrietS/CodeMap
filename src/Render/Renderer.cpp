@@ -4,7 +4,8 @@
 #include "rlgl.h"
 #include "Canvas/Components.hpp"
 #include <Utils/System.hpp>
-#include "Fonts/Arial.h"
+#include "Atlas.hpp"
+#include "TextShaper.hpp"
 
 namespace
 {
@@ -18,50 +19,83 @@ namespace
 		return Color{ r, g, b, a };
 	}
 
-	Font GetFont()
-	{
-		return Renderer::s_FontData ? *((Font*)Renderer::s_FontData) : GetFontDefault();
-	}
+    Trex::Atlas& GetFontAtlas()
+    {
+        assert(Renderer::s_FontAtlas != nullptr);
+        return *(Trex::Atlas*)Renderer::s_FontAtlas;
+    }
+
+    Trex::TextShaper& GetTextShaper()
+    {
+        assert(Renderer::s_TextShaper != nullptr);
+        return *(Trex::TextShaper*)Renderer::s_TextShaper;
+    }
+
+    Texture2D& GetFontTexture()
+    {
+        assert(Renderer::s_FontTexture != nullptr);
+        return *(Texture2D*)Renderer::s_FontTexture;
+    }
+
+    Image GetAtlasAsBitmapImage()
+    {
+        auto& atlas = GetFontAtlas();
+        Image atlasImage;
+        atlasImage.data = atlas.GetBitmap().data(); // pointer to the atlas bitmap data
+        atlasImage.width = atlas.GetWidth(); // width of the atlas bitmap
+        atlasImage.height = atlas.GetHeight(); // height of the atlas bitmap
+        atlasImage.mipmaps = 1;
+        atlasImage.format = PIXELFORMAT_UNCOMPRESSED_GRAYSCALE; // atlas bitmap format is always 1 byte per pixel (grayscale)
+        return atlasImage;
+    }
 
 	// Helper function for development purposes
 	[[maybe_unused]] void ExportFontToHeaderFile()
 	{
-		auto fontPath = Utils::System::GetSystemFontDirPath() + "\\arial.ttf";
-		// The last polish Unicode character is 380
-		std::array<int, 381> glyphs;
-		for (int i = 0; i < glyphs.size(); i++)
-		{
-			glyphs[i] = i;
-		}
+		auto fontPath = "roboto.ttf";
 
-		Font font = LoadFontEx(fontPath.c_str(), 64, glyphs.data(), (int)glyphs.size());
-		if (not ExportFontAsCode(font, "Arial.h"))
-		{
-			LOG_ERROR("Failed to export the font!");
-		}
+        unsigned int fontDataSize;
+        unsigned char* fontData = ::LoadFileData("roboto.ttf", &fontDataSize);
+        int compressedFontDataSize;
+        unsigned char* compressedFontData = ::CompressData(fontData, (int)fontDataSize, &compressedFontDataSize);
+        ::SaveFileData("compressed_font.ttf", compressedFontData, compressedFontDataSize);
+        ::UnloadFileData(fontData);
+        ::MemFree(compressedFontData);
 	}
 }
 
-void* Renderer::s_FontData = nullptr;
+void* Renderer::s_FontAtlas = nullptr;
+void* Renderer::s_TextShaper = nullptr;
+void* Renderer::s_FontTexture = nullptr;
 
-void Renderer::LoadFont()
+
+void Renderer::LoadFontAtlas()
 {
-	//Font font = LoadFont_Arial();
+    const int fontSize = 32;
+    const auto charset = Trex::Charset::Ascii();
+    // FIXME: This will not work on Linux. Use embedded Roboto font instead.
+    const auto fontPath = Utils::System::GetSystemFontDirPath() + "\\arial.ttf";
+    LOG_DEBUG("Loading font atlas from: {}, size: {}", fontPath, fontSize);
 
-	std::array<int, 381> glyphs;
-	for (int i = 0; i < glyphs.size(); i++)
-	{
-		glyphs[i] = i;
-	}
-	Font font = LoadFontEx("C:\\Windows\\Fonts\\arial.ttf", 64, glyphs.data(), (int)glyphs.size());
-	SetImageFilter(font.texture.id, ImageFilter::Linear);
-	Renderer::s_FontData = new Font(font);
+    Renderer::s_FontAtlas = new Trex::Atlas(fontPath, fontSize, charset);
+    LOG_DEBUG("Font atlas loaded. Size: {}x{}", GetFontAtlas().GetWidth(), GetFontAtlas().GetHeight());
+    Renderer::s_TextShaper = new Trex::TextShaper(GetFontAtlas());
+    LOG_DEBUG("Text shaper created.");
+    Renderer::s_FontTexture = new Texture2D(LoadTextureFromImage(GetAtlasAsBitmapImage()));
+    SetTextureFilter(GetFontTexture(), TEXTURE_FILTER_BILINEAR);
+
+    // TODO: I can remove atlas from memory now. Shaper has a copy of it.
 }
 
-void Renderer::UnloadFont()
+void Renderer::UnloadFontAtlas()
 {
-	delete Renderer::s_FontData;
-	s_FontData = nullptr;
+    delete (Trex::Atlas*)Renderer::s_FontAtlas;
+    delete (Trex::TextShaper*)Renderer::s_TextShaper;
+    delete (Texture2D*)Renderer::s_FontTexture;
+    Renderer::s_FontAtlas = nullptr;
+    Renderer::s_TextShaper = nullptr;
+    Renderer::s_FontTexture = nullptr;
+    LOG_DEBUG("Font atlas unloaded.");
 }
 
 void Renderer::BeginFrame()
@@ -158,17 +192,53 @@ void Renderer::DrawText(const glm::vec2& position, std::string_view text, float 
 	Renderer::DrawText(position, Components::Text{ text.data(), fontSize, 1.0f, fontColor});
 }
 
-void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
+void DrawTextWithAtlas(const char* text, const glm::vec2& position)
 {
-	Vector2 textPosition{ position.x, position.y };
-	Color fontColor = vec4ToColor(text.FontColor);
-	::rl_DrawTextEx(GetFont(), text.Content.c_str(), textPosition, text.FontSize, text.LetterSpacing, fontColor);
+    Trex::TextShaper& shaper = GetTextShaper();
+    Trex::ShapedGlyphs glyphs = shaper.ShapeAscii(text);
+
+    glm::vec2 cursor = position;
+    for (const Trex::ShapedGlyph& glyph : glyphs)
+    {
+        float x = cursor.x + glyph.xOffset + glyph.info.bearingX;
+        float y = cursor.y + glyph.yOffset - glyph.info.bearingY;
+
+        rl_Rectangle atlasFragment = {
+                .x = (float)glyph.info.x,
+                .y = (float)glyph.info.y, // top-left corner of the glyph in the atlas
+                .width = (float)glyph.info.width, // width of the glyph in the atlas
+                .height = (float)glyph.info.height // height of the glyph in the atlas
+        };
+
+        // Draw fragment of atlas texture
+        ::DrawTextureRec(GetFontTexture(), atlasFragment, { x, y }, WHITE);
+
+        cursor.x += glyph.xAdvance;
+        cursor.y += glyph.yAdvance;
+    }
 }
 
+void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
+{
+//	Vector2 textPosition{ position.x, position.y };
+//	Color fontColor = vec4ToColor(text.FontColor);
+//	::rl_DrawTextEx(GetFont(), text.Content.c_str(), textPosition, text.FontSize, text.LetterSpacing, fontColor);
+    float textHeight = MeasureText(text).y;
+    DrawTextWithAtlas(text.Content.c_str(), {position.x, position.y + textHeight});
+    DrawLine({position.x, position.y}, {position.x + 100, position.y}, 1, VColor::Red);
+}
+
+// FIXME: Use Trex::TextShaper to measure text
 glm::vec2 Renderer::MeasureText(const Components::Text& text)
 {
-	auto vec = ::MeasureTextEx(GetFont(), text.Content.c_str(), text.FontSize, text.LetterSpacing);
-	return { vec.x, vec.y };
+    const auto& glyphs = GetTextShaper().ShapeAscii(text.Content.c_str());
+    glm::vec2 size = {0, 0};
+    for (const auto& glyph : glyphs)
+    {
+        size.x += glyph.xAdvance;
+        size.y = std::max(size.y, (float)glyph.info.height);
+    }
+    return size;
 }
 
 TextureId Renderer::LoadTextureFromBytes(std::span<uint8_t> data, int width, int height)

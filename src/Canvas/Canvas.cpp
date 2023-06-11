@@ -43,7 +43,7 @@ Canvas* Canvas::m_PrimaryInstance = nullptr;
 
 Canvas::Canvas(bool primary) : m_Props{}
 {
-	Renderer::LoadFont();
+    Renderer::LoadFontAtlas();
 
 	m_Controllers.push_back(std::make_unique<CameraController>(m_Camera));
 	m_Controllers.push_back(std::make_unique<SelectionController>());
@@ -57,7 +57,7 @@ Canvas::Canvas(bool primary) : m_Props{}
 
 Canvas::~Canvas()
 {
-	Renderer::UnloadFont();
+    Renderer::UnloadFontAtlas();
 	m_PrimaryInstance = nullptr;
 }
 

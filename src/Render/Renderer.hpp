@@ -41,17 +41,18 @@ public:
 	static void DrawImage(const glm::vec2& position, const Components::Image& image);
 	static void DrawText(const glm::vec2& position, std::string_view text, float fontSize, const glm::vec4& fontColor);
 	static void DrawText(const glm::vec2& position, const Components::Text& text);
-	static void LoadFont();
-	static void UnloadFont();
+    static void LoadFontAtlas();
+    static void UnloadFontAtlas();
 
 	static glm::vec2 MeasureText(const Components::Text& text);
-
-	// Loads texture from RGBA|RGBA|RGBA|... data.
+    // Loads texture from RGBA|RGBA|RGBA|... data.
 	// One color component is represented by 1 byte.
 	static TextureId LoadTextureFromBytes(std::span<uint8_t> data, int width, int height);
-	static void UnloadImage(TextureId);
-	static void SetImageFilter(TextureId, ImageFilter);
+    static void UnloadImage(TextureId);
 
-	static void* s_FontData;
+	static void SetImageFilter(TextureId, ImageFilter);
+    static void* s_FontAtlas;
+    static void* s_TextShaper;
+    static void* s_FontTexture;
 };
 
