@@ -164,8 +164,6 @@ void SvgSerializer::SerializeArrow(tinyxml2::XMLElement& root, const Entity enti
 	auto& arrow = entity.GetComponent<Components::Arrow>();
 	auto arrowBegin = arrow.GetBegin(transform);
 	auto arrowEnd = arrow.GetEnd(transform);
-    arrowBegin.y += arrow.Thickness;
-    arrowEnd.y += arrow.Thickness;
 	auto controlPoint = arrow.ControlPoint ? std::make_optional(arrow.GetControlPoint(transform)) : std::nullopt;
 
 	auto path = root.InsertNewChildElement("path");
@@ -190,7 +188,7 @@ void SvgSerializer::SerializeText(tinyxml2::XMLElement& root, const Entity entit
 
 	auto textElement = root.InsertNewChildElement("text");
 	textElement->SetAttribute("x", transform.GetGlobalTranslation().x);
-	textElement->SetAttribute("y", transform.GetGlobalTranslation().y+6);
+	textElement->SetAttribute("y", transform.GetGlobalTranslation().y);
 	textElement->SetAttribute("text-anchor", "start");
 	textElement->SetAttribute("dominant-baseline", "hanging");
 	textElement->SetAttribute("font-family", "Arial"); // FIXME: font should not be hardcoded
