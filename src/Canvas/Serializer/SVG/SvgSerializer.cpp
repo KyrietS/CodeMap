@@ -2,6 +2,9 @@
 #include "SvgSerializer.hpp"
 #include "Canvas/Components.hpp"
 #include "Canvas/Entity.hpp"
+#include "Render/Renderer.hpp"
+#include <raylib.h>
+#include <stb_image_write.h>
 #include <tinyxml2.h>
 #include <sstream>
 
@@ -121,6 +124,10 @@ void SvgSerializer::SerializeAllEntities(tinyxml2::XMLElement& root)
 	// Serialize Text
 	for (Entity entity : m_Registry.view<Components::Text>())
         SerializeText(root, entity);
+
+    // Serialize Images
+    for (Entity entity : m_Registry.view<Components::Image>())
+        SerializeImage(root, entity);
 }
 
 class PathData
@@ -196,4 +203,46 @@ void SvgSerializer::SerializeText(tinyxml2::XMLElement& root, const Entity entit
 	textElement->SetAttribute("letter-spacing", text.LetterSpacing);
 	textElement->SetAttribute("fill", GetColorString(text.FontColor).c_str());
 	textElement->SetText(text.Content.c_str());
+}
+
+static void SavePngData(void *context, void *data, int size)
+{
+    auto* result = (std::vector<uint8_t>*)context;
+    result->clear();
+    result->insert(result->end(), (uint8_t*)data, (uint8_t*)data + size);
+}
+
+std::string SerializeTextureAsUriScheme(Components::Image image)
+{
+    // Get image raw RGBA bytes and transform it to png encoded data
+    auto data = Renderer::LoadBytesFromImage(image);
+    const int channels = 4;
+    std::vector<uint8_t> pngData;
+    int success = stbi_write_png_to_func(SavePngData, &pngData, image.Width, image.Height, channels, data.data(), image.Width * channels);
+    if (not success)
+    {
+        LOG_ERROR("Failed to serialize image as png");
+        return "";
+    }
+
+    // Encode to base64
+    int pngBase64Size = 0;
+    char* pngBase64Data = EncodeDataBase64(pngData.data(), (int)pngData.size(), &pngBase64Size);
+    std::string pngBase64String{pngBase64Data, (unsigned int)pngBase64Size};
+    MemFree(pngBase64Data);
+
+    return "data:image/png;base64," + pngBase64String;
+}
+
+void SvgSerializer::SerializeImage(tinyxml2::XMLElement& root, const Entity entity)
+{
+    auto& transform = entity.GetComponent<Components::Transform>();
+    auto& image = entity.GetComponent<Components::Image>();
+
+    auto imageElement = root.InsertNewChildElement("image");
+    imageElement->SetAttribute("x", transform.GetGlobalTranslation().x);
+    imageElement->SetAttribute("y", transform.GetGlobalTranslation().y);
+    imageElement->SetAttribute("width", image.Width);
+    imageElement->SetAttribute("height", image.Height);
+    imageElement->SetAttribute("href", SerializeTextureAsUriScheme(image).c_str());
 }

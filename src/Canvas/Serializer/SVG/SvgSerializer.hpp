@@ -24,6 +24,7 @@ private:
 
 	void SerializeArrow(tinyxml2::XMLElement& root, const Entity entity);
 	void SerializeText(tinyxml2::XMLElement& root, const Entity entity);
+    void SerializeImage(tinyxml2::XMLElement& root, const Entity entity);
 
 	const entt::registry& m_Registry;
 

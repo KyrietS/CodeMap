@@ -3,6 +3,7 @@
 #include "CameraData.hpp"
 #include <glm/glm.hpp>
 #include <span>
+#include <vector>
 
 // <Windows.h> I hate you so much!!!
 #undef DrawText
@@ -48,6 +49,8 @@ public:
     // Loads texture from RGBA|RGBA|RGBA|... data.
 	// One color component is represented by 1 byte.
 	static TextureId LoadTextureFromBytes(std::span<uint8_t> data, int width, int height);
+    // Loads image bitmap in RGBA|RGBA|RGBA|... format from the GPU.
+    static std::vector<uint8_t> LoadBytesFromImage(const Components::Image&);
     static void UnloadImage(TextureId);
 
 	static void SetImageFilter(TextureId, ImageFilter);

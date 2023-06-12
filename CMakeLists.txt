@@ -51,6 +51,11 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/KyrietS/trex.git
     GIT_TAG        master # TODO: Change to a tag once the library is stable
 )
+FetchContent_Declare(
+        stb
+        GIT_REPOSITORY https://github.com/nothings/stb.git
+        GIT_TAG        5736b15f7ea0ffb08dd38af21067c314d6a3aae9
+)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT CodeMap)
@@ -80,6 +85,7 @@ FetchContent_MakeAvailable(
     tinyxml2
     EnTT
     trex
+    stb
 )
 
 target_compile_definitions(raylib PRIVATE SUPPORT_CUSTOM_FRAME_CONTROL)
@@ -87,6 +93,7 @@ target_compile_definitions(CodeMap PRIVATE "$<$<CONFIG:DEBUG>:SPDLOG_ACTIVE_LEVE
 target_include_directories(CodeMap PRIVATE ${reasings_SOURCE_DIR}/src)
 target_include_directories(CodeMap PRIVATE ${clip_SOURCE_DIR})
 target_include_directories(CodeMap PRIVATE ${imgui_SOURCE_DIR})
+target_include_directories(CodeMap PRIVATE ${stb_SOURCE_DIR})
 
 # Use Unicode version of the Win32 API
 if(WIN32)

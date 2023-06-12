@@ -248,6 +248,32 @@ TextureId Renderer::LoadTextureFromBytes(std::span<uint8_t> data, int width, int
 	return rlLoadTexture(pixelData, width, height, format, numOfMipmaps);
 }
 
+std::vector<uint8_t> Renderer::LoadBytesFromImage(const Components::Image& image)
+{
+    Texture2D texture = {
+        image.TextureId,
+        image.Width,
+        image.Height,
+        1,
+        PIXELFORMAT_UNCOMPRESSED_R8G8B8A8
+    };
+
+    Image textureImage = LoadImageFromTexture(texture);
+    if (textureImage.data == nullptr)
+    {
+        LOG_ERROR("Failed to load image from texture!");
+        return {};
+    }
+
+    const int channels = 4;
+    const int dataSize = textureImage.width * textureImage.height * channels;
+    std::vector<uint8_t> data((uint8_t*)textureImage.data, (uint8_t*)textureImage.data + dataSize);
+
+    ::UnloadImage(textureImage);
+
+    return data;
+}
+
 void Renderer::UnloadImage(TextureId imageId)
 {
 	Texture texture{ imageId };
