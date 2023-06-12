@@ -37,7 +37,9 @@ namespace
         return *(Texture2D*)Renderer::s_FontTexture;
     }
 
-    Image GetAtlasAsBitmapImage()
+    // TODO: Use this function when shaders are implemented.
+    //       Currently GetAtlasAsTransparentBitmapImage() is used instead.
+    [[maybe_unused]] Image GetAtlasAsBitmapImage()
     {
         auto& atlas = GetFontAtlas();
         Image atlasImage;
@@ -46,6 +48,29 @@ namespace
         atlasImage.height = atlas.GetHeight(); // height of the atlas bitmap
         atlasImage.mipmaps = 1;
         atlasImage.format = PIXELFORMAT_UNCOMPRESSED_GRAYSCALE; // atlas bitmap format is always 1 byte per pixel (grayscale)
+        return atlasImage;
+    }
+
+    Image GetAtlasAsTransparentBitmapImage()
+    {
+        // Rearrange the atlas 1-byte GRAY bitmap into 2-byte GRAY_ALPHA bitmap.
+        auto& atlas = GetFontAtlas();
+        const auto& bitmap = atlas.GetBitmap();
+        int dataSize = bitmap.size() * 2;
+        auto* data = (uint8_t*)RL_MALLOC(dataSize);
+
+        for (int i = 0; i < bitmap.size(); ++i)
+        {
+            data[i * 2] = 0; // Gray, font color
+            data[i * 2 + 1] = 255 - bitmap[i]; // Alpha
+        }
+
+        Image atlasImage;
+        atlasImage.data = data;
+        atlasImage.width = atlas.GetWidth(); // width of the atlas bitmap
+        atlasImage.height = atlas.GetHeight(); // height of the atlas bitmap
+        atlasImage.mipmaps = 1;
+        atlasImage.format = PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA;
         return atlasImage;
     }
 
@@ -81,7 +106,9 @@ void Renderer::LoadFontAtlas()
     LOG_DEBUG("Font atlas loaded. Size: {}x{}", GetFontAtlas().GetWidth(), GetFontAtlas().GetHeight());
     Renderer::s_TextShaper = new Trex::TextShaper(GetFontAtlas());
     LOG_DEBUG("Text shaper created.");
-    Renderer::s_FontTexture = new Texture2D(LoadTextureFromImage(GetAtlasAsBitmapImage()));
+    Image atlasImage = GetAtlasAsTransparentBitmapImage();
+    Renderer::s_FontTexture = new Texture2D(LoadTextureFromImage(atlasImage));
+    ::UnloadImage(atlasImage);
     SetTextureFilter(GetFontTexture(), TEXTURE_FILTER_BILINEAR);
 
     // TODO: I can remove atlas from memory now. Shaper has a copy of it.
