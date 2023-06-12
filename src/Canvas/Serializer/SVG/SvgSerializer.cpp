@@ -117,17 +117,21 @@ void SvgSerializer::UpdateCanvasViewBoxFromFocusArea(ViewBoxBuilder& viewBoxBuil
 
 void SvgSerializer::SerializeAllEntities(tinyxml2::XMLElement& root)
 {
-	// Serialize Arrows
-	for (Entity entity : m_Registry.view<Components::Arrow>())
-		SerializeArrow(root, entity);
+    // Draw entities in order of their z-Index (assume that components are already sorted)
+    for (Entity entity : m_Registry.view<Components::Transform>())
+    {
+        // Serialize Arrow
+        if (entity.HasComponent<Components::Arrow>())
+            SerializeArrow(root, entity);
 
-	// Serialize Text
-	for (Entity entity : m_Registry.view<Components::Text>())
-        SerializeText(root, entity);
+        // Serialize Text
+        if (entity.HasComponent<Components::Text>())
+            SerializeText(root, entity);
 
-    // Serialize Images
-    for (Entity entity : m_Registry.view<Components::Image>())
-        SerializeImage(root, entity);
+        // Serialize Image
+        if (entity.HasComponent<Components::Image>())
+            SerializeImage(root, entity);
+    }
 }
 
 class PathData
