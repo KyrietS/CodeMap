@@ -11,6 +11,12 @@
 
 namespace
 {
+    void UpdateTextFocusArea(Components::Focusable& focus, const Components::Text& text)
+    {
+        focus.Size = Renderer::MeasureText(text);
+        focus.Origin.y = -focus.Size.y;
+    }
+
 	struct Script : ScriptableEntity
 	{
 		void OnUpdate() override
@@ -43,7 +49,7 @@ namespace
 				m_IsTextModeActive = false;
 			}
 
-			focus.Size = Renderer::MeasureText(text);
+            UpdateTextFocusArea(focus, text);
 		}
 
 		bool m_IsTextModeActive = false;
@@ -68,7 +74,7 @@ TextEntity& TextEntity::Build(const std::string_view content, float fontSize)
 	text = Components::Text{ content.data(), fontSize, 0.0f, VColor::Black};
 
 	auto& focus = GetComponent<Components::Focusable>();
-	focus.Size = Renderer::MeasureText(text);
+    UpdateTextFocusArea(focus, text);
 	focus.IsFocused = true;
 
 	return *this;

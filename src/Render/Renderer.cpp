@@ -6,6 +6,7 @@
 #include <Utils/System.hpp>
 #include "Atlas.hpp"
 #include "TextShaper.hpp"
+#include "Render/Fonts/compressed_roboto.h"
 
 namespace
 {
@@ -18,12 +19,6 @@ namespace
 
 		return Color{ r, g, b, a };
 	}
-
-    Trex::Atlas& GetFontAtlas()
-    {
-        assert(Renderer::s_FontAtlas != nullptr);
-        return *(Trex::Atlas*)Renderer::s_FontAtlas;
-    }
 
     Trex::TextShaper& GetTextShaper()
     {
@@ -39,9 +34,8 @@ namespace
 
     // TODO: Use this function when shaders are implemented.
     //       Currently GetAtlasAsTransparentBitmapImage() is used instead.
-    [[maybe_unused]] Image GetAtlasAsBitmapImage()
+    [[maybe_unused]] Image GetAtlasAsBitmapImage(Trex::Atlas& atlas)
     {
-        auto& atlas = GetFontAtlas();
         Image atlasImage;
         atlasImage.data = atlas.GetBitmap().data(); // pointer to the atlas bitmap data
         atlasImage.width = atlas.GetWidth(); // width of the atlas bitmap
@@ -51,10 +45,9 @@ namespace
         return atlasImage;
     }
 
-    Image GetAtlasAsTransparentBitmapImage()
+    Image GetAtlasAsTransparentBitmapImage(Trex::Atlas& atlas)
     {
         // Rearrange the atlas 1-byte GRAY bitmap into 2-byte GRAY_ALPHA bitmap.
-        auto& atlas = GetFontAtlas();
         const auto& bitmap = atlas.GetBitmap();
         int dataSize = bitmap.size() * 2;
         auto* data = (uint8_t*)RL_MALLOC(dataSize);
@@ -89,37 +82,52 @@ namespace
 	}
 }
 
-void* Renderer::s_FontAtlas = nullptr;
 void* Renderer::s_TextShaper = nullptr;
 void* Renderer::s_FontTexture = nullptr;
 
+
+std::unique_ptr<std::span<uint8_t>, std::function<void(std::span<uint8_t>*)>> LoadRobotoTtfData()
+{
+    int robotoDataSize;
+    unsigned char* robotoData = ::DecompressData(compressed_roboto_ttf, compressed_roboto_ttf_len, &robotoDataSize);
+
+    // Unique pointer for span with data. The custom deleter will free the memory.
+    auto* robotoDataSpan = new std::span<uint8_t>{robotoData, (size_t)robotoDataSize};
+    return {robotoDataSpan,
+            [](std::span<uint8_t>* dataSpan){
+                ::MemFree(dataSpan->data());
+                delete dataSpan;
+            }};
+}
 
 void Renderer::LoadFontAtlas()
 {
     const int fontSize = 32;
     const auto charset = Trex::Charset::Ascii();
-    // FIXME: This will not work on Linux. Use embedded Roboto font instead.
+
+#if 0 // Arial font is available only on Windows
     const auto fontPath = Utils::System::GetSystemFontDirPath() + "\\arial.ttf";
     LOG_DEBUG("Loading font atlas from: {}, size: {}", fontPath, fontSize);
+    Trex::Atlas fontAtlas(fontPath, fontSize, charset);
+#else
+    LOG_DEBUG("Loading font atlas from embedded Roboto.ttf");
+    auto robotoFontData = LoadRobotoTtfData();
+    Trex::Atlas fontAtlas{*robotoFontData, fontSize, charset};
+#endif
 
-    Renderer::s_FontAtlas = new Trex::Atlas(fontPath, fontSize, charset);
-    LOG_DEBUG("Font atlas loaded. Size: {}x{}", GetFontAtlas().GetWidth(), GetFontAtlas().GetHeight());
-    Renderer::s_TextShaper = new Trex::TextShaper(GetFontAtlas());
+    LOG_DEBUG("Font atlas loaded. Size: {}x{}", fontAtlas.GetWidth(), fontAtlas.GetHeight());
+    Renderer::s_TextShaper = new Trex::TextShaper(fontAtlas);
     LOG_DEBUG("Text shaper created.");
-    Image atlasImage = GetAtlasAsTransparentBitmapImage();
+    Image atlasImage = GetAtlasAsTransparentBitmapImage(fontAtlas);
     Renderer::s_FontTexture = new Texture2D(LoadTextureFromImage(atlasImage));
     ::UnloadImage(atlasImage);
     SetTextureFilter(GetFontTexture(), TEXTURE_FILTER_BILINEAR);
-
-    // TODO: I can remove atlas from memory now. Shaper has a copy of it.
 }
 
 void Renderer::UnloadFontAtlas()
 {
-    delete (Trex::Atlas*)Renderer::s_FontAtlas;
     delete (Trex::TextShaper*)Renderer::s_TextShaper;
     delete (Texture2D*)Renderer::s_FontTexture;
-    Renderer::s_FontAtlas = nullptr;
     Renderer::s_TextShaper = nullptr;
     Renderer::s_FontTexture = nullptr;
     LOG_DEBUG("Font atlas unloaded.");
@@ -247,8 +255,7 @@ void DrawTextWithAtlas(const char* text, const glm::vec2& position)
 
 void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
 {
-    float textHeight = MeasureText(text).y;
-    DrawTextWithAtlas(text.Content.c_str(), {position.x, position.y + textHeight});
+    DrawTextWithAtlas(text.Content.c_str(), {position.x, position.y});
 }
 
 // FIXME: Use Trex::TextShaper to measure text

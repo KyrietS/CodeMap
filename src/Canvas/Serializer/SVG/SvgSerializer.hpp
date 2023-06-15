@@ -20,6 +20,7 @@ private:
 
 	void AddBorderToSvgDocument(tinyxml2::XMLElement& root, ViewBox);
 	void AddArrowheadMarkers(tinyxml2::XMLElement& root);
+    void AddRobotoFont(tinyxml2::XMLElement& root);
 	void SerializeAllEntities(tinyxml2::XMLElement& root);
 
 	void SerializeArrow(tinyxml2::XMLElement& root, const Entity entity);

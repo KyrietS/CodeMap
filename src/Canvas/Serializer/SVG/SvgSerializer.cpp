@@ -31,6 +31,7 @@ std::string SvgSerializer::Serialize()
 	auto& root = *doc.RootElement();
 
 	AddArrowheadMarkers(root);
+    AddRobotoFont(root);
 	SerializeAllEntities(root);
 	AddBorderToSvgDocument(root, viewBox);
 
@@ -83,6 +84,13 @@ void SvgSerializer::AddArrowheadMarkers(tinyxml2::XMLElement& root)
     auto path = marker->InsertNewChildElement("path");
     path->SetAttribute("d", "M 0 0 L 30 10 L 0 20 z");
 	path->SetAttribute("fill", GetColorString(VColor::Orange).c_str());
+}
+
+void SvgSerializer::AddRobotoFont(tinyxml2::XMLElement &root)
+{
+    auto style = root.InsertNewChildElement("style");
+    style->SetAttribute("type", "text/css");
+    style->SetText("@import url('https://fonts.googleapis.com/css2?family=Roboto');");
 }
 
 ViewBox SvgSerializer::GetCanvasViewBox()
@@ -201,8 +209,8 @@ void SvgSerializer::SerializeText(tinyxml2::XMLElement& root, const Entity entit
 	textElement->SetAttribute("x", transform.GetGlobalTranslation().x);
 	textElement->SetAttribute("y", transform.GetGlobalTranslation().y);
 	textElement->SetAttribute("text-anchor", "start");
-	textElement->SetAttribute("dominant-baseline", "hanging");
-	textElement->SetAttribute("font-family", "Arial"); // FIXME: font should not be hardcoded
+	textElement->SetAttribute("dominant-baseline", "auto");
+	textElement->SetAttribute("font-family", "Roboto");
 	textElement->SetAttribute("font-size", text.FontSize);
 	textElement->SetAttribute("letter-spacing", text.LetterSpacing);
 	textElement->SetAttribute("fill", GetColorString(text.FontColor).c_str());

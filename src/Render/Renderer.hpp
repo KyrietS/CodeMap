@@ -54,7 +54,6 @@ public:
     static void UnloadImage(TextureId);
 
 	static void SetImageFilter(TextureId, ImageFilter);
-    static void* s_FontAtlas;
     static void* s_TextShaper;
     static void* s_FontTexture;
 };
