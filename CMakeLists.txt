@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.16)
 include(FetchContent)
 
 FetchContent_Declare(
@@ -68,6 +68,7 @@ file(GLOB_RECURSE SOURCES "src/**.cpp" "src/**.hpp")
 add_executable(CodeMap ${SOURCES})
 target_include_directories(CodeMap PRIVATE src)
 target_link_libraries(CodeMap raylib clip imgui tinyxml2 spdlog glm utf8cpp EnTT trex)
+target_precompile_headers(CodeMap PRIVATE src/pch.hpp)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${SOURCES})
 
 set(CLIP_EXAMPLES OFF CACHE BOOL "" FORCE)
