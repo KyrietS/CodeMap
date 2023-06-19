@@ -49,12 +49,12 @@ FetchContent_Declare(
 FetchContent_Declare(
     trex
     GIT_REPOSITORY https://github.com/KyrietS/trex.git
-    GIT_TAG        master # TODO: Change to a tag once the library is stable
+    GIT_TAG        v0.1.1
 )
 FetchContent_Declare(
-        stb
-        GIT_REPOSITORY https://github.com/nothings/stb.git
-        GIT_TAG        5736b15f7ea0ffb08dd38af21067c314d6a3aae9
+    stb
+    GIT_REPOSITORY https://github.com/nothings/stb.git
+    GIT_TAG        5736b15f7ea0ffb08dd38af21067c314d6a3aae9
 )
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
