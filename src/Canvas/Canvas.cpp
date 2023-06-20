@@ -139,6 +139,15 @@ void Canvas::Draw()
 				const auto& text = entity.GetComponent<Components::Text>();
 				const auto& position = transform.Translation;
 				Renderer::DrawText(position, text);
+
+				// Text bounding box
+				if (entity.GetComponent<Components::Focusable>().IsFocused)
+				{
+					auto textDimensions = Renderer::MeasureText(text);
+					glm::vec2 topLeftCorner = {position.x + textDimensions.Offset.x, position.y + textDimensions.Offset.y};
+					float thickness = 1.0f / m_Camera.GetZoom();
+					Renderer::DrawRectangleLines(topLeftCorner, textDimensions.Size.x, textDimensions.Size.y, thickness, VColor::LightGray);
+				}
 			}
 		}
 

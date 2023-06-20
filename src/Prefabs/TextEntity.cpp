@@ -13,9 +13,11 @@ namespace
 {
     void UpdateTextFocusArea(Components::Focusable& focus, const Components::Text& text)
     {
-        focus.Size = Renderer::MeasureText(text);
-        focus.Origin.y = -focus.Size.y;
-    }
+		const glm::vec2 padding = { 10.0f, 10.0f };
+		const auto textMeasurement = Renderer::MeasureText(text);
+        focus.Size = textMeasurement.Size + 2.0f * padding;
+        focus.Origin = textMeasurement.Offset - padding;
+	}
 
 	struct Script : ScriptableEntity
 	{

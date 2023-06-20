@@ -258,17 +258,19 @@ void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
     DrawTextWithAtlas(text.Content.c_str(), {position.x, position.y});
 }
 
-// FIXME: Use Trex::TextShaper to measure text
-glm::vec2 Renderer::MeasureText(const Components::Text& text)
+TextMeasurement Renderer::MeasureText(const Components::Text& text)
 {
+	if (text.Content.empty()) // FIXME: this should be implemented in Trex
+		return TextMeasurement{};
+
     const auto& glyphs = GetTextShaper().ShapeAscii(text.Content.c_str());
-    glm::vec2 size = {0, 0};
-    for (const auto& glyph : glyphs)
-    {
-        size.x += glyph.xAdvance;
-        size.y = std::max(size.y, (float)glyph.info.height);
-    }
-    return size;
+	auto measurements = GetTextShaper().Measure(glyphs);
+
+	return TextMeasurement{
+		.Size = {measurements.width, measurements.height},
+		.Offset = {measurements.xOffset, measurements.yOffset},
+		.Advance = {measurements.xAdvance, measurements.yAdvance}
+	};
 }
 
 TextureId Renderer::LoadTextureFromBytes(std::span<uint8_t> data, int width, int height)

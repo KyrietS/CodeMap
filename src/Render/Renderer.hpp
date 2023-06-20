@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CameraData.hpp"
+#include "TextMeasurement.hpp"
 #include <glm/glm.hpp>
 #include <span>
 #include <vector>
@@ -45,7 +46,7 @@ public:
     static void LoadFontAtlas();
     static void UnloadFontAtlas();
 
-	static glm::vec2 MeasureText(const Components::Text& text);
+	static TextMeasurement MeasureText(const Components::Text& text);
     // Loads texture from RGBA|RGBA|RGBA|... data.
 	// One color component is represented by 1 byte.
 	static TextureId LoadTextureFromBytes(std::span<uint8_t> data, int width, int height);
