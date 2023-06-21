@@ -6,15 +6,32 @@
 
 namespace
 {
-void TransformFromBgraToRgba(uint8_t* data, int size)
+std::vector<uint8_t> PrepareRgbaData(const clip::image& clipboardImage)
 {
-	for (int i = 0; i < size / 4; i++)
+	const auto& imageSpec = clipboardImage.spec();
+	std::vector<uint8_t> result;
+	result.reserve(imageSpec.width * imageSpec.height * 4);
+
+	for (int row = 0; row < imageSpec.height; row++)
 	{
-		// Swap first and third byte in pixel.
-		std::swap(data[i * 4 + 0], data[i * 4 + 2]);
+		unsigned int bytesPerPixel = imageSpec.bits_per_pixel / 8;
+		unsigned int rowOffset = row * imageSpec.bytes_per_row;
+		for (int col = 0; col < imageSpec.width; col++)
+		{
+			unsigned int pixelOffset = rowOffset + col * bytesPerPixel;
+			uint8_t r = clipboardImage.data()[pixelOffset + imageSpec.red_shift / 8];
+			uint8_t g = clipboardImage.data()[pixelOffset + imageSpec.green_shift / 8];
+			uint8_t b = clipboardImage.data()[pixelOffset + imageSpec.blue_shift / 8];
+			uint8_t a = bytesPerPixel == 4 ? clipboardImage.data()[pixelOffset + imageSpec.alpha_shift / 8] : 255;
+			result.push_back(r);
+			result.push_back(g);
+			result.push_back(b);
+			result.push_back(a);
+		}
 	}
+	return result;
 }
-}
+} // namespace
 
 void ImageController::OnUpdate()
 {
@@ -27,16 +44,14 @@ void ImageController::OnUpdate()
 void ImageController::PasteImageFromClipboard()
 {
 	clip::image clipboardImage;
-	if (!clip::get_image(clipboardImage))
+	if (!clip::get_image(clipboardImage) || !clipboardImage.is_valid())
 	{
 		return LOG_WARN("CLIPBOARD: Failed to paste an image from clipboard");
 	}
 
 	clip::image_spec imageSpec = clipboardImage.spec();
-	int size = (int)imageSpec.required_data_size();
-	uint8_t* data = reinterpret_cast<uint8_t*>(clipboardImage.data());
-	TransformFromBgraToRgba(data, size);
+	std::vector<uint8_t> rgbaData = PrepareRgbaData(clipboardImage);
 	glm::vec2 imagePos = Input::GetWorldMousePosition();
 
-	ImageEntity(Canvas::Get().CreateEntity()).Build(imagePos, data, imageSpec.width, imageSpec.height);
+	ImageEntity(Canvas::Get().CreateEntity()).Build(imagePos, rgbaData.data(), imageSpec.width, imageSpec.height);
 }
