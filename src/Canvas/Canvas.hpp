@@ -6,6 +6,7 @@
 #include "Render/VColor.hpp"
 #include "Controllers/IController.hpp"
 #include "Serializer/CanvasSerializer.hpp"
+#include "Deserializer/CanvasDeserializer.hpp"
 
 struct CanvasProps
 {
@@ -29,6 +30,7 @@ public:
 	// to create their own entities.
 	Entity CreateEntity(glm::vec2 = { 0, 0 });
 	std::unique_ptr<CanvasSerializer> GetSerializer();
+	std::unique_ptr<CanvasDeserializer> GetDeserializer();
 
 	template<typename... Components>
 	static auto GetAllEntitiesWith()

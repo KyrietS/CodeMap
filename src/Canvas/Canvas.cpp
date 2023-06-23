@@ -17,6 +17,7 @@
 #include "Controllers/ImageController.hpp"
 #include "Controllers/LineController.hpp"
 #include "Serializer/SVG/SvgSerializer.hpp"
+#include "Deserializer/SVG/SvgDeserializer.hpp"
 
 namespace
 {
@@ -224,6 +225,11 @@ Entity Canvas::CreateVoidEntity()
 std::unique_ptr<CanvasSerializer> Canvas::GetSerializer()
 {
 	return std::make_unique<SvgSerializer>(m_Registry);
+}
+
+std::unique_ptr<CanvasDeserializer> Canvas::GetDeserializer()
+{
+	return std::make_unique<SvgDeserializer>(*this, m_Registry);
 }
 
 void Canvas::ScheduleEntityForDestruction(const entt::entity entity)

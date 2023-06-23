@@ -3,7 +3,7 @@
 #include "Canvas/Components.hpp"
 #include "Canvas/Entity.hpp"
 #include "Render/Renderer.hpp"
-#include <raylib.h>
+#include <raylib.h> // EncodeDataBase64
 #include <stb_image_write.h>
 #include <tinyxml2.h>
 #include <sstream>

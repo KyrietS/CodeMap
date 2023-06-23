@@ -14,6 +14,16 @@ namespace
 {
 	struct Script : ScriptableEntity
 	{
+		void OnCreate() override
+		{
+			UpdateFocusArea();
+
+			if (Input::IsMouseButtonDown(Mouse::ButtonRight))
+				m_EditMode = EditMode::End;
+			else
+				m_EditMode = EditMode::None;
+		}
+
 		void OnUpdate() override
 		{
 			const auto& isFocused = GetComponent<Components::Focusable>().IsFocused;
@@ -143,7 +153,7 @@ namespace
 			None, End, Begin, Bezier
 		};
 
-		EditMode m_EditMode = EditMode::End;
+		EditMode m_EditMode = EditMode::None;
 	};
 }
 
