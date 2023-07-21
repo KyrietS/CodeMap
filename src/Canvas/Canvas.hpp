@@ -7,6 +7,7 @@
 #include "Controllers/IController.hpp"
 #include "Serializer/CanvasSerializer.hpp"
 #include "Deserializer/CanvasDeserializer.hpp"
+#include <tinyevents/tinyevents.hpp>
 
 struct CanvasProps
 {
@@ -18,7 +19,7 @@ class Entity;
 class Canvas
 {
 public:
-	Canvas(bool primary = true);
+	Canvas(tinyevents::Dispatcher&, bool primary = true);
 	~Canvas();
 
 	void Draw();
@@ -29,8 +30,6 @@ public:
 	// To pass it around and make it possible for controllers
 	// to create their own entities.
 	Entity CreateEntity(glm::vec2 = { 0, 0 });
-	std::unique_ptr<CanvasSerializer> GetSerializer();
-	std::unique_ptr<CanvasDeserializer> GetDeserializer();
 
 	template<typename... Components>
 	static auto GetAllEntitiesWith()
@@ -42,6 +41,9 @@ public:
 	static CanvasCamera& Camera() { return m_PrimaryInstance->m_Camera; }
 
 private:
+    void RegisterSerializer();
+    void RegisterDeserializer();
+
 	Entity CreateVoidEntity();
 	void ScheduleEntityForDestruction(const entt::entity entity);
 	void UpdateHierarchy();
@@ -53,6 +55,7 @@ private:
 	entt::registry m_Registry;
 	CanvasProps m_Props;
 	CanvasCamera m_Camera;
+    tinyevents::Dispatcher& m_Dispatcher;
 
 	std::vector<std::unique_ptr<IController>> m_Controllers;
 	std::list<entt::entity> m_ToBeRemoved;

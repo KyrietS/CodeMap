@@ -18,6 +18,7 @@
 #include "Controllers/LineController.hpp"
 #include "Serializer/SVG/SvgSerializer.hpp"
 #include "Deserializer/SVG/SvgDeserializer.hpp"
+#include "Messages.hpp"
 
 namespace
 {
@@ -42,7 +43,7 @@ namespace
 Canvas* Canvas::m_PrimaryInstance = nullptr;
 
 
-Canvas::Canvas(bool primary) : m_Props{}
+Canvas::Canvas(tinyevents::Dispatcher& dispatcher, bool primary) : m_Props{}, m_Dispatcher(dispatcher)
 {
     Renderer::LoadFontAtlas();
 
@@ -54,6 +55,9 @@ Canvas::Canvas(bool primary) : m_Props{}
 
 	if (primary)
 		m_PrimaryInstance = this;
+
+    RegisterSerializer();
+    RegisterDeserializer();
 }
 
 Canvas::~Canvas()
@@ -214,22 +218,28 @@ Entity Canvas::CreateEntity(glm::vec2 initialPosition)
 	return entity;
 }
 
+void Canvas::RegisterSerializer()
+{
+    m_Dispatcher.listen<Messages::Canvas::SaveToFile>([&](const auto& msg){
+        LOG_DEBUG("[MESSAGE] Canvas received SaveCanvasToFile message with path: {}", msg.filename);
+        SvgSerializer{m_Registry}.Serialize();
+    });
+}
+
+void Canvas::RegisterDeserializer()
+{
+    m_Dispatcher.listen<Messages::Canvas::LoadFromFile>([&](const auto& msg){
+        LOG_DEBUG("[MESSAGE] Canvas received LoadCanvasFromFile message with path: {}", msg.filename);
+        SvgDeserializer{*this, m_Registry}.Deserialize(msg.filename);
+    });
+}
+
 Entity Canvas::CreateVoidEntity()
 {
 	Entity entity = { m_Registry.create(), this };
 	LOG_DEBUG("Created entity id={}", (int)(entt::entity)entity);
 
 	return entity;
-}
-
-std::unique_ptr<CanvasSerializer> Canvas::GetSerializer()
-{
-	return std::make_unique<SvgSerializer>(m_Registry);
-}
-
-std::unique_ptr<CanvasDeserializer> Canvas::GetDeserializer()
-{
-	return std::make_unique<SvgDeserializer>(*this, m_Registry);
 }
 
 void Canvas::ScheduleEntityForDestruction(const entt::entity entity)

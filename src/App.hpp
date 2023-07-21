@@ -4,6 +4,7 @@
 #include "Events/Event.hpp"
 #include "Layer.hpp"
 #include "DearImGuiLayer.hpp"
+#include <tinyevents/tinyevents.hpp>
 
 
 struct AppConfig
@@ -19,16 +20,16 @@ class App
 public:
 	App(const AppConfig&);
 	void Run();
-	void Close();
 	void OnEvent(Event&);
 
 	Canvas* GetCanvas() { return m_Canvas.get(); }
 
-	static App& Get() { return *m_Instance; }
 	static void RequestRedraw();
 private:
-	bool IsRunning();
-	void FetchEvents();
+    void RegisterMessageHandlers();
+    void Close();
+    bool IsRunning();
+    void FetchEvents();
 	void ExecuteScripts();
 	void UpdateLayers();
 	void BeginFrame();
@@ -39,6 +40,7 @@ private:
 	bool m_Running = true;
 	std::unique_ptr<Canvas> m_Canvas;
 	std::unique_ptr<ScriptEngine> m_ScriptEngine;
+    tinyevents::Dispatcher m_Dispatcher;
 
 	DearImGuiLayer* m_DearImGuiLayer = nullptr;
 	std::vector<std::unique_ptr<Layer>> m_Layers;

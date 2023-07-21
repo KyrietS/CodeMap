@@ -8,6 +8,7 @@
 #include "GuiLayer.hpp"
 #include "Render/Renderer.hpp"
 #include "CanvasLayer.hpp"
+#include "Messages.hpp"
 
 
 App* App::m_Instance = nullptr;
@@ -21,15 +22,17 @@ App::App(const AppConfig& appConfig) : m_AppConfig{appConfig}
 	Time::LockFPS(61.0);
 
 	m_Instance = this;
-	m_Canvas = std::make_unique<Canvas>();
+	m_Canvas = std::make_unique<Canvas>(m_Dispatcher);
 	m_ScriptEngine = std::make_unique<ScriptEngine>(*m_Canvas);
 
 	m_Layers.push_back(std::make_unique<CanvasLayer>(*m_Canvas));
-	m_Layers.push_back(std::make_unique<GuiLayer>(m_Canvas->GetSerializer(), m_Canvas->GetDeserializer()));
+	m_Layers.push_back(std::make_unique<GuiLayer>(m_Dispatcher));
 
 	auto dearImGuiLayer = std::make_unique<DearImGuiLayer>();
 	m_DearImGuiLayer = dearImGuiLayer.get();
 	m_Layers.push_back(std::move(dearImGuiLayer));
+
+    RegisterMessageHandlers();
 }
 
 void App::Run()
@@ -76,6 +79,13 @@ void App::UpdateLayers()
 	{
 		layer->OnUpdate();
 	}
+}
+
+void App::RegisterMessageHandlers()
+{
+    m_Dispatcher.listen<Messages::App::Quit>([this](const auto& msg) {
+        Close();
+    });
 }
 
 bool App::IsRunning()

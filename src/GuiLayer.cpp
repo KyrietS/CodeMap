@@ -6,6 +6,7 @@
 #include "Canvas/Canvas.hpp"
 #include "App.hpp"
 #include "Input.hpp"
+#include "Messages.hpp"
 
 void ShowMetaInfoOverlay()
 {
@@ -73,18 +74,16 @@ void ShowMousePositionOverlay()
     ImGui::PopStyleVar();
 }
 
-void GuiLayer::SaveCanvasToFile(std::string_view filename)
+void GuiLayer::SaveCanvasToFile(const std::string& filename)
 {
-	// TODO: Use message system
     LOG_DEBUG("Saving canvas to: {}", filename);
-    LOG_DEBUG("Serialized: {}", m_SvgSerializer->Serialize());
+    m_Dispatcher.send(Messages::Canvas::SaveToFile{ filename });
 }
 
 void GuiLayer::LoadCanvasFromFile(const std::string& filename)
 {
-	// TODO: Use message system
 	LOG_DEBUG("Loading canvas from: {}", filename);
-	m_SvgDeserializer->Deserialize(filename);
+    m_Dispatcher.send(Messages::Canvas::LoadFromFile{ filename });
 }
 
 void GuiLayer::ShowMainMenuBar()
@@ -105,7 +104,7 @@ void GuiLayer::ShowMainMenuBar()
             if (ImGui::MenuItem("Save As..")) {}
             if (ImGui::MenuItem("Quit", "Alt+F4")) 
             {
-                App::Get().Close();
+                m_Dispatcher.send(Messages::App::Quit{});
             }
             ImGui::EndMenu();
         }
@@ -123,8 +122,8 @@ void GuiLayer::ShowMainMenuBar()
     }
 }
 
-GuiLayer::GuiLayer(std::unique_ptr<CanvasSerializer> serializer, std::unique_ptr<CanvasDeserializer> deserializer)
-    : m_SvgSerializer(std::move(serializer)), m_SvgDeserializer(std::move(deserializer)) {}
+GuiLayer::GuiLayer(tinyevents::Dispatcher& dispatcher)
+    : m_Dispatcher(dispatcher) {}
 
 void GuiLayer::OnUpdate()
 {
