@@ -34,6 +34,7 @@ private:
 	void UpdateLayers();
 	void BeginFrame();
 	void EndFrame();
+    void ProcessMessages();
 	void ReleaseResources();
 
 	AppConfig m_AppConfig;

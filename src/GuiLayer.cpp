@@ -104,7 +104,7 @@ void GuiLayer::ShowMainMenuBar()
             if (ImGui::MenuItem("Save As..")) {}
             if (ImGui::MenuItem("Quit", "Alt+F4")) 
             {
-                m_Dispatcher.dispatch(Messages::App::Quit{});
+                m_Dispatcher.queue(Messages::App::Quit{});
             }
             ImGui::EndMenu();
         }

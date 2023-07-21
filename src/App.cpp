@@ -46,6 +46,8 @@ void App::Run()
 		BeginFrame();
 		UpdateLayers();
 		EndFrame();
+
+        ProcessMessages();
 	}
 
 	LOG_INFO("App stopped");
@@ -104,6 +106,11 @@ void App::EndFrame()
 	m_DearImGuiLayer->End();
 	Renderer::EndFrame();
 	Time::EndFrame();
+}
+
+void App::ProcessMessages()
+{
+    m_Dispatcher.process();
 }
 
 void App::ReleaseResources()
