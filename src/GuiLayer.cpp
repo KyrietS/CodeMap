@@ -77,13 +77,13 @@ void ShowMousePositionOverlay()
 void GuiLayer::SaveCanvasToFile(const std::string& filename)
 {
     LOG_DEBUG("Saving canvas to: {}", filename);
-    m_Dispatcher.send(Messages::Canvas::SaveToFile{ filename });
+    m_Dispatcher.dispatch(Messages::Canvas::SaveToFile{ filename });
 }
 
 void GuiLayer::LoadCanvasFromFile(const std::string& filename)
 {
 	LOG_DEBUG("Loading canvas from: {}", filename);
-    m_Dispatcher.send(Messages::Canvas::LoadFromFile{ filename });
+    m_Dispatcher.dispatch(Messages::Canvas::LoadFromFile{ filename });
 }
 
 void GuiLayer::ShowMainMenuBar()
@@ -104,7 +104,7 @@ void GuiLayer::ShowMainMenuBar()
             if (ImGui::MenuItem("Save As..")) {}
             if (ImGui::MenuItem("Quit", "Alt+F4")) 
             {
-                m_Dispatcher.send(Messages::App::Quit{});
+                m_Dispatcher.dispatch(Messages::App::Quit{});
             }
             ImGui::EndMenu();
         }

@@ -59,7 +59,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     tinyevents
     GIT_REPOSITORY https://github.com/KyrietS/tinyevents.git
-    GIT_TAG        master
+    GIT_TAG        5406bf35a466238358c6ae4792d33ad42564040d
 )
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
