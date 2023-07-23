@@ -16,9 +16,9 @@
 #include "Controllers/TextController.hpp"
 #include "Controllers/ImageController.hpp"
 #include "Controllers/LineController.hpp"
+#include "Events/EventDispatcher.hpp"
 #include "Serializer/SVG/SvgSerializer.hpp"
 #include "Deserializer/SVG/SvgDeserializer.hpp"
-#include "Messages.hpp"
 
 namespace
 {
@@ -43,9 +43,9 @@ namespace
 Canvas* Canvas::m_PrimaryInstance = nullptr;
 
 
-Canvas::Canvas(tinyevents::Dispatcher& dispatcher, bool primary) : m_Props{}, m_Dispatcher(dispatcher)
+Canvas::Canvas(EventQueue& eventQueue, bool primary) : m_Props{}, m_EventQueue(eventQueue)
 {
-    Renderer::LoadFontAtlas();
+	Renderer::LoadFontAtlas();
 
 	m_Controllers.push_back(std::make_unique<CameraController>(m_Camera));
 	m_Controllers.push_back(std::make_unique<SelectionController>());
@@ -56,13 +56,12 @@ Canvas::Canvas(tinyevents::Dispatcher& dispatcher, bool primary) : m_Props{}, m_
 	if (primary)
 		m_PrimaryInstance = this;
 
-    RegisterSerializer();
-    RegisterDeserializer();
+	Animation::Init(m_EventQueue);
 }
 
 Canvas::~Canvas()
 {
-    Renderer::UnloadFontAtlas();
+	Renderer::UnloadFontAtlas();
 	m_PrimaryInstance = nullptr;
 }
 
@@ -198,6 +197,10 @@ void Canvas::OnUpdate()
 
 void Canvas::OnEvent(Event& event)
 {
+	EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<Events::Canvas::SaveToFile>(BIND_EVENT(Canvas::OnCanvasSaveToFile));
+	dispatcher.Dispatch<Events::Canvas::LoadFromFile>(BIND_EVENT(Canvas::OnCanvasLoadFromFile));
+
 	for (const auto& controller : m_Controllers)
 	{
 		controller->OnEvent(event);
@@ -218,20 +221,16 @@ Entity Canvas::CreateEntity(glm::vec2 initialPosition)
 	return entity;
 }
 
-void Canvas::RegisterSerializer()
+void Canvas::OnCanvasSaveToFile(const Events::Canvas::SaveToFile& event)
 {
-    m_Dispatcher.listen<Messages::Canvas::SaveToFile>([&](const auto& msg){
-        LOG_DEBUG("[MESSAGE] Canvas received SaveCanvasToFile message with path: {}", msg.filename);
-        SvgSerializer{m_Registry}.Serialize();
-    });
+	LOG_DEBUG("[EVENT] Canvas received SaveToFile event with path: {}", event.Filename);
+	SvgSerializer{m_Registry}.Serialize();
 }
 
-void Canvas::RegisterDeserializer()
+void Canvas::OnCanvasLoadFromFile(const Events::Canvas::LoadFromFile& event)
 {
-    m_Dispatcher.listen<Messages::Canvas::LoadFromFile>([&](const auto& msg){
-        LOG_DEBUG("[MESSAGE] Canvas received LoadCanvasFromFile message with path: {}", msg.filename);
-        SvgDeserializer{*this, m_Registry}.Deserialize(msg.filename);
-    });
+	LOG_DEBUG("[EVENT] Canvas received LoadFromFile event with path: {}", event.Filename);
+	SvgDeserializer{*this, m_Registry}.Deserialize(event.Filename);
 }
 
 Entity Canvas::CreateVoidEntity()

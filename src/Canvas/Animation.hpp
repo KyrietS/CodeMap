@@ -2,6 +2,7 @@
 
 #include <glm/vec2.hpp>
 
+class EventQueue;
 
 class Animation
 {
@@ -33,12 +34,12 @@ public:
 	}
 
 	float Step();
-	bool Finished() { return m_Finished; }
+	bool Finished() const { return m_Finished; }
 
+	static void Init(EventQueue& eventQueue);
 private:
 	float ExecuteEaseFuncion();
 
-private:
 	float m_CurrentTime = 0.0f;
 	float m_Start = 0.0f;
 	float m_CurrentValue = 0.0f;
@@ -46,6 +47,8 @@ private:
 	float m_Duration = 0.0f;
 	bool m_Finished = true;
 	EasingType m_EasingType = EasingType::Linear;
+
+	static EventQueue* s_EventQueue;
 };
 
 

@@ -2,27 +2,26 @@
 #include "Window.hpp"
 #include "raylib.h"
 #include "external/glfw/include/GLFW/glfw3.h"
-#include "Events/MouseEvent.hpp"
-#include "Events/KeyEvent.hpp"
-#include "Input.hpp"
+#include "Events/MouseEvents.hpp"
+#include "Events/KeyEvents.hpp"
 #include "Time.hpp"
 
 
-std::function<void(Event&)> Window::s_EventCallback;
+EventQueue* Window::s_EventQueue;
 
-
-void Window::Init(uint32_t width, uint32_t height, const std::string& title)
+void Window::Init(uint32_t width, uint32_t height, const std::string& title, EventQueue* eventQueue)
 {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_MSAA_4X_HINT);
 	InitWindow(width, height, title.c_str());
 	SetExitKey(KEY_NULL);
 	SetTargetFPS(60);
+	s_EventQueue = eventQueue;
 
 	GLFWwindow* glfwWindow = glfwGetCurrentContext();
 
 	glfwSetCursorPosCallback(glfwWindow, [](GLFWwindow* window, double xPos, double yPos) {
-		MouseMovedEvent event((float)xPos, (float)yPos);
-		Window::s_EventCallback(event);
+		Events::Input::MouseMoved event((float)xPos, (float)yPos);
+		Window::EventCallback(event);
 	});
 	glfwSetMouseButtonCallback(glfwWindow, [](GLFWwindow* window, int button, int action, int mods) {
 		if (button < 0 || button > Mouse::LastCode)
@@ -35,18 +34,18 @@ void Window::Init(uint32_t width, uint32_t height, const std::string& title)
 
 		if (action == GLFW_PRESS)
 		{
-			MousePressedEvent event(mouseCode);
-			s_EventCallback(event);
+			Events::Input::MousePressed event(mouseCode);
+			EventCallback(event);
 		}
 		if (action == GLFW_RELEASE)
 		{
-			MouseReleasedEvent event(mouseCode);
-			s_EventCallback(event);
+			Events::Input::MouseReleasedEvent event(mouseCode);
+			EventCallback(event);
 		}
 	});
 	glfwSetScrollCallback(glfwWindow, [](GLFWwindow* window, double xOffset, double yOffset) {
-		MouseScrolledEvent event((float)xOffset, (float)yOffset);
-		s_EventCallback(event);
+		Events::Input::MouseScrolled event((float)xOffset, (float)yOffset);
+		EventCallback(event);
 	});
 	glfwSetKeyCallback(glfwWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 		if (key == GLFW_KEY_UNKNOWN || key < 0 || key > Key::LastCode)
@@ -59,23 +58,23 @@ void Window::Init(uint32_t width, uint32_t height, const std::string& title)
 
 		if (action == GLFW_PRESS)
 		{
-			KeyPressedEvent event(keyCode);
-			s_EventCallback(event);
+			Events::Input::KeyPressed event(keyCode);
+			EventCallback(event);
 		}
 		if (action == GLFW_REPEAT)
 		{
-			KeyPressedEvent event(keyCode, true);
-			s_EventCallback(event);
+			Events::Input::KeyPressed event(keyCode, true);
+			EventCallback(event);
 		}
 		if (action == GLFW_RELEASE)
 		{
-			KeyReleasedEvent event(keyCode);
-			s_EventCallback(event);
+			Events::Input::KeyReleased event(keyCode);
+			EventCallback(event);
 		}
 	});
 	glfwSetCharCallback(glfwWindow, [](GLFWwindow* window, unsigned int codePoint) {
-		KeyTypedEvent event((uint32_t)codePoint);
-		s_EventCallback(event);
+		Events::Input::KeyTyped event((uint32_t)codePoint);
+		EventCallback(event);
 	});
 }
 
@@ -104,11 +103,6 @@ void Window::PollEventsOrWait()
 	Time::Pause();
 	glfwWaitEvents();
 	Time::Resume();
-}
-
-void Window::SetEventCallback(std::function<void(Event&)> eventCallback)
-{
-	s_EventCallback = eventCallback;
 }
 
 void Window::Close()

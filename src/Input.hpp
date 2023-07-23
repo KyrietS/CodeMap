@@ -5,8 +5,8 @@
 #include "KeyCodes.hpp"
 #include <glm/vec2.hpp>
 #include "Events/Event.hpp"
-#include "Events/MouseEvent.hpp"
-#include "Events/KeyEvent.hpp"
+#include "Events/MouseEvents.hpp"
+#include "Events/KeyEvents.hpp"
 
 
 class Input
@@ -25,13 +25,13 @@ public:
 	static bool IsMouseButtonDoubleClicked(MouseCode);
 
 	static void OnEvent(Event&);
-	static void OnMouseMoved(MouseMovedEvent&);
-	static void OnMousePressed(MousePressedEvent&);
-	static void OnMouseReleased(MouseReleasedEvent&);
-	static void OnMouseScrolled(MouseScrolledEvent&);
-	static void OnKeyPressed(KeyPressedEvent&);
-	static void OnKeyReleased(KeyReleasedEvent&);
-	static void OnKeyTyped(KeyTypedEvent&);
+	static void OnMouseMoved(Events::Input::MouseMoved&);
+	static void OnMousePressed(Events::Input::MousePressed&);
+	static void OnMouseReleased(Events::Input::MouseReleasedEvent&);
+	static void OnMouseScrolled(Events::Input::MouseScrolled&);
+	static void OnKeyPressed(Events::Input::KeyPressed&);
+	static void OnKeyReleased(Events::Input::KeyReleased&);
+	static void OnKeyTyped(Events::Input::KeyTyped&);
 
 	static void BeginTextMode();
 	static void EndTextMode();

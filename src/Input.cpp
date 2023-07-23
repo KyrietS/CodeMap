@@ -1,7 +1,6 @@
 #include "pch.hpp"
 #include "Input.hpp"
-#include "raylib.h"
-#include "raymath.h"
+#include "Events/EventDispatcher.hpp"
 #include "Canvas/Canvas.hpp"
 #include "Time.hpp"
 
@@ -84,38 +83,38 @@ bool Input::IsMouseButtonDoubleClicked(MouseCode mouseCode)
 void Input::OnEvent(Event& event)
 {
 	EventDispatcher dispatcher(event);
-	dispatcher.Dispatch<MouseMovedEvent>(Input::OnMouseMoved);
-	dispatcher.Dispatch<MousePressedEvent>(Input::OnMousePressed);
-	dispatcher.Dispatch<MouseReleasedEvent>(Input::OnMouseReleased);
-	dispatcher.Dispatch<MouseScrolledEvent>(Input::OnMouseScrolled);
-	dispatcher.Dispatch<KeyPressedEvent>(Input::OnKeyPressed);
-	dispatcher.Dispatch<KeyReleasedEvent>(Input::OnKeyReleased);
-	dispatcher.Dispatch<KeyTypedEvent>(Input::OnKeyTyped);
+	dispatcher.Dispatch<Events::Input::MouseMoved>(Input::OnMouseMoved);
+	dispatcher.Dispatch<Events::Input::MousePressed>(Input::OnMousePressed);
+	dispatcher.Dispatch<Events::Input::MouseReleasedEvent>(Input::OnMouseReleased);
+	dispatcher.Dispatch<Events::Input::MouseScrolled>(Input::OnMouseScrolled);
+	dispatcher.Dispatch<Events::Input::KeyPressed>(Input::OnKeyPressed);
+	dispatcher.Dispatch<Events::Input::KeyReleased>(Input::OnKeyReleased);
+	dispatcher.Dispatch<Events::Input::KeyTyped>(Input::OnKeyTyped);
 }
 
-void Input::OnMouseMoved(MouseMovedEvent& event)
+void Input::OnMouseMoved(Events::Input::MouseMoved& event)
 {
 	s_MousePosition = { event.GetX(), event.GetY() };
 }
 
-void Input::OnMousePressed(MousePressedEvent& event)
+void Input::OnMousePressed(Events::Input::MousePressed& event)
 {
 	s_MouseState[event.GetButton()].IsDown = true;
 	s_MouseState[event.GetButton()].IsPressed = true;
 }
 
-void Input::OnMouseReleased(MouseReleasedEvent& event)
+void Input::OnMouseReleased(Events::Input::MouseReleasedEvent& event)
 {
 	s_MouseState[event.GetButton()].IsDown = false;
 	s_MouseState[event.GetButton()].IsReleased = true;
 }
 
-void Input::OnMouseScrolled(MouseScrolledEvent& event)
+void Input::OnMouseScrolled(Events::Input::MouseScrolled& event)
 {
 	s_MouseScroll = { event.GetXOffset(), event.GetYOffset() };
 }
 
-void Input::OnKeyPressed(KeyPressedEvent& event)
+void Input::OnKeyPressed(Events::Input::KeyPressed& event)
 {
 	KeyCode key = event.GetKey();
 
@@ -131,14 +130,14 @@ void Input::OnKeyPressed(KeyPressedEvent& event)
 	}
 }
 
-void Input::OnKeyReleased(KeyReleasedEvent& event)
+void Input::OnKeyReleased(Events::Input::KeyReleased& event)
 {
 	KeyCode key = event.GetKey();
 	s_KeyState[key].IsDown = false;
 	s_KeyState[key].IsReleased = true;
 }
 
-void Input::OnKeyTyped(KeyTypedEvent& event)
+void Input::OnKeyTyped(Events::Input::KeyTyped& event)
 {
 	if (s_IsTextMode)
 	{

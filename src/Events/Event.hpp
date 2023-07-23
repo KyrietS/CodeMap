@@ -1,48 +1,28 @@
 #pragma once
 #include <functional>
-
+#include <any>
 
 #define BIND_EVENT(callback) [this](auto& event) { this->callback(event); }
 
-
-enum class EventType
-{
-	None = 0,
-	MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
-	KeyPressed, KeyReleased, KeyTyped
-};
+struct EmptyEvent {};
 
 class Event
 {
 public:
-	virtual ~Event() = default;
+	template<typename T>
+	Event(T event) : m_Event(event) {} // NOLINT(*-explicit-constructor)
 
-	virtual EventType GetEventType() = 0;
+	template<typename T>
+	bool IsType() const { return m_Event.type() == typeid(T); }
+
+	template<typename T>
+	T& GetEvent() { return std::any_cast<T&>(m_Event); }
+	template<typename T>
+	const T& GetEvent() const { return std::any_cast<const T&>(m_Event); }
+
+	const std::type_info& GetEventType() const { return m_Event.type(); }
 
 	bool Handled = false;
-};
-
-template <typename T>
-concept EventWithStaticType =
-	requires(T) {
-		{ T::GetStaticEventType() } -> std::same_as<EventType>;
-};
-
-class EventDispatcher
-{
-public:
-	EventDispatcher(Event& event) : m_Event(event) {}
-
-	template<EventWithStaticType T>
-	bool Dispatch(const std::function<void(T&)>& onEventCallback)
-	{
-		if (m_Event.GetEventType() == T::GetStaticEventType())
-		{
-			onEventCallback(static_cast<T&>(m_Event));
-			return true;
-		}
-		return false;
-	}
 private:
-	Event& m_Event;
+	std::any m_Event;
 };

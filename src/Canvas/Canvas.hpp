@@ -7,7 +7,8 @@
 #include "Controllers/IController.hpp"
 #include "Serializer/CanvasSerializer.hpp"
 #include "Deserializer/CanvasDeserializer.hpp"
-#include <tinyevents/tinyevents.hpp>
+#include "Events/EventQueue.hpp"
+#include "Events/CanvasEvents.hpp"
 
 struct CanvasProps
 {
@@ -19,7 +20,7 @@ class Entity;
 class Canvas
 {
 public:
-	Canvas(tinyevents::Dispatcher&, bool primary = true);
+	Canvas(EventQueue&, bool primary = true);
 	~Canvas();
 
 	void Draw();
@@ -41,8 +42,8 @@ public:
 	static CanvasCamera& Camera() { return m_PrimaryInstance->m_Camera; }
 
 private:
-    void RegisterSerializer();
-    void RegisterDeserializer();
+	void OnCanvasSaveToFile(const Events::Canvas::SaveToFile&);
+	void OnCanvasLoadFromFile(const Events::Canvas::LoadFromFile&);
 
 	Entity CreateVoidEntity();
 	void ScheduleEntityForDestruction(const entt::entity entity);
@@ -55,7 +56,7 @@ private:
 	entt::registry m_Registry;
 	CanvasProps m_Props;
 	CanvasCamera m_Camera;
-    tinyevents::Dispatcher& m_Dispatcher;
+	EventQueue& m_EventQueue;
 
 	std::vector<std::unique_ptr<IController>> m_Controllers;
 	std::list<entt::entity> m_ToBeRemoved;

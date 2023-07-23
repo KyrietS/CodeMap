@@ -56,11 +56,6 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/nothings/stb.git
     GIT_TAG        5736b15f7ea0ffb08dd38af21067c314d6a3aae9
 )
-FetchContent_Declare(
-    tinyevents
-    GIT_REPOSITORY https://github.com/KyrietS/tinyevents.git
-    GIT_TAG        5406bf35a466238358c6ae4792d33ad42564040d
-)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT CodeMap)
@@ -72,7 +67,7 @@ set(CMAKE_CXX_STANDARD 20)
 file(GLOB_RECURSE SOURCES "src/**.cpp" "src/**.hpp")
 add_executable(CodeMap ${SOURCES})
 target_include_directories(CodeMap PRIVATE src)
-target_link_libraries(CodeMap raylib clip imgui tinyxml2 spdlog glm utf8cpp EnTT trex tinyevents)
+target_link_libraries(CodeMap raylib clip imgui tinyxml2 spdlog glm utf8cpp EnTT trex)
 target_precompile_headers(CodeMap PRIVATE src/pch.hpp)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${SOURCES})
 
@@ -92,7 +87,6 @@ FetchContent_MakeAvailable(
     EnTT
     trex
     stb
-    tinyevents
 )
 
 target_compile_definitions(raylib PRIVATE SUPPORT_CUSTOM_FRAME_CONTROL)

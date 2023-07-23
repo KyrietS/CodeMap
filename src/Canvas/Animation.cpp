@@ -3,7 +3,9 @@
 #include "reasings.h"
 #include "Time.hpp"
 #include "App.hpp"
+#include "Events/EventQueue.hpp"
 
+EventQueue* Animation::s_EventQueue = nullptr;
 
 float Animation::ExecuteEaseFuncion()
 {
@@ -64,8 +66,13 @@ float Animation::Step()
 	else
 	{
 		m_CurrentValue = ExecuteEaseFuncion();
-		App::RequestRedraw();
+		s_EventQueue->Push(EmptyEvent{}); // Redraw the canvas
 	}
 	m_CurrentTime += (float)deltaTime;
 	return m_CurrentValue;
+}
+
+void Animation::Init(EventQueue& eventQueue)
+{
+	s_EventQueue = &eventQueue;
 }
