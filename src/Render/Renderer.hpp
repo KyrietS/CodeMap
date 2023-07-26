@@ -2,6 +2,7 @@
 
 #include "CameraData.hpp"
 #include "TextMeasurement.hpp"
+#include "Render/Fonts/FontStorage.hpp"
 #include <glm/glm.hpp>
 #include <span>
 #include <vector>
@@ -43,8 +44,6 @@ public:
 	static void DrawImage(const glm::vec2& position, const Components::Image& image);
 	static void DrawText(const glm::vec2& position, std::string_view text, float fontSize, const glm::vec4& fontColor);
 	static void DrawText(const glm::vec2& position, const Components::Text& text);
-    static void LoadFontAtlas();
-    static void UnloadFontAtlas();
 
 	static TextMeasurement MeasureText(const Components::Text& text);
     // Loads texture from RGBA|RGBA|RGBA|... data.
@@ -55,7 +54,6 @@ public:
     static void UnloadImage(TextureId);
 
 	static void SetImageFilter(TextureId, ImageFilter);
-    static void* s_TextShaper;
-    static void* s_FontTexture;
+    static FontStorage s_FontStorage;
 };
 

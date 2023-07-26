@@ -139,7 +139,7 @@ namespace Components
 		float LetterSpacing = 0.0f;
 		glm::vec4 FontColor = {};
 
-		// TODO: Font
+		unsigned int FontId = 0;
 	};
 
 	struct NativeScript

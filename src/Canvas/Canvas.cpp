@@ -45,8 +45,6 @@ Canvas* Canvas::m_PrimaryInstance = nullptr;
 
 Canvas::Canvas(EventQueue& eventQueue, bool primary) : m_Props{}, m_EventQueue(eventQueue)
 {
-	Renderer::LoadFontAtlas();
-
 	m_Controllers.push_back(std::make_unique<CameraController>(m_Camera));
 	m_Controllers.push_back(std::make_unique<SelectionController>());
 	m_Controllers.push_back(std::make_unique<TextController>());
@@ -61,7 +59,6 @@ Canvas::Canvas(EventQueue& eventQueue, bool primary) : m_Props{}, m_EventQueue(e
 
 Canvas::~Canvas()
 {
-	Renderer::UnloadFontAtlas();
 	m_PrimaryInstance = nullptr;
 }
 

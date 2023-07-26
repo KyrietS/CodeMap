@@ -9,7 +9,8 @@ void TextController::OnUpdate()
 {
 	if (Input::IsMouseButtonDoubleClicked(Mouse::ButtonLeft))
 	{
-		TextEntity(Canvas::Get().CreateEntity(Input::GetWorldMousePosition())).Build("Some text");
+		const int FONT_SIZE = 32;
+		TextEntity(Canvas::Get().CreateEntity(Input::GetWorldMousePosition())).Build("Some text", FONT_SIZE);
 	}
 }
 
