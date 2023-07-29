@@ -27,9 +27,6 @@ namespace
 				m_EditMode = EditMode::End;
 			else
 				m_EditMode = EditMode::None;
-
-			// TODO: Send event to focus this entity (and unfocus all others)
-			GetComponent<Components::Focusable>().IsFocused = true;
 		}
 
 		void OnUpdate() override
