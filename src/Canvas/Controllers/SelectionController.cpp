@@ -4,6 +4,8 @@
 #include "Canvas/Canvas.hpp"
 #include "Canvas/Components.hpp"
 #include "Canvas/Entity.hpp"
+#include "Events/EventDispatcher.hpp"
+#include "Canvas/Entity.hpp"
 
 
 std::list<Entity> GetEntitiesUnderMouse()
@@ -79,4 +81,20 @@ void SelectionController::OnUpdate()
 			(*focusedEntityUnderMouse).GetComponent<Components::Focusable>().IsFocused = false;
 		}
 	}
+}
+
+void SelectionController::OnEvent(Event& event)
+{
+	EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<Events::Canvas::SetFocus>(BIND_EVENT(SelectionController::OnSetFocus));
+}
+
+void SelectionController::OnSetFocus(const Events::Canvas::SetFocus& event)
+{
+	UnfocusAllEntities();
+	Entity entity{ entt::entity{event.EntityId} };
+	if (entity && entity.HasComponent<Components::Focusable>())
+		entity.GetComponent<Components::Focusable>().IsFocused = true;
+	else
+		LOG_WARN("Tried to set focus to invalid entity");
 }

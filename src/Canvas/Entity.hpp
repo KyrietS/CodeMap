@@ -81,7 +81,7 @@ public:
 		m_Canvas->ScheduleEntityForDestruction(m_EntityHandle);
 	}
 
-	operator bool() const { return m_EntityHandle != entt::null; }
+	operator bool() const { return m_Canvas->m_Registry.valid(m_EntityHandle); }
 	operator entt::entity() const { return m_EntityHandle; }
 	operator uint32_t() const { return (uint32_t)m_EntityHandle; }
 

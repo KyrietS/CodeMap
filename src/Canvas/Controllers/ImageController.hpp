@@ -2,6 +2,7 @@
 #include "IController.hpp"
 #include "Events/EventQueue.hpp"
 
+// TODO: Change to ClipboardController
 class ImageController : public IController
 {
 public:
