@@ -27,6 +27,9 @@ namespace
 				m_EditMode = EditMode::End;
 			else
 				m_EditMode = EditMode::None;
+
+			// TODO: Send event to focus this entity (and unfocus all others)
+			GetComponent<Components::Focusable>().IsFocused = true;
 		}
 
 		void OnUpdate() override
@@ -35,21 +38,21 @@ namespace
 			auto& isDraggable = GetComponent<Components::Focusable>().IsDraggable;
 
 			// Drag end edit point
-			if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && IsMouseOverEndPoint())
+			if (Input::IsMouseButtonPressed(Mouse::ButtonLeft) && IsMouseOverEndPoint())
 			{
 				isDraggable = false;
 				m_EditMode = EditMode::End;
 			}
 
 			// Drag begin edit point
-			if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && IsMouseOverBeginPoint())
+			if (Input::IsMouseButtonPressed(Mouse::ButtonLeft) && IsMouseOverBeginPoint())
 			{
 				isDraggable = false;
 				m_EditMode = EditMode::Begin;
 			}
 
 			// Drag bezier control point
-			if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && IsMouseOverControlPoint())
+			if (Input::IsMouseButtonPressed(Mouse::ButtonLeft) && IsMouseOverControlPoint())
 			{
 				isDraggable = false;
 				m_EditMode = EditMode::Bezier;
@@ -65,12 +68,16 @@ namespace
 				m_EditMode = EditMode::None;
 			}
 
-			switch (m_EditMode)
+			// Update edit points
+			if (isFocused)
 			{
-			case EditMode::End: SetEndAt(Input::GetWorldMousePosition()); break;
-			case EditMode::Begin: SetBeginAt(Input::GetWorldMousePosition()); break;
-			case EditMode::Bezier: SetControlPointAt(Input::GetWorldMousePosition()); break;
-			default: break;
+				switch (m_EditMode)
+				{
+				case EditMode::End: SetEndAt(Input::GetWorldMousePosition()); break;
+				case EditMode::Begin: SetBeginAt(Input::GetWorldMousePosition()); break;
+				case EditMode::Bezier: SetControlPointAt(Input::GetWorldMousePosition()); break;
+				default: break;
+				}
 			}
 
 			UpdateFocusArea();
