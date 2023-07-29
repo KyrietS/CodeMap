@@ -61,7 +61,11 @@ private:
 	std::vector<std::unique_ptr<IController>> m_Controllers;
 	std::list<entt::entity> m_ToBeRemoved;
 
+#ifdef NDEBUG
+	bool m_DebugMode = false;
+#else
 	bool m_DebugMode = true;
+#endif
 
 	static Canvas* m_PrimaryInstance;
 
