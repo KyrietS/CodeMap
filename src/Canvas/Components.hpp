@@ -92,7 +92,7 @@ namespace Components
 
 	struct Image
 	{
-		unsigned int TextureId = 0;
+		std::shared_ptr<unsigned int> TextureId = nullptr;
 		int Width = 0;
 		int Height = 0;
 	};
@@ -145,6 +145,7 @@ namespace Components
 	struct NativeScript
 	{
 		NativeScript() = default;
+		NativeScript(const NativeScript&) noexcept = default;
 		NativeScript(NativeScript&& other) noexcept = default;
 		NativeScript& operator=(NativeScript&&) noexcept = default;
 
@@ -158,6 +159,7 @@ namespace Components
 			Instance() = default;
 			Instance(Instance&& other) noexcept = default;
 			Instance& operator=(Instance&&) noexcept = default;
+			Instance(const Instance& other) noexcept;
 			~Instance(); // must be defined in different compilation unit
 
 			operator bool() { return m_Instance != nullptr; }
@@ -176,7 +178,7 @@ namespace Components
 		void Bind(Args&&... args)
 		{
 			// C++20 feature
-			auto Instantiate = [...args = std::forward<Args>(args)]() mutable { return std::make_unique<T>(std::move(args)...);  };
+			auto Instantiate = [...args = std::forward<Args>(args)]() { return std::make_unique<T>(args...);  };
 			Instance instance;
 			instance.Instantiate = std::move(Instantiate);
 

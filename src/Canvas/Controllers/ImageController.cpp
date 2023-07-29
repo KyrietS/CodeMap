@@ -3,6 +3,7 @@
 #include "Input.hpp"
 #include "clip.h"
 #include "Prefabs/ImageEntity.hpp"
+#include "Events/CanvasEvents.hpp"
 
 namespace
 {
@@ -38,6 +39,7 @@ void ImageController::OnUpdate()
 	if (Input::IsKeyDown(Key::LeftControl) && Input::IsKeyPressed(Key::V))
 	{
 		PasteImageFromClipboard();
+		m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
 	}
 }
 
@@ -53,5 +55,5 @@ void ImageController::PasteImageFromClipboard()
 	std::vector<uint8_t> rgbaData = PrepareRgbaData(clipboardImage);
 	glm::vec2 imagePos = Input::GetWorldMousePosition();
 
-	ImageEntity(Canvas::Get().CreateEntity()).Build(imagePos, rgbaData.data(), imageSpec.width, imageSpec.height);
+	ImageEntity(Canvas::Get().CreateEntity(), m_EventQueue).Build(imagePos, rgbaData.data(), imageSpec.width, imageSpec.height);
 }

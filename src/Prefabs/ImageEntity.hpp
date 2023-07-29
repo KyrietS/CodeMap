@@ -2,13 +2,14 @@
 
 #include "Canvas/ScriptableEntity.hpp"
 #include "Canvas/Components.hpp"
+#include "Events/EventQueue.hpp"
 #include <glm/vec2.hpp>
 
 
 class ImageEntity : public Entity
 {
 public:
-	ImageEntity(const Entity& entity);
+	ImageEntity(const Entity& entity, EventQueue&);
 	ImageEntity& Build(glm::vec2 pos, uint8_t* data, int width, int height);
 
 private:

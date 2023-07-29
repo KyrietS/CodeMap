@@ -103,7 +103,7 @@ void Renderer::DrawImage(const glm::vec2& position, const Components::Image& ima
 	int format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
 
 	Texture2D texture2D = {
-		image.TextureId,
+		*image.TextureId,
 		image.Width,
 		image.Height,
 		mipmaps,
@@ -162,7 +162,7 @@ TextMeasurement Renderer::MeasureText(const Components::Text& text)
 	};
 }
 
-TextureId Renderer::LoadTextureFromBytes(std::span<uint8_t> data, int width, int height)
+std::shared_ptr<TextureId> Renderer::LoadTextureFromBytes(std::span<uint8_t> data, int width, int height)
 {
 	assert(data.size() == width * height);
 
@@ -170,13 +170,19 @@ TextureId Renderer::LoadTextureFromBytes(std::span<uint8_t> data, int width, int
 	PixelFormat format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
 	int numOfMipmaps = 1;
 
-	return rlLoadTexture(pixelData, width, height, format, numOfMipmaps);
+	auto id = rlLoadTexture(pixelData, width, height, format, numOfMipmaps);
+    std::shared_ptr<TextureId> textureId(new TextureId{ id }, [](auto* id) {
+        UnloadImage( *id );
+        delete id;
+    });
+
+    return textureId;
 }
 
 std::vector<uint8_t> Renderer::LoadBytesFromImage(const Components::Image& image)
 {
     Texture2D texture = {
-        image.TextureId,
+        *image.TextureId,
         image.Width,
         image.Height,
         1,

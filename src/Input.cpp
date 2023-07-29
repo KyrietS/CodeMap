@@ -157,33 +157,33 @@ void Input::EndTextMode()
 	s_CharQueue = {};
 }
 
-bool Input::IsKeyPressed(KeyCode keyCode, bool overrideTextMode)
+bool Input::IsKeyPressed(KeyCode keyCode, bool ignoreTextMode)
 {
-	if (s_IsTextMode && !overrideTextMode)
+	if (s_IsTextMode && !ignoreTextMode)
 		return false;
 
 	return s_KeyState[keyCode].IsPressed;
 }
 
-bool Input::IsKeyDown(KeyCode keyCode, bool overrideTextMode)
+bool Input::IsKeyDown(KeyCode keyCode, bool ignoreTextMode)
 {
-	if (s_IsTextMode && !overrideTextMode)
+	if (s_IsTextMode && !ignoreTextMode)
 		return false;
 
 	return s_KeyState[keyCode].IsDown;
 }
 
-bool Input::IsKeyReleased(KeyCode keyCode, bool overrideTextMode)
+bool Input::IsKeyReleased(KeyCode keyCode, bool ignoreTextMode)
 {
-	if (s_IsTextMode && !overrideTextMode)
+	if (s_IsTextMode && !ignoreTextMode)
 		return false;
 
 	return s_KeyState[keyCode].IsReleased;
 }
 
-bool Input::IsKeyUp(KeyCode keyCode, bool overrideTextMode)
+bool Input::IsKeyUp(KeyCode keyCode, bool ignoreTextMode)
 {
-	if (s_IsTextMode && !overrideTextMode)
+	if (s_IsTextMode && !ignoreTextMode)
 		return true;
 
 	return !s_KeyState[keyCode].IsDown;

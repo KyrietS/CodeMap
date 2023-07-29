@@ -1,15 +1,17 @@
 #pragma once
 #include "IController.hpp"
 #include "Events/EventQueue.hpp"
+#include "Canvas/Entity.hpp"
 
-class LineController : public IController
+class CommonCanvasEntityController : public IController
 {
 public:
-	LineController(EventQueue& eventQueue)
+	CommonCanvasEntityController(EventQueue& eventQueue)
 		: m_EventQueue(eventQueue) {}
 	void OnUpdate() override;
 
 private:
+	void OnUpdate(Entity);
+
 	EventQueue& m_EventQueue;
 };
-

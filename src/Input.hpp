@@ -35,10 +35,10 @@ public:
 
 	static void BeginTextMode();
 	static void EndTextMode();
-	static bool IsKeyPressed(KeyCode, bool overrideTextMode = false);
-	static bool IsKeyDown(KeyCode, bool overrideTextMode = false);
-	static bool IsKeyReleased(KeyCode, bool overrideTextMode = false);
-	static bool IsKeyUp(KeyCode, bool overrideTextMode = false);
+	static bool IsKeyPressed(KeyCode, bool ignoreTextMode = false);
+	static bool IsKeyDown(KeyCode, bool ignoreTextMode = false);
+	static bool IsKeyReleased(KeyCode, bool ignoreTextMode = false);
+	static bool IsKeyUp(KeyCode, bool ignoreTextMode = false);
 	static KeyCode GetKey();
 	static uint32_t GetChar();
 

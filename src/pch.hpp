@@ -10,8 +10,10 @@
 #include <map>
 #include <list>
 #include <queue>
+#include <stack>
 #include <vector>
 #include <string>
+#include <variant>
 #include <optional>
 #include <functional>
 

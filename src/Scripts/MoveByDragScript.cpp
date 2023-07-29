@@ -2,6 +2,7 @@
 #include "MoveByDragScript.hpp"
 #include "Canvas/Components.hpp"
 #include "Input.hpp"
+#include "Events/CanvasEvents.hpp"
 
 
 void MoveByDragScript::OnCreate()
@@ -32,6 +33,9 @@ void MoveByDragScript::OnUpdate()
 
 	if (Input::IsMouseButtonReleased(Mouse::ButtonLeft))
 	{
+		if (m_CurrentlyMoving)
+			m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
+
 		m_CurrentlyMoving = false;
 	}
 }

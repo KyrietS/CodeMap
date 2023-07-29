@@ -3,9 +3,9 @@
 #include "Canvas/Components.hpp"
 #include "Canvas/ScriptableEntity.hpp"
 #include "Scripts/MoveByDragScript.hpp"
-#include "Scripts/CommonCanvasEntityScript.hpp"
 #include "Input.hpp"
 #include "Render/VColor.hpp"
+#include "Events/CanvasEvents.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
@@ -14,6 +14,11 @@ namespace
 {
 	struct Script : ScriptableEntity
 	{
+		Script(EventQueue& eventQueue)
+			: m_EventQueue(eventQueue)
+		{
+		}
+
 		void OnCreate() override
 		{
 			UpdateFocusArea();
@@ -44,7 +49,7 @@ namespace
 			}
 
 			// Drag bezier control point
-			if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && IsMouserOverControlPoint())
+			if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && IsMouseOverControlPoint())
 			{
 				isDraggable = false;
 				m_EditMode = EditMode::Bezier;
@@ -53,6 +58,9 @@ namespace
 			// Fnish all drag edits
 			if (Input::IsMouseButtonReleased(Mouse::ButtonRight) || Input::IsMouseButtonReleased(Mouse::ButtonLeft))
 			{
+				if (m_EditMode != EditMode::None)
+					m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
+
 				isDraggable = true;
 				m_EditMode = EditMode::None;
 			}
@@ -65,10 +73,7 @@ namespace
 			default: break;
 			}
 
-			if (isFocused && Input::IsKeyPressed(Key::Delete))
-			{
-				m_Entity.Destroy();
-			}
+			UpdateFocusArea();
 		}
 
 		void SetEndAt(glm::vec2 pos)
@@ -134,7 +139,7 @@ namespace
 			return IsMouseOverEditPoint(arrow.GetBegin(transform));
 		}
 
-		bool IsMouserOverControlPoint()
+		bool IsMouseOverControlPoint()
 		{
 			auto& transform = GetComponent<Components::Transform>();
 			auto& arrow = GetComponent<const Components::Arrow>();
@@ -154,20 +159,20 @@ namespace
 		};
 
 		EditMode m_EditMode = EditMode::None;
+		EventQueue& m_EventQueue;
 	};
 }
 
 
 
-ArrowEntity::ArrowEntity(const Entity& entity)
+ArrowEntity::ArrowEntity(const Entity& entity, EventQueue& eventQueue)
 	: Entity(entity)
 {
 	AddComponent<Components::Arrow>();
 	AddComponent<Components::Focusable>();
 
-	AttachScript<::Script>();
-	AttachScript<MoveByDragScript>();
-	AttachScript<CommonCanvasEntityScript>();
+	AttachScript<::Script>(std::ref(eventQueue));
+	AttachScript<MoveByDragScript>(std::ref(eventQueue));
 }
 
 

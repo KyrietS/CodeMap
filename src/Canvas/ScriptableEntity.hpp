@@ -19,6 +19,6 @@ public:
 	}
 
 protected:
-	Entity m_Entity;
+	Entity m_Entity; // Initialized by ScriptEngine
 	friend class ScriptEngine;
 };

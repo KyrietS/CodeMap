@@ -41,7 +41,8 @@ namespace
 	}
 }
 
-SvgDeserializer::SvgDeserializer(Canvas& canvas, entt::registry& registry) : m_Canvas(canvas), m_Registry(registry)
+SvgDeserializer::SvgDeserializer(Canvas& canvas, entt::registry& registry, EventQueue& eventQueue) 
+	: m_Canvas(canvas), m_Registry(registry), m_EventQueue(eventQueue)
 {
 }
 
@@ -89,7 +90,7 @@ void SvgDeserializer::DeserializeText(const tinyxml2::XMLElement& element)
 	float fontSize = element.FloatAttribute("font-size");
 	std::string_view content = element.GetText();
 
-	TextEntity(m_Canvas.CreateEntity({x, y})).Build(content, fontSize);
+	TextEntity(m_Canvas.CreateEntity({x, y}), m_EventQueue).Build(content, fontSize);
 }
 
 void SvgDeserializer::DeserializeArrow(const tinyxml2::XMLElement& element)
@@ -134,7 +135,7 @@ void SvgDeserializer::DeserializeArrow(const tinyxml2::XMLElement& element)
 		}
 	}
 
-	auto arrow = ArrowEntity(m_Canvas.CreateEntity(begin)).Build();
+	auto arrow = ArrowEntity(m_Canvas.CreateEntity(begin), m_EventQueue).Build();
 	arrow.GetComponent<Components::Arrow>().End = end - begin;
 	if (isLineCurved)
 		arrow.GetComponent<Components::Arrow>().ControlPoint = bezier - begin;
@@ -174,7 +175,7 @@ void SvgDeserializer::DeserializeImage(const tinyxml2::XMLElement& element)
 		return;
 	}
 
-	ImageEntity(m_Canvas.CreateEntity()).Build({x, y}, rgbaData, pngImageWidth, pngImageHeight);
+	ImageEntity(m_Canvas.CreateEntity(), m_EventQueue).Build({x, y}, rgbaData, pngImageWidth, pngImageHeight);
 
 	stbi_image_free(rgbaData);
 }

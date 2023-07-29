@@ -2,12 +2,12 @@
 #include "TextEntity.hpp"
 #include "Canvas/Components.hpp"
 #include "Scripts/MoveByDragScript.hpp"
-#include "Scripts/CommonCanvasEntityScript.hpp"
 #include "Utils/Strings.hpp"
 #include "Utils/System.hpp"
 #include "Input.hpp"
 #include "Render/Renderer.hpp"
 #include "Render/VColor.hpp"
+#include "Events/CanvasEvents.hpp"
 
 namespace
 {
@@ -21,6 +21,11 @@ namespace
 
 	struct Script : ScriptableEntity
 	{
+		Script(EventQueue& eventQueue)
+			: m_EventQueue(eventQueue)
+		{
+		}
+
 		void OnUpdate() override
 		{
 			auto& focus = GetComponent<Components::Focusable>();
@@ -32,6 +37,7 @@ namespace
 				m_IsTextModeActive = true;
 
 				auto& content = text.Content;
+				auto contentBeforeChange = content;
 				while (char32_t character = Input::GetChar())
 				{
 					content += Utils::Strings::ToUtf8(character);
@@ -44,6 +50,11 @@ namespace
 					if (keyCode == Key::Enter)
 						content += '\n';
 				}
+
+				if (contentBeforeChange != content)
+				{
+					m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
+				}
 			}
 			else if (m_IsTextModeActive)
 			{
@@ -55,19 +66,19 @@ namespace
 		}
 
 		bool m_IsTextModeActive = false;
+		EventQueue& m_EventQueue;
 	};
 }
 
 
-TextEntity::TextEntity(const Entity& entity)
+TextEntity::TextEntity(const Entity& entity, EventQueue& eventQueue)
 	: Entity(entity)
 {
 	AddComponent<Components::Text>();
 	AddComponent<Components::Focusable>();
 
-	AttachScript<::Script>();
-	AttachScript<MoveByDragScript>();
-	AttachScript<CommonCanvasEntityScript>();
+	AttachScript<::Script>(std::ref(eventQueue));
+	AttachScript<MoveByDragScript>(std::ref(eventQueue));
 }
 
 TextEntity& TextEntity::Build(const std::string_view content, float fontSize)

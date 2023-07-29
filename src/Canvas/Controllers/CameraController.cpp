@@ -11,9 +11,9 @@ namespace
 	void AdjustFilterToZoomLevel(float zoom, const Components::Image& sprite)
 	{
 		if (zoom < 1.0f)
-			Renderer::SetImageFilter(sprite.TextureId, ImageFilter::Linear);
+			Renderer::SetImageFilter(*sprite.TextureId, ImageFilter::Linear);
 		else
-			Renderer::SetImageFilter(sprite.TextureId, ImageFilter::Nearest);
+			Renderer::SetImageFilter(*sprite.TextureId, ImageFilter::Nearest);
 	}
 }
 

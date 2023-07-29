@@ -7,7 +7,7 @@
 class SvgDeserializer : public CanvasDeserializer
 {
 public:
-	SvgDeserializer(Canvas&, entt::registry&);
+	SvgDeserializer(Canvas&, entt::registry&, EventQueue&);
 	void Deserialize(const std::string&) override;
 
 private:
@@ -18,4 +18,5 @@ private:
 
 	Canvas& m_Canvas;
 	entt::registry& m_Registry;
+	EventQueue& m_EventQueue;
 };

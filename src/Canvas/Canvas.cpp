@@ -13,9 +13,11 @@
 #include "Window.hpp"
 #include "Controllers/CameraController.hpp"
 #include "Controllers/SelectionController.hpp"
+#include "Controllers/CommonCanvasEntityController.hpp"
 #include "Controllers/TextController.hpp"
 #include "Controllers/ImageController.hpp"
 #include "Controllers/LineController.hpp"
+#include "Controllers/UndoRedoController.hpp"
 #include "Events/EventDispatcher.hpp"
 #include "Serializer/SVG/SvgSerializer.hpp"
 #include "Deserializer/SVG/SvgDeserializer.hpp"
@@ -47,9 +49,11 @@ Canvas::Canvas(EventQueue& eventQueue, bool primary) : m_Props{}, m_EventQueue(e
 {
 	m_Controllers.push_back(std::make_unique<CameraController>(m_Camera));
 	m_Controllers.push_back(std::make_unique<SelectionController>());
-	m_Controllers.push_back(std::make_unique<TextController>());
-	m_Controllers.push_back(std::make_unique<ImageController>());
-	m_Controllers.push_back(std::make_unique<LineController>());
+	m_Controllers.push_back(std::make_unique<CommonCanvasEntityController>(m_EventQueue));
+	m_Controllers.push_back(std::make_unique<TextController>(m_EventQueue));
+	m_Controllers.push_back(std::make_unique<ImageController>(m_EventQueue));
+	m_Controllers.push_back(std::make_unique<LineController>(m_EventQueue));
+    m_Controllers.push_back(std::make_unique<UndoRedoController>(m_EventQueue, m_Registry));
 
 	if (primary)
 		m_PrimaryInstance = this;
@@ -227,7 +231,7 @@ void Canvas::OnCanvasSaveToFile(const Events::Canvas::SaveToFile& event)
 void Canvas::OnCanvasLoadFromFile(const Events::Canvas::LoadFromFile& event)
 {
 	LOG_DEBUG("[EVENT] Canvas received LoadFromFile event with path: {}", event.Filename);
-	SvgDeserializer{*this, m_Registry}.Deserialize(event.Filename);
+	SvgDeserializer{*this, m_Registry, m_EventQueue}.Deserialize(event.Filename);
 }
 
 Entity Canvas::CreateVoidEntity()

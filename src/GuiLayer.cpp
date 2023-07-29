@@ -111,12 +111,18 @@ void GuiLayer::ShowMainMenuBar()
 		}
 		if (ImGui::BeginMenu("Edit"))
 		{
-			if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-			if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+			if (ImGui::MenuItem("Undo", "CTRL+Z"))
+            {
+                m_EventQueue.Push(Events::Canvas::Undo{});
+            }
+			if (ImGui::MenuItem("Redo", "CTRL+Y"))
+            {
+                m_EventQueue.Push(Events::Canvas::Redo{});
+            }
 			ImGui::Separator();
 			if (ImGui::MenuItem("Cut", "CTRL+X")) {}
 			if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-			if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+			if (ImGui::MenuItem("Paste", "CTRL+V", false, false)) {}
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();

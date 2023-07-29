@@ -3,7 +3,6 @@
 #include "Canvas/Components.hpp"
 #include "Canvas/Canvas.hpp"
 #include "Scripts/MoveByDragScript.hpp"
-#include "Scripts/CommonCanvasEntityScript.hpp"
 #include "Input.hpp"
 #include "Render/Renderer.hpp"
 
@@ -12,35 +11,20 @@ namespace
 {
 	struct Script : public ScriptableEntity
 	{
-		Script(ImageEntity entity)
-			: m_Entity(entity)
-		{
-		}
-
-		bool m_CurrentlyMoving = false;
-
 		void OnUpdate() override
 		{
 		}
-
-		void OnDestroy() override
-		{
-			Renderer::UnloadImage(GetComponent<Components::Image>().TextureId);
-		}
-
-		ImageEntity m_Entity;
 	};
 }
 
-ImageEntity::ImageEntity(const Entity& entity)
+ImageEntity::ImageEntity(const Entity& entity, EventQueue& eventQueue)
 	: Entity(entity)
 {
 	AddComponent<Components::Image>();
 	AddComponent<Components::Focusable>();
 	
-	AttachScript<::Script>(*this);
-	AttachScript<MoveByDragScript>();
-	AttachScript<CommonCanvasEntityScript>();
+	AttachScript<::Script>();
+	AttachScript<MoveByDragScript>(std::ref(eventQueue));
 }
 
 ImageEntity& ImageEntity::Build(glm::vec2 pos, uint8_t* data, int width, int height)

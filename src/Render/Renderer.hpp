@@ -48,12 +48,13 @@ public:
 	static TextMeasurement MeasureText(const Components::Text& text);
     // Loads texture from RGBA|RGBA|RGBA|... data.
 	// One color component is represented by 1 byte.
-	static TextureId LoadTextureFromBytes(std::span<uint8_t> data, int width, int height);
+	static std::shared_ptr<TextureId> LoadTextureFromBytes(std::span<uint8_t> data, int width, int height);
     // Loads image bitmap in RGBA|RGBA|RGBA|... format from the GPU.
     static std::vector<uint8_t> LoadBytesFromImage(const Components::Image&);
-    static void UnloadImage(TextureId);
+    static void SetImageFilter(TextureId, ImageFilter);
 
-	static void SetImageFilter(TextureId, ImageFilter);
+private:
+    static void UnloadImage(TextureId);
     static FontStorage s_FontStorage;
 };
 

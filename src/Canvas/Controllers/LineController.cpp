@@ -8,7 +8,7 @@ void LineController::OnUpdate()
 {
 	if (Input::IsMouseButtonPressed(Mouse::ButtonRight))
 	{
-		ArrowEntity(Canvas::Get().CreateEntity(Input::GetWorldMousePosition())).Build();
+		ArrowEntity(Canvas::Get().CreateEntity(Input::GetWorldMousePosition()), m_EventQueue).Build();
 		LOG_DEBUG("Created ArrowEntity");
 	}
 }

@@ -6,6 +6,8 @@
 class MoveByDragScript : public ScriptableEntity
 {
 public:
+	MoveByDragScript(EventQueue& eventQueue)
+		: m_EventQueue(eventQueue) {}
 	void OnCreate() override;
 	void OnUpdate() override;
 
@@ -14,5 +16,6 @@ private:
 
 private:
 	bool m_CurrentlyMoving = false;
+	EventQueue& m_EventQueue;
 };
 

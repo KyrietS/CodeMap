@@ -13,5 +13,6 @@ namespace Components
 	//  Source: https://ortogonal.github.io/cpp/forward-declaration-and-smart-pointers/
 	//
 	NativeScript::Instance::~Instance() = default;
-
+	NativeScript::Instance::Instance(const Instance& other) noexcept
+		: Instantiate(other.Instantiate), m_Instance(nullptr) {}
 }
