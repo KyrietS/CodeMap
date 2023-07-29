@@ -62,6 +62,23 @@ bool Input::IsMouseButtonUp(MouseCode mouseCode)
 	return !s_MouseState[mouseCode].IsDown;
 }
 
+bool Input::IsMouseButtonClicked(MouseCode mouseCode)
+{
+	static auto clickedPos = s_MousePosition;
+	if (IsMouseButtonPressed(mouseCode))
+	{
+		clickedPos = s_MousePosition;
+	}
+
+	// If mouse button is released in the same position it was pressed
+	if (IsMouseButtonReleased(mouseCode) && clickedPos == s_MousePosition)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 bool Input::IsMouseButtonDoubleClicked(MouseCode mouseCode)
 {
 	using namespace std::chrono_literals;

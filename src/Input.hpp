@@ -22,6 +22,7 @@ public:
 	static bool IsMouseButtonDown(MouseCode);
 	static bool IsMouseButtonReleased(MouseCode);
 	static bool IsMouseButtonUp(MouseCode);
+	static bool IsMouseButtonClicked(MouseCode);
 	static bool IsMouseButtonDoubleClicked(MouseCode);
 
 	static void OnEvent(Event&);
