@@ -77,10 +77,39 @@ void SvgDeserializer::DeserializeElement(const tinyxml2::XMLElement& element)
 	const std::string_view name = element.Name();
 	if (name == "text")
 		DeserializeText(element);
-	if (name == "path")
+	else if (name == "path")
 		DeserializeArrow(element);
-	if (name == "image")
+	else if (name == "image")
 		DeserializeImage(element);
+	else
+		LOG_ERROR("Unsupported element type: <{}> in line: {}", name, element.GetLineNum());
+}
+
+std::string DeserializeTextContent(const tinyxml2::XMLElement& textElement)
+{
+	if (textElement.GetText())
+		return textElement.GetText();
+
+	std::string textContent = "";
+	for (auto tspan = textElement.FirstChildElement(); tspan != nullptr; tspan = tspan->NextSiblingElement())
+	{
+		if (tspan->Name() == std::string("tspan"))
+		{
+			if (const char* text = tspan->GetText())
+			{
+				textContent += text;
+			}
+			else
+			{
+				LOG_ERROR("Unsupported text content in tspan element in line: {}", tspan->GetLineNum());
+			}
+		}
+		else
+		{
+			LOG_ERROR("Unsupported element type in <text>: <{}> in line: {}", tspan->Name(), tspan->GetLineNum());
+		}
+	}
+	return textContent;
 }
 
 void SvgDeserializer::DeserializeText(const tinyxml2::XMLElement& element)
@@ -88,9 +117,9 @@ void SvgDeserializer::DeserializeText(const tinyxml2::XMLElement& element)
 	float x = element.FloatAttribute("x");
 	float y = element.FloatAttribute("y");
 	float fontSize = element.FloatAttribute("font-size");
-	std::string_view content = element.GetText();
 
-	TextEntity(m_Canvas.CreateEntity({x, y}), m_EventQueue).Build(content, fontSize);
+	auto text = DeserializeTextContent(element);
+	TextEntity(m_Canvas.CreateEntity({ x, y }), m_EventQueue).Build(text, fontSize);
 }
 
 void SvgDeserializer::DeserializeArrow(const tinyxml2::XMLElement& element)

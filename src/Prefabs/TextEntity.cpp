@@ -11,12 +11,12 @@
 
 namespace
 {
-    void UpdateTextFocusArea(Components::Focusable& focus, const Components::Text& text)
-    {
+	void UpdateTextFocusArea(Components::Focusable& focus, const Components::Text& text)
+	{
 		const glm::vec2 padding = { 10.0f, 10.0f };
 		const auto textMeasurement = Renderer::MeasureText(text);
-        focus.Size = textMeasurement.Size + 2.0f * padding;
-        focus.Origin = textMeasurement.Offset - padding;
+		focus.Size = textMeasurement.Size + 2.0f * padding;
+		focus.Origin = textMeasurement.Offset - padding;
 	}
 
 	struct Script : ScriptableEntity
@@ -62,7 +62,7 @@ namespace
 				m_IsTextModeActive = false;
 			}
 
-            UpdateTextFocusArea(focus, text);
+			UpdateTextFocusArea(focus, text);
 		}
 
 		bool m_IsTextModeActive = false;
@@ -81,13 +81,13 @@ TextEntity::TextEntity(const Entity& entity, EventQueue& eventQueue)
 	AttachScript<MoveByDragScript>(std::ref(eventQueue));
 }
 
-TextEntity& TextEntity::Build(const std::string_view content, float fontSize)
+TextEntity& TextEntity::Build(const std::string& content, float fontSize)
 {
 	auto& text = GetComponent<Components::Text>();
-	text = Components::Text{ content.data(), fontSize, 0.0f, VColor::Black};
+	text = Components::Text{ content, fontSize, 0.0f, VColor::Black};
 
 	auto& focus = GetComponent<Components::Focusable>();
-    UpdateTextFocusArea(focus, text);
+	UpdateTextFocusArea(focus, text);
 	focus.IsFocused = true;
 
 	return *this;

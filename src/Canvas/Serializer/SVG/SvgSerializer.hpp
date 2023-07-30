@@ -3,6 +3,7 @@
 #include <glm/vec2.hpp>
 #include "Canvas/Serializer/CanvasSerializer.hpp"
 #include "Canvas/Entity.hpp"
+#include "Canvas/Components.hpp"
 #include <tinyxml2.h>
 #include "ViewBox.hpp"
 
@@ -25,6 +26,7 @@ private:
 
 	void SerializeArrow(tinyxml2::XMLElement& root, const Entity entity);
 	void SerializeText(tinyxml2::XMLElement& root, const Entity entity);
+	void SerializeTextContent(tinyxml2::XMLElement& textElement, const Components::Text&);
     void SerializeImage(tinyxml2::XMLElement& root, const Entity entity);
 
 	const entt::registry& m_Registry;

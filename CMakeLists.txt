@@ -49,7 +49,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     trex
     GIT_REPOSITORY https://github.com/KyrietS/trex.git
-    GIT_TAG        v0.1.1
+    GIT_TAG        57508bde7ccf9764989dadbf75ad69aa3bdb3b5e
 )
 FetchContent_Declare(
     stb

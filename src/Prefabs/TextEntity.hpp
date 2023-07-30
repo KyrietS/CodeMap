@@ -8,5 +8,5 @@ class TextEntity : public Entity
 {
 public:
 	TextEntity(const Entity& entity, EventQueue&);
-	TextEntity& Build(const std::string_view text, float fontSize = 32.0f);
+	TextEntity& Build(const std::string& text, float fontSize = 32.0f);
 };

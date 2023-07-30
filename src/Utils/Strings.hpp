@@ -13,4 +13,6 @@ namespace Utils::Strings
 
 	std::string ToUtf8(wchar_t);
 	std::string ToUtf8(const wchar_t*);
+
+	std::vector<std::string_view> SplitToLines(const std::string&, bool keepNewlines = false);
 }

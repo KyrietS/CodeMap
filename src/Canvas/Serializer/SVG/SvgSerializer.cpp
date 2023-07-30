@@ -3,6 +3,7 @@
 #include "Canvas/Components.hpp"
 #include "Canvas/Entity.hpp"
 #include "Render/Renderer.hpp"
+#include "Utils/Strings.hpp"
 #include <raylib.h> // EncodeDataBase64
 #include <stb_image_write.h>
 #include <tinyxml2.h>
@@ -214,7 +215,25 @@ void SvgSerializer::SerializeText(tinyxml2::XMLElement& root, const Entity entit
 	textElement->SetAttribute("font-size", text.FontSize);
 	textElement->SetAttribute("letter-spacing", text.LetterSpacing);
 	textElement->SetAttribute("fill", GetColorString(text.FontColor).c_str());
-	textElement->SetText(text.Content.c_str());
+
+	SerializeTextContent(*textElement, text);
+}
+
+void SvgSerializer::SerializeTextContent(tinyxml2::XMLElement& textElement, const Components::Text& text)
+{
+	const bool keepNewlines = true;
+	auto lines = Utils::Strings::SplitToLines(text.Content, keepNewlines);
+	float cursorX = textElement.FloatAttribute("x");
+	float cursorY = textElement.FloatAttribute("y");
+	int baselineHeight = Renderer::GetBaselineHeight(text);
+	for (const auto& line : lines)
+	{
+		auto tspan = textElement.InsertNewChildElement("tspan");
+		tspan->SetText(std::string(line.data(), line.size()).c_str());
+		tspan->SetAttribute("x", cursorX);
+		tspan->SetAttribute("y", cursorY);
+		cursorY += baselineHeight;
+	}
 }
 
 static void SavePngData(void *context, void *data, int size)

@@ -8,6 +8,7 @@
 #include "TextShaper.hpp"
 #include "Render/Fonts/compressed_roboto.h"
 #include "render/Fonts/FontStorage.hpp"
+#include "Utils/Strings.hpp"
 
 namespace
 {
@@ -115,6 +116,33 @@ void Renderer::DrawImage(const glm::vec2& position, const Components::Image& ima
 	::DrawTextureV(texture2D, texturePosition, tint);
 }
 
+static void DrawTextLine(const glm::vec2& position, const FontInstance& font, std::string_view line)
+{
+	std::string strLine{ line.begin(), line.end() };
+	std::replace(strLine.begin(), strLine.end(), '\t', ' ');
+	Trex::ShapedGlyphs glyphs = font.Shaper->ShapeAscii(strLine);
+
+	glm::vec2 cursor = position;
+	for (const Trex::ShapedGlyph& glyph : glyphs)
+	{
+		float x = cursor.x + glyph.xOffset + glyph.info.bearingX;
+		float y = cursor.y + glyph.yOffset - glyph.info.bearingY;
+
+		rl_Rectangle atlasFragment = {
+				.x = (float)glyph.info.x,
+				.y = (float)glyph.info.y, // top-left corner of the glyph in the atlas
+				.width = (float)glyph.info.width, // width of the glyph in the atlas
+				.height = (float)glyph.info.height // height of the glyph in the atlas
+		};
+
+		// Draw fragment of atlas texture
+		::DrawTextureRec(*(font.Texture), atlasFragment, { x, y }, WHITE);
+
+		cursor.x += glyph.xAdvance;
+		cursor.y += glyph.yAdvance;
+	}
+}
+
 void Renderer::DrawText(const glm::vec2& position, std::string_view text, float fontSize, const glm::vec4& fontColor)
 {
 	Renderer::DrawText(position, Components::Text{ text.data(), fontSize, 1.0f, fontColor});
@@ -122,44 +150,59 @@ void Renderer::DrawText(const glm::vec2& position, std::string_view text, float 
 
 void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
 {
-    const FontInstance& font = Renderer::s_FontStorage.GetFont(text.FontId, text.FontSize);
-    Trex::ShapedGlyphs glyphs = font.Shaper->ShapeAscii(text.Content);
+	// Draws text aligned to the left
+	glm::vec2 cursor = position;
+	auto lines = Utils::Strings::SplitToLines(text.Content);
+	for (const auto& line : lines)
+	{
+		const FontInstance& font = Renderer::s_FontStorage.GetFont(text.FontId, text.FontSize);
+		DrawTextLine(cursor, font, line);
+		cursor.y += font.Shaper->GetBaselineHeight();
+	}
+}
 
-    glm::vec2 cursor = position;
-    for (const Trex::ShapedGlyph& glyph : glyphs)
-    {
-        float x = cursor.x + glyph.xOffset + glyph.info.bearingX;
-        float y = cursor.y + glyph.yOffset - glyph.info.bearingY;
+static TextMeasurement MeasureMultilineText(const std::vector<Trex::TextMeasurement>& measurements, int baselineHeight)
+{
+	if (measurements.empty())
+		return TextMeasurement{};
 
-        rl_Rectangle atlasFragment = {
-                .x = (float)glyph.info.x,
-                .y = (float)glyph.info.y, // top-left corner of the glyph in the atlas
-                .width = (float)glyph.info.width, // width of the glyph in the atlas
-                .height = (float)glyph.info.height // height of the glyph in the atlas
-        };
+	auto maxAdvanceX = std::max_element(measurements.begin(), measurements.end(), [](const auto& lhs, const auto& rhs) {
+		return lhs.xAdvance < rhs.xAdvance;
+	});
+	auto maxWidth = std::max_element(measurements.begin(), measurements.end(), [](const auto& lhs, const auto& rhs) {
+		return lhs.width < rhs.width;
+	});
+	auto totalHeight = std::abs(measurements.front().yOffset) + (measurements.size() - 1) * baselineHeight + measurements.back().height - std::abs(measurements.back().yOffset);
 
-        // Draw fragment of atlas texture
-        ::DrawTextureRec(*(font.Texture), atlasFragment, { x, y }, WHITE);
-
-        cursor.x += glyph.xAdvance;
-        cursor.y += glyph.yAdvance;
-    }
+	return {
+		.Size = { maxWidth->width, totalHeight },
+		.Offset = { measurements.front().xOffset, measurements.front().yOffset },
+		.Advance = { maxAdvanceX->xAdvance, 0 }
+	};
 }
 
 TextMeasurement Renderer::MeasureText(const Components::Text& text)
 {
-	if (text.Content.empty()) // FIXME: this should be implemented in Trex
-		return TextMeasurement{};
-
 	auto& font = Renderer::s_FontStorage.GetFont(text.FontId, text.FontSize);
-    const auto& glyphs = font.Shaper->ShapeAscii(text.Content.c_str());
-	auto measurements = font.Shaper->Measure(glyphs);
+	auto lines = Utils::Strings::SplitToLines(text.Content);
+	std::vector<Trex::TextMeasurement> measurements;
 
-	return TextMeasurement{
-		.Size = {measurements.width, measurements.height},
-		.Offset = {measurements.xOffset, measurements.yOffset},
-		.Advance = {measurements.xAdvance, measurements.yAdvance}
-	};
+	// Measure each line separately
+	for (auto line : lines)
+	{
+		std::string lineStr{ line.begin(), line.end() };
+		const auto glyphs = font.Shaper->ShapeAscii(lineStr.c_str());
+		measurements.push_back(font.Shaper->Measure(glyphs));
+	}
+
+	// Calculate total size
+	return MeasureMultilineText(measurements, font.Shaper->GetBaselineHeight());
+}
+
+int Renderer::GetBaselineHeight(const Components::Text& text)
+{
+	auto& font = Renderer::s_FontStorage.GetFont(text.FontId, text.FontSize);
+	return font.Shaper->GetBaselineHeight();
 }
 
 std::shared_ptr<TextureId> Renderer::LoadTextureFromBytes(std::span<uint8_t> data, int width, int height)

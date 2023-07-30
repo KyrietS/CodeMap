@@ -70,4 +70,23 @@ namespace Utils::Strings
 
 		return result;
 	}
+
+	std::vector<std::string_view> SplitToLines(const std::string& str, bool keepNewlines)
+	{
+		std::vector<std::string_view> result;
+
+		auto lineBegin = str.begin();
+		while (lineBegin < str.end())
+		{
+			auto lineEnd = std::find(lineBegin, str.end(), '\n');
+			auto lineEndWithNewline = lineEnd != str.end() ? lineEnd + 1 : lineEnd;
+			result.emplace_back(lineBegin, keepNewlines ? lineEndWithNewline : lineEnd);
+			lineBegin = lineEnd == str.end() ? str.end() : lineEnd + 1;
+		}
+
+		if (str.ends_with('\n') && !keepNewlines)
+			result.emplace_back("");
+
+		return result;
+	}
 }
