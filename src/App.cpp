@@ -39,10 +39,10 @@ void App::Run()
 	while (IsRunning())
 	{
 		FetchEvents();
-		DispatchEvents();
-		ExecuteScripts();
 
 		BeginFrame();
+		DispatchEvents();
+		ExecuteScripts();
 		UpdateLayers();
 		EndFrame();
 	}

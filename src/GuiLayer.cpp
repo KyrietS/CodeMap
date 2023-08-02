@@ -1,11 +1,13 @@
 #include <Canvas/Deserializer/CanvasDeserializer.hpp>
 #include "Events/AppEvents.hpp"
 #include "Events/CanvasEvents.hpp"
+#include "Events/EventDispatcher.hpp"
 #include "pch.hpp"
 #include "GuiLayer.hpp"
 #include "imgui.h"
 #include "Timer.hpp"
 #include "Canvas/Canvas.hpp"
+#include "Canvas/Components.hpp"
 #include "App.hpp"
 #include "Input.hpp"
 
@@ -129,6 +131,35 @@ void GuiLayer::ShowMainMenuBar()
 	}
 }
 
+void GuiLayer::ShowProperties()
+{
+	ImGui::Begin("Properties");
+	if (m_SelectedText)
+		ImGui::Text(m_SelectedText->get().Content.c_str());
+	else
+		ImGui::Text("No text selected");
+
+	//static char text[1024 * 16] =
+	//	"/*\n"
+	//	" The Pentium F00F bug, shorthand for F0 0F C7 C8,\n"
+	//	" the hexadecimal encoding of one offending instruction,\n"
+	//	" more formally, the invalid operand with locked CMPXCHG8B\n"
+	//	" instruction bug, is a design flaw in the majority of\n"
+	//	" Intel Pentium, Pentium MMX, and Pentium OverDrive\n"
+	//	" processors (all in the P5 microarchitecture).\n"
+	//	"*/\n\n"
+	//	"label:\n"
+	//	"\tlock cmpxchg8b eax\n";
+
+	//static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
+	//ImGui::CheckboxFlags("ImGuiInputTextFlags_ReadOnly", &flags, ImGuiInputTextFlags_ReadOnly);
+	//ImGui::CheckboxFlags("ImGuiInputTextFlags_AllowTabInput", &flags, ImGuiInputTextFlags_AllowTabInput);
+	//ImGui::CheckboxFlags("ImGuiInputTextFlags_CtrlEnterForNewLine", &flags, ImGuiInputTextFlags_CtrlEnterForNewLine);
+	//ImGui::InputTextMultiline("##source", text, IM_ARRAYSIZE(text), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
+
+	ImGui::End();
+}
+
 GuiLayer::GuiLayer(EventQueue& eventQueue)
 	: m_EventQueue(eventQueue) {}
 
@@ -136,6 +167,34 @@ void GuiLayer::OnUpdate()
 {
 	ShowMainMenuBar();
 
+	static ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_None 
+		| ImGuiDockNodeFlags_PassthruCentralNode
+		| ImGuiDockNodeFlags_NoDockingInCentralNode;
+	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockFlags);
+
+	ShowProperties();
 	ShowMetaInfoOverlay();
 	ShowMousePositionOverlay();
+
+	if (ImGui::BeginPopupContextItem("popup_id"))
+	{
+		ImGui::Text("Edit name:");
+		//ImGui::InputText("##edit", name, IM_ARRAYSIZE(name));
+		if (ImGui::Button("Close"))
+			ImGui::CloseCurrentPopup();
+		ImGui::EndPopup();
+	}
+}
+
+void GuiLayer::OnEvent(Event& event)
+{
+	EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<Events::Gui::ShowPopup>(BIND_EVENT(GuiLayer::OnShowPopupEvent));
+	dispatcher.Dispatch<Events::Gui::ShowProperties<Components::Text>>([&](auto& e) { m_SelectedText = e.Component; });
+}
+
+void GuiLayer::OnShowPopupEvent(const Events::Gui::ShowPopup& event)
+{
+	LOG_DEBUG("ShowPopup");
+	ImGui::OpenPopup("popup_id");
 }

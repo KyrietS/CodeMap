@@ -13,6 +13,9 @@ DearImGuiLayer::DearImGuiLayer()
 	ImGui::StyleColorsLight();
 	ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 	ImGui_ImplOpenGL3_Init();
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 }
 
 DearImGuiLayer::~DearImGuiLayer()
