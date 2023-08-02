@@ -35,9 +35,27 @@ void TextController::OnPasteEvent(const Events::Canvas::Paste&)
 		std::string clipboardText;
 		if (clip::get_text(clipboardText))
 		{
-			AddText(clipboardText);
+			if (auto focusedText = GetFocusedText())
+			{
+				focusedText->GetComponent<Components::Text>().Content += clipboardText;
+				m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
+			}
+			else
+			{
+				AddText(clipboardText);
+			}
 		}
 	}
+}
+
+std::optional<Entity> TextController::GetFocusedText()
+{
+	auto texts = Canvas::GetAllEntitiesWith<Components::Focusable, Components::Text>();
+	auto it = std::find_if(texts.begin(), texts.end(), [](Entity entity) {
+		return entity.GetComponent<Components::Focusable>().IsFocused;
+	});
+
+	return it != texts.end() ? std::optional<Entity>(*it) : std::nullopt;
 }
 
 void TextController::AddText(const std::string& text)

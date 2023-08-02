@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IController.hpp"
+#include "Canvas/Entity.hpp"
 #include "Events/EventQueue.hpp"
 #include "Events/CanvasEvents.hpp"
 
@@ -15,6 +16,7 @@ public:
 
 private:
 	void OnPasteEvent(const Events::Canvas::Paste&);
+	std::optional<Entity> GetFocusedText();
 	void AddText(const std::string& text);
 
 	EventQueue& m_EventQueue;
