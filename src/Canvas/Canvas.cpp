@@ -14,6 +14,7 @@
 #include "Controllers/CameraController.hpp"
 #include "Controllers/SelectionController.hpp"
 #include "Controllers/CommonCanvasEntityController.hpp"
+#include "Controllers/CommonKeyboardShortcutsController.hpp"
 #include "Controllers/TextController.hpp"
 #include "Controllers/ImageController.hpp"
 #include "Controllers/LineController.hpp"
@@ -21,6 +22,7 @@
 #include "Events/EventDispatcher.hpp"
 #include "Serializer/SVG/SvgSerializer.hpp"
 #include "Deserializer/SVG/SvgDeserializer.hpp"
+#include "Events/GuiEvents.hpp"
 
 namespace
 {
@@ -48,12 +50,13 @@ Canvas* Canvas::m_PrimaryInstance = nullptr;
 Canvas::Canvas(EventQueue& eventQueue, bool primary) : m_Props{}, m_EventQueue(eventQueue)
 {
 	m_Controllers.push_back(std::make_unique<CameraController>(m_Camera));
-	m_Controllers.push_back(std::make_unique<SelectionController>());
+	m_Controllers.push_back(std::make_unique<SelectionController>(m_EventQueue));
 	m_Controllers.push_back(std::make_unique<CommonCanvasEntityController>(m_EventQueue));
 	m_Controllers.push_back(std::make_unique<TextController>(m_EventQueue));
 	m_Controllers.push_back(std::make_unique<ImageController>(m_EventQueue));
 	m_Controllers.push_back(std::make_unique<LineController>(m_EventQueue));
     m_Controllers.push_back(std::make_unique<UndoRedoController>(m_EventQueue, m_Registry));
+	m_Controllers.push_back(std::make_unique<CommonKeyboardShortcutsController>(m_EventQueue));
 
 	if (primary)
 		m_PrimaryInstance = this;
@@ -162,7 +165,7 @@ void Canvas::Draw()
 		{
 			Box box = focusable.AsBox(transform);
 			if (focusable.IsFocused)
-				Renderer::DrawRectangleLines(box.GetPosition(), box.width, box.height, 2.0f, VColor::Blue);
+				Renderer::DrawRectangleLines(box.GetPosition(), box.width, box.height, 2.0f, focusable.BorderColor);
 			else if (m_DebugMode) // this is debug line. It should always be 1px thick
 				Renderer::DrawRectangleLines(box.GetPosition(), box.width, box.height, 1.0f / m_Camera.GetZoom(), VColor::Red);
 		}
@@ -182,6 +185,11 @@ void Canvas::OnUpdate()
 	if (Input::IsKeyPressed(Key::Tab))
 	{
 		m_DebugMode = !m_DebugMode;
+	}
+
+	if (Input::IsKeyPressed(Key::W))
+	{
+		m_EventQueue.Push(Events::Gui::ShowPopup{});
 	}
 
 	// Remove entities scheduled for removal from scripts.

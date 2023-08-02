@@ -4,6 +4,7 @@
 #include "clip.h"
 #include "Prefabs/ImageEntity.hpp"
 #include "Events/CanvasEvents.hpp"
+#include "Events/EventDispatcher.hpp"
 
 namespace
 {
@@ -34,9 +35,15 @@ std::vector<uint8_t> PrepareRgbaData(const clip::image& clipboardImage)
 }
 } // namespace
 
-void ImageController::OnUpdate()
+void ImageController::OnEvent(Event& event)
 {
-	if (Input::IsKeyDown(Key::LeftControl) && Input::IsKeyPressed(Key::V))
+	EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<Events::Canvas::Paste>(BIND_EVENT(ImageController::OnPasteEvent));
+}
+
+void ImageController::OnPasteEvent(const Events::Canvas::Paste& event)
+{
+	if (clip::has(clip::image_format()))
 	{
 		PasteImageFromClipboard();
 		m_EventQueue.Push(Events::Canvas::MakeSnapshot{});

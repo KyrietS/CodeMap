@@ -5,6 +5,7 @@
 #include "Canvas/Components.hpp"
 #include "Canvas/Entity.hpp"
 #include "Events/EventDispatcher.hpp"
+#include "Events/GuiEvents.hpp"
 #include "Canvas/Entity.hpp"
 
 
@@ -57,10 +58,12 @@ void SelectionController::OnUpdate()
 		{
 			UnfocusAllEntities();
 			entitiesUnderMouse.front().GetComponent<Components::Focusable>().IsFocused = true;
+			// TODO: It's not a good place for this event.
+			if (entitiesUnderMouse.front().HasComponent<Components::Text>())
+				m_EventQueue.Push(Events::Gui::ShowProperties{ entitiesUnderMouse.front().GetComponent<Components::Text>() });
 			return;
 		}
 	}
-
 
 	if (Input::IsMouseButtonClicked(Mouse::ButtonLeft))
 	{
@@ -69,16 +72,18 @@ void SelectionController::OnUpdate()
 			return;
 
 		// Clicked on entity with focus. Switch focus to entity under the focused one.
+		// Except for text entities. They handle double click themselves and should not lose focus.
 		auto focusedEntityUnderMouse = std::find_if(entitiesUnderMouse.begin(), entitiesUnderMouse.end(), [](Entity e) {
 			return e.GetComponent<Components::Focusable>().IsFocused;
 		});
-		if (focusedEntityUnderMouse != entitiesUnderMouse.end())
+		if (focusedEntityUnderMouse != entitiesUnderMouse.end() 
+			&& !focusedEntityUnderMouse->HasComponent<Components::Text>())
 		{
 			auto nextEntity = std::next(focusedEntityUnderMouse);
 			if (nextEntity == entitiesUnderMouse.end())
 				nextEntity = entitiesUnderMouse.begin();
-			(*nextEntity).GetComponent<Components::Focusable>().IsFocused = true;
-			(*focusedEntityUnderMouse).GetComponent<Components::Focusable>().IsFocused = false;
+			nextEntity->GetComponent<Components::Focusable>().IsFocused = true;
+			focusedEntityUnderMouse->GetComponent<Components::Focusable>().IsFocused = false;
 		}
 	}
 }

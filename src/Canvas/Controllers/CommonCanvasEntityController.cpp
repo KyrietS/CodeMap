@@ -29,5 +29,6 @@ void CommonCanvasEntityController::OnUpdate(Entity entity)
 	if (isFocused && Input::IsKeyPressed(Key::Delete))
 	{
 		entity.Destroy();
+		m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
 	}
 }

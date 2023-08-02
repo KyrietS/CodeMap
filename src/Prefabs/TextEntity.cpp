@@ -31,11 +31,15 @@ namespace
 			auto& focus = GetComponent<Components::Focusable>();
 			auto& text = GetComponent<Components::Text>();
 
-			if (focus.IsFocused)
+			if (focus.IsFocused && Input::IsMouseButtonDoubleClicked(Mouse::ButtonLeft))
 			{
 				Input::BeginTextMode();
 				m_IsTextModeActive = true;
+				focus.BorderColor = VColor::Orange;
+			}
 
+			if (m_IsTextModeActive)
+			{
 				auto& content = text.Content;
 				auto contentBeforeChange = content;
 				while (char32_t character = Input::GetChar())
@@ -56,10 +60,12 @@ namespace
 					m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
 				}
 			}
-			else if (m_IsTextModeActive)
+
+			if (m_IsTextModeActive && !focus.IsFocused)
 			{
 				Input::EndTextMode();
 				m_IsTextModeActive = false;
+				focus.ResetBorderColor();
 			}
 
 			UpdateTextFocusArea(focus, text);

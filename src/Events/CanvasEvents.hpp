@@ -8,6 +8,10 @@ namespace Events::Canvas
 	struct Redo {};
 	struct MakeSnapshot {};
 
+	struct Cut {};
+	struct Copy {};
+	struct Paste {};
+
 	struct SetFocus
 	{
 		std::uint32_t EntityId; // TODO: In the future use UUID

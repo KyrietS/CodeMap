@@ -4,15 +4,45 @@
 #include "Input.hpp"
 #include "Prefabs/TextEntity.hpp"
 #include "Events/CanvasEvents.hpp"
+#include "Events/EventDispatcher.hpp"
+#include <clip.h>
 
 
 void TextController::OnUpdate()
 {
-	if (Input::IsMouseButtonDoubleClicked(Mouse::ButtonLeft))
+	auto texts = Canvas::GetAllEntitiesWith<Components::Focusable, Components::Text>();
+
+	bool noTextIsFocued = std::all_of(texts.begin(), texts.end(), [](Entity entity) {
+		return !entity.GetComponent<Components::Focusable>().IsFocused;
+	});
+
+	if (Input::IsMouseButtonDoubleClicked(Mouse::ButtonLeft) && noTextIsFocued)
 	{
-		const int FONT_SIZE = 32;
-		TextEntity(Canvas::Get().CreateEntity(Input::GetWorldMousePosition()), m_EventQueue).Build("text", FONT_SIZE);
-		m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
+		AddText("text");
 	}
 }
 
+void TextController::OnEvent(Event& event)
+{
+	EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<Events::Canvas::Paste>(BIND_EVENT(TextController::OnPasteEvent));
+}
+
+void TextController::OnPasteEvent(const Events::Canvas::Paste&)
+{
+	if (clip::has(clip::text_format()))
+	{
+		std::string clipboardText;
+		if (clip::get_text(clipboardText))
+		{
+			AddText(clipboardText);
+		}
+	}
+}
+
+void TextController::AddText(const std::string& text)
+{
+	const int FONT_SIZE = 32;
+	TextEntity(Canvas::Get().CreateEntity(Input::GetWorldMousePosition()), m_EventQueue).Build(text, FONT_SIZE);
+	m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
+}

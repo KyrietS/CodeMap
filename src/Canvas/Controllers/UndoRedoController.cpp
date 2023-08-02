@@ -6,20 +6,6 @@
 
 void UndoRedoController::OnUpdate()
 {
-    const bool ignoreTextMode = true;
-    // Ctrl + Z
-    if (Input::IsKeyDown(Key::LeftControl, ignoreTextMode) && Input::IsKeyPressed(Key::Z, ignoreTextMode))
-    {
-        LOG_DEBUG("Ctrl + Z");
-        m_EventQueue.Push(Events::Canvas::Undo{});
-    }
-
-    // Ctrl + Y
-    if (Input::IsKeyDown(Key::LeftControl, ignoreTextMode) && Input::IsKeyPressed(Key::Y, ignoreTextMode))
-    {
-        LOG_DEBUG("Ctrl + Y");
-        m_EventQueue.Push(Events::Canvas::Redo{});
-    }
 }
 
 void UndoRedoController::OnEvent(Event& event)

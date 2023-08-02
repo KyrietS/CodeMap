@@ -195,6 +195,7 @@ namespace Components
 
 		bool IsFocused = false;
 		bool IsDraggable = true;
+		glm::vec4 BorderColor = DefaultBorderColor;
 
 		glm::vec2 GetBegin(const Transform& transform) const
 		{
@@ -216,5 +217,12 @@ namespace Components
 
 			return { minX, minY, std::fabs(end.x - begin.x), std::fabs(end.y - begin.y) };
 		}
+
+		void ResetBorderColor()
+		{
+			BorderColor = DefaultBorderColor;
+		}
+
+		static constexpr glm::vec4 DefaultBorderColor = VColor::Blue;
 	};
 }
