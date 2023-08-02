@@ -39,7 +39,7 @@ void Window::Init(uint32_t width, uint32_t height, const std::string& title, Eve
 		}
 		if (action == GLFW_RELEASE)
 		{
-			Events::Input::MouseReleasedEvent event(mouseCode);
+			Events::Input::MouseReleased event(mouseCode);
 			EventCallback(event);
 		}
 	});

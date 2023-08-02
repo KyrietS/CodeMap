@@ -22,13 +22,21 @@ DearImGuiLayer::~DearImGuiLayer()
 	ImGui::DestroyContext();
 }
 
+bool IsMouseEvent(const Event& event)
+{
+	return event.IsType<Events::Input::MousePressed>() ||
+		event.IsType<Events::Input::MouseReleased>() ||
+		event.IsType<Events::Input::MouseMoved>() ||
+		event.IsType<Events::Input::MouseScrolled>();
+}
+
 void DearImGuiLayer::OnEvent(Event& event)
 {
 	// TODO: Capture all inputs:
 	// - Mouse press, release, move, scroll
 	// - Key press, release, type
 	ImGuiIO& io = ImGui::GetIO();
-	if (io.WantCaptureMouse && event.IsType<Events::Input::MousePressed>())
+	if (io.WantCaptureMouseUnlessPopupClose && IsMouseEvent(event))
 	{
 		event.Handled = true;
 	}

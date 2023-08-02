@@ -30,9 +30,9 @@ namespace Events::Input
 		MouseCode m_MouseCode;
 	};
 
-	class MouseReleasedEvent {
+	class MouseReleased {
 	public:
-		MouseReleasedEvent(MouseCode code) : m_MouseCode(code) {}
+		MouseReleased(MouseCode code) : m_MouseCode(code) {}
 
 		MouseCode GetButton() { return m_MouseCode; }
 

@@ -7,6 +7,8 @@
 
 std::array<Input::InputState, GLFW_MOUSE_BUTTON_LAST+1> Input::s_MouseState;
 std::array<Input::InputState, GLFW_KEY_LAST + 1> Input::s_KeyState;
+std::array<TimePoint, GLFW_MOUSE_BUTTON_LAST + 1> Input::s_LastClickTime;
+std::array<TimePoint, GLFW_MOUSE_BUTTON_LAST + 1> Input::s_CurrentClickTime;
 
 glm::vec2 Input::s_MousePosition;
 glm::vec2 Input::s_LastMousePos;
@@ -85,12 +87,9 @@ bool Input::IsMouseButtonDoubleClicked(MouseCode mouseCode)
 
 	if (IsMouseButtonReleased(mouseCode))
 	{
-		static auto before = Time::Now();
-		auto now = Time::Now();
-		auto difference = now - before;
-		before = now;
+		auto difference = Time::Now() - s_LastClickTime[mouseCode];
 
-		if (difference > 10ms && difference < 200ms)
+		if (difference < 200ms)
 			return true;
 	}
 
@@ -102,7 +101,7 @@ void Input::OnEvent(Event& event)
 	EventDispatcher dispatcher(event);
 	dispatcher.Dispatch<Events::Input::MouseMoved>(Input::OnMouseMoved);
 	dispatcher.Dispatch<Events::Input::MousePressed>(Input::OnMousePressed);
-	dispatcher.Dispatch<Events::Input::MouseReleasedEvent>(Input::OnMouseReleased);
+	dispatcher.Dispatch<Events::Input::MouseReleased>(Input::OnMouseReleased);
 	dispatcher.Dispatch<Events::Input::MouseScrolled>(Input::OnMouseScrolled);
 	dispatcher.Dispatch<Events::Input::KeyPressed>(Input::OnKeyPressed);
 	dispatcher.Dispatch<Events::Input::KeyReleased>(Input::OnKeyReleased);
@@ -120,10 +119,12 @@ void Input::OnMousePressed(Events::Input::MousePressed& event)
 	s_MouseState[event.GetButton()].IsPressed = true;
 }
 
-void Input::OnMouseReleased(Events::Input::MouseReleasedEvent& event)
+void Input::OnMouseReleased(Events::Input::MouseReleased& event)
 {
 	s_MouseState[event.GetButton()].IsDown = false;
 	s_MouseState[event.GetButton()].IsReleased = true;
+	s_LastClickTime[event.GetButton()] = s_CurrentClickTime[event.GetButton()];
+	s_CurrentClickTime[event.GetButton()] = Time::Now();
 }
 
 void Input::OnMouseScrolled(Events::Input::MouseScrolled& event)

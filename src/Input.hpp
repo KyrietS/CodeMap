@@ -7,6 +7,7 @@
 #include "Events/Event.hpp"
 #include "Events/MouseEvents.hpp"
 #include "Events/KeyEvents.hpp"
+#include "Time.hpp"
 
 
 class Input
@@ -28,7 +29,7 @@ public:
 	static void OnEvent(Event&);
 	static void OnMouseMoved(Events::Input::MouseMoved&);
 	static void OnMousePressed(Events::Input::MousePressed&);
-	static void OnMouseReleased(Events::Input::MouseReleasedEvent&);
+	static void OnMouseReleased(Events::Input::MouseReleased&);
 	static void OnMouseScrolled(Events::Input::MouseScrolled&);
 	static void OnKeyPressed(Events::Input::KeyPressed&);
 	static void OnKeyReleased(Events::Input::KeyReleased&);
@@ -57,6 +58,8 @@ private:
 
 	static std::array<InputState, Mouse::LastCode + 1> s_MouseState;
 	static std::array<InputState, Key::LastCode + 1> s_KeyState;
+	static std::array<TimePoint, Mouse::LastCode + 1> s_LastClickTime;
+	static std::array<TimePoint, Mouse::LastCode + 1> s_CurrentClickTime;
 
 	static glm::vec2 s_MousePosition;
 	static glm::vec2 s_LastMousePos;
