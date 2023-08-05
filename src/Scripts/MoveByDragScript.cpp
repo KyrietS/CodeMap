@@ -1,14 +1,15 @@
 #include "pch.hpp"
 #include "MoveByDragScript.hpp"
 #include "Canvas/Components.hpp"
+#include "Canvas/Canvas.hpp"
 #include "Input.hpp"
 #include "Events/CanvasEvents.hpp"
 
 
 void MoveByDragScript::OnCreate()
 {
-	assert(m_Entity.HasComponent<Components::Transform>());
-	assert(m_Entity.HasComponent<Components::Focusable>());
+	assert(m_Entity->HasComponent<Components::Transform>());
+	assert(m_Entity->HasComponent<Components::Focusable>());
 }
 
 

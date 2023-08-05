@@ -9,13 +9,12 @@
 #include "Deserializer/CanvasDeserializer.hpp"
 #include "Events/EventQueue.hpp"
 #include "Events/CanvasEvents.hpp"
+#include "Canvas/Entity.hpp"
 
 struct CanvasProps
 {
 	glm::vec4 BackgroundColor = VColor::RayWhite;
 };
-
-class Entity;
 
 class Canvas
 {
@@ -42,6 +41,7 @@ public:
 	static CanvasCamera& Camera() { return m_PrimaryInstance->m_Camera; }
 
 private:
+	void OnDestroy(const Events::Canvas::Destroy&);
 	void OnCanvasSaveToFile(const Events::Canvas::SaveToFile&);
 	void OnCanvasLoadFromFile(const Events::Canvas::LoadFromFile&);
 
@@ -59,7 +59,6 @@ private:
 	EventQueue& m_EventQueue;
 
 	std::vector<std::unique_ptr<IController>> m_Controllers;
-	std::list<entt::entity> m_ToBeRemoved;
 
 #ifdef NDEBUG
 	bool m_DebugMode = false;

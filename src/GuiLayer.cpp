@@ -1,15 +1,19 @@
+#include "pch.hpp"
 #include <Canvas/Deserializer/CanvasDeserializer.hpp>
 #include "Events/AppEvents.hpp"
 #include "Events/CanvasEvents.hpp"
 #include "Events/EventDispatcher.hpp"
-#include "pch.hpp"
 #include "GuiLayer.hpp"
-#include "imgui.h"
 #include "Timer.hpp"
 #include "Canvas/Canvas.hpp"
 #include "Canvas/Components.hpp"
+#include "Canvas/Entity.hpp"
 #include "App.hpp"
 #include "Input.hpp"
+#include "entt/entt.hpp"
+#include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
+
 
 void ShowMetaInfoOverlay()
 {
@@ -133,11 +137,18 @@ void GuiLayer::ShowMainMenuBar()
 
 void GuiLayer::ShowProperties()
 {
+	if (!m_SelectedEntity || !m_SelectedEntity->IsValid())
+		return;
+
 	ImGui::Begin("Properties");
-	if (m_SelectedText)
-		ImGui::Text(m_SelectedText->get().Content.c_str());
-	else
-		ImGui::Text("No text selected");
+	if (m_SelectedEntity->HasComponent<Components::Text>())
+	{
+		ShowPropertiesFor(m_SelectedEntity->GetComponent<Components::Text>());
+	}
+	if (m_SelectedEntity->HasComponent<Components::Arrow>())
+	{
+		ShowPropertiesFor(m_SelectedEntity->GetComponent<Components::Arrow>());
+	}
 
 	//static char text[1024 * 16] =
 	//	"/*\n"
@@ -158,6 +169,27 @@ void GuiLayer::ShowProperties()
 	//ImGui::InputTextMultiline("##source", text, IM_ARRAYSIZE(text), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
 
 	ImGui::End();
+}
+
+void GuiLayer::ShowPropertiesFor(Components::Text& text)
+{
+	ImGui::Text("Text");
+	ImGui::Separator();
+	ImGui::InputTextMultiline("Content", &text.Content);
+	ImGui::DragFloat("Font size", &text.FontSize, 1.0f, 4.0f, 256.0f, "%.0f");
+	if (ImGui::IsItemHovered() && !ImGui::IsItemActive())
+		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+	ImGui::ColorEdit4("Font color", &text.FontColor[0], ImGuiColorEditFlags_NoAlpha);
+}
+
+void GuiLayer::ShowPropertiesFor(Components::Arrow& arrow)
+{
+	ImGui::Text("Arrow");
+	ImGui::Separator();
+	ImGui::ColorPicker3("Arrow color", &arrow.StrokeColor[0], 
+		ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_DisplayHex);
+	ImGui::Separator();
+	ImGui::ColorEdit3("Arrowhead", &arrow.ArrowheadColor[0]);
 }
 
 GuiLayer::GuiLayer(EventQueue& eventQueue)
@@ -190,7 +222,12 @@ void GuiLayer::OnEvent(Event& event)
 {
 	EventDispatcher dispatcher(event);
 	dispatcher.Dispatch<Events::Gui::ShowPopup>(BIND_EVENT(GuiLayer::OnShowPopupEvent));
-	dispatcher.Dispatch<Events::Gui::ShowProperties<Components::Text>>([&](auto& e) { m_SelectedText = e.Component; });
+	dispatcher.Dispatch<Events::Gui::ShowProperties>(BIND_EVENT(GuiLayer::OnShowPropertiesEvent));
+}
+
+void GuiLayer::OnShowPropertiesEvent(const Events::Gui::ShowProperties& event)
+{
+	m_SelectedEntity = event.Entity ? std::make_unique<Entity>(event.Entity) : nullptr;
 }
 
 void GuiLayer::OnShowPopupEvent(const Events::Gui::ShowPopup& event)

@@ -11,7 +11,7 @@ void Logger::Init()
 {
 	auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_st>();
 	consoleSink->set_pattern("%^[%T][%l] %s:%#  %v%$");
-	consoleSink->set_level(spdlog::level::trace);
+	consoleSink->set_level(spdlog::level::debug);
 
 	std::vector<spdlog::sink_ptr> logSinks{ consoleSink };
 

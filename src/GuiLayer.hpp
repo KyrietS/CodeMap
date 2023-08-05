@@ -17,14 +17,16 @@ public:
 	void OnEvent(Event& event) override;
 
 private:
+	void OnShowPropertiesEvent(const Events::Gui::ShowProperties&);
 	void OnShowPopupEvent(const Events::Gui::ShowPopup&);
 
 	void ShowProperties();
+	void ShowPropertiesFor(Components::Text&);
+	void ShowPropertiesFor(Components::Arrow&);
 	void ShowMainMenuBar();
 	void SaveCanvasToFile(const std::string& filename);
 	void LoadCanvasFromFile(const std::string& filename);
 
-	std::optional<std::reference_wrapper<Components::Text>> m_SelectedText;
-
 	EventQueue& m_EventQueue;
+	std::unique_ptr<Entity> m_SelectedEntity;
 };

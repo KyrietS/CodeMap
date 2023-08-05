@@ -21,7 +21,7 @@ void ScriptEngine::OnScriptsUpdate()
 			if (!script)
 			{
 				script.m_Instance = script.Instantiate();
-				script.m_Instance->m_Entity = { entity, &m_Canvas };
+				script.m_Instance->m_Entity = std::make_unique<Entity>(entity, m_Canvas);
 				script->OnCreate();
 			}
 			script->OnUpdate();

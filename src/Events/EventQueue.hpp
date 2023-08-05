@@ -11,7 +11,8 @@ public:
 	template<typename T>
 	void Push(const T& event)
 	{
-		m_QueuedEvents.emplace(event);
+		Event& e = m_QueuedEvents.emplace(event);
+		LOG_TRACE("[EventQueue] Pushed event of type: {}", e.GetEventType().name());
 	}
 
 	Event Pop()

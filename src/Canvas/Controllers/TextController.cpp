@@ -61,6 +61,7 @@ std::optional<Entity> TextController::GetFocusedText()
 void TextController::AddText(const std::string& text)
 {
 	const int FONT_SIZE = 32;
-	TextEntity(Canvas::Get().CreateEntity(Input::GetWorldMousePosition()), m_EventQueue).Build(text, FONT_SIZE);
+	auto entity = TextEntity(Canvas::Get().CreateEntity(Input::GetWorldMousePosition()), m_EventQueue).Build(text, FONT_SIZE);
+	m_EventQueue.Push(Events::Canvas::SetFocus{ entity });
 	m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
 }

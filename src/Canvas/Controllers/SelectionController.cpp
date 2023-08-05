@@ -29,14 +29,6 @@ std::list<Entity> GetEntitiesUnderMouse()
 	return entitiesUnderMouse;
 }
 
-void UnfocusAllEntities()
-{
-	for (Entity e : Canvas::GetAllEntitiesWith<Components::Focusable>())
-	{
-		e.GetComponent<Components::Focusable>().IsFocused = false;
-	}
-}
-
 void SelectionController::OnUpdate()
 {
 	if (Input::IsMouseButtonPressed(Mouse::ButtonLeft))
@@ -57,10 +49,7 @@ void SelectionController::OnUpdate()
 		if (noneEntityIsFocued)
 		{
 			UnfocusAllEntities();
-			entitiesUnderMouse.front().GetComponent<Components::Focusable>().IsFocused = true;
-			// TODO: It's not a good place for this event.
-			if (entitiesUnderMouse.front().HasComponent<Components::Text>())
-				m_EventQueue.Push(Events::Gui::ShowProperties{ entitiesUnderMouse.front().GetComponent<Components::Text>() });
+			FocusOn(entitiesUnderMouse.front());
 			return;
 		}
 	}
@@ -82,8 +71,8 @@ void SelectionController::OnUpdate()
 			auto nextEntity = std::next(focusedEntityUnderMouse);
 			if (nextEntity == entitiesUnderMouse.end())
 				nextEntity = entitiesUnderMouse.begin();
-			nextEntity->GetComponent<Components::Focusable>().IsFocused = true;
-			focusedEntityUnderMouse->GetComponent<Components::Focusable>().IsFocused = false;
+			FocusOn(*nextEntity);
+			UnfocusOn(*focusedEntityUnderMouse);
 		}
 	}
 }
@@ -97,9 +86,41 @@ void SelectionController::OnEvent(Event& event)
 void SelectionController::OnSetFocus(const Events::Canvas::SetFocus& event)
 {
 	UnfocusAllEntities();
-	Entity entity{ entt::entity{event.EntityId} };
+	FocusOn(entt::entity{ event.EntityId });
+}
+
+void SelectionController::FocusOn(Entity entity)
+{
 	if (entity && entity.HasComponent<Components::Focusable>())
+	{
 		entity.GetComponent<Components::Focusable>().IsFocused = true;
+		m_EventQueue.Push(Events::Gui::ShowProperties{entity});
+	}
 	else
+	{
 		LOG_WARN("Tried to set focus to invalid entity");
+
+	}
+}
+
+void SelectionController::UnfocusOn(Entity entity)
+{
+	if (entity && entity.HasComponent<Components::Focusable>())
+	{
+		entity.GetComponent<Components::Focusable>().IsFocused = false;
+		m_EventQueue.Push(Events::Gui::ShowProperties(entt::entity{ entt::null }));
+	}
+	else
+	{
+		LOG_WARN("Tried to unset focus to invalid entity");
+	}
+}
+
+void SelectionController::UnfocusAllEntities()
+{
+	for (const Entity& entity : Canvas::GetAllEntitiesWith<Components::Focusable>())
+	{
+		entity.GetComponent<Components::Focusable>().IsFocused = false;
+	}
+	m_EventQueue.Push(Events::Gui::ShowProperties(entt::entity{ entt::null }));
 }

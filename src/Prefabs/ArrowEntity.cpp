@@ -1,11 +1,13 @@
 #include "pch.hpp"
 #include "ArrowEntity.hpp"
+#include "Canvas/Canvas.hpp"
 #include "Canvas/Components.hpp"
 #include "Canvas/ScriptableEntity.hpp"
 #include "Scripts/MoveByDragScript.hpp"
 #include "Input.hpp"
 #include "Render/VColor.hpp"
 #include "Events/CanvasEvents.hpp"
+#include "Events/EventQueue.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
@@ -185,6 +187,7 @@ ArrowEntity& ArrowEntity::Build()
 	auto& arrow = GetComponent<Components::Arrow>();
 	arrow.End = { 10.0f, 0.0f };
 	arrow.StrokeColor = VColor::Blue;
+	arrow.ArrowheadColor = VColor::Orange;
 	arrow.Thickness = 5.0f;
 
 	return *this;

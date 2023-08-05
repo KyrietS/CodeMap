@@ -2,6 +2,7 @@
 #include "Canvas/Controllers/CommonCanvasEntityController.hpp"
 #include "Input.hpp"
 #include "Events/CanvasEvents.hpp"
+#include "Canvas/Canvas.hpp"
 
 void CommonCanvasEntityController::OnUpdate()
 {

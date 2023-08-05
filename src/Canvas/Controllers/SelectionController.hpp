@@ -4,6 +4,7 @@
 #include "IController.hpp"
 #include "Events/CanvasEvents.hpp"
 #include "Events/EventQueue.hpp"
+#include "Canvas/Entity.hpp"
 
 class SelectionController : public IController
 {
@@ -15,6 +16,9 @@ public:
 
 private:
 	void OnSetFocus(const Events::Canvas::SetFocus&);
+	void FocusOn(Entity);
+	void UnfocusOn(Entity);
+	void UnfocusAllEntities();
 
 	EventQueue& m_EventQueue;
 };

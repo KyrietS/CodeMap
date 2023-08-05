@@ -11,7 +11,7 @@ struct AppConfig
 {
 	std::string Name = "CodeMap";
 	std::string WorkingDir;
-	int WindowWidth = 800;
+	int WindowWidth = 1000;
 	int WindowHeight = 600;
 };
 

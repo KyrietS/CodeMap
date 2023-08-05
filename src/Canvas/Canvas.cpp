@@ -125,7 +125,7 @@ void Canvas::Draw()
 				tip2 += end;
 				tip3 += end;
 
-				Renderer::DrawTriangle(tip1, tip2, tip3, VColor::Orange);
+				Renderer::DrawTriangle(tip1, tip2, tip3, arrow.ArrowheadColor);
 
 				if (entity.GetComponent<Components::Focusable>().IsFocused)
 				{
@@ -191,22 +191,12 @@ void Canvas::OnUpdate()
 	{
 		m_EventQueue.Push(Events::Gui::ShowPopup{});
 	}
-
-	// Remove entities scheduled for removal from scripts.
-	for (auto entity : m_ToBeRemoved)
-	{
-		if (m_Registry.valid(entity))
-		{
-			m_Registry.destroy(entity);
-			LOG_DEBUG("Entity {} destroyed", (int)entity);
-		}
-	}
-	m_ToBeRemoved.clear();
 }
 
 void Canvas::OnEvent(Event& event)
 {
 	EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<Events::Canvas::Destroy>(BIND_EVENT(Canvas::OnDestroy));
 	dispatcher.Dispatch<Events::Canvas::SaveToFile>(BIND_EVENT(Canvas::OnCanvasSaveToFile));
 	dispatcher.Dispatch<Events::Canvas::LoadFromFile>(BIND_EVENT(Canvas::OnCanvasLoadFromFile));
 
@@ -230,6 +220,29 @@ Entity Canvas::CreateEntity(glm::vec2 initialPosition)
 	return entity;
 }
 
+void Canvas::OnDestroy(const Events::Canvas::Destroy& event)
+{
+	entt::entity entity = entt::entity{ event.EntityId };
+	if (!m_Registry.valid(entity))
+	{
+		return;
+	}
+
+	if (m_Registry.all_of<Components::NativeScript>(entity))
+	{
+		auto& scripts = m_Registry.get<Components::NativeScript>(entity);
+		for (auto& script : scripts.Instances)
+		{
+			if (script)
+				script->OnDestroy();
+		}
+	}
+
+	m_Registry.destroy(entity);
+	LOG_DEBUG("Entity {} destroyed", (int)entity);
+	
+}
+
 void Canvas::OnCanvasSaveToFile(const Events::Canvas::SaveToFile& event)
 {
 	LOG_DEBUG("[EVENT] Canvas received SaveToFile event with path: {}", event.Filename);
@@ -244,27 +257,10 @@ void Canvas::OnCanvasLoadFromFile(const Events::Canvas::LoadFromFile& event)
 
 Entity Canvas::CreateVoidEntity()
 {
-	Entity entity = { m_Registry.create(), this };
+	Entity entity = { m_Registry.create(), *this };
 	LOG_DEBUG("Created entity id={}", (int)(entt::entity)entity);
 
 	return entity;
-}
-
-void Canvas::ScheduleEntityForDestruction(const entt::entity entity)
-{
-	assert(m_Registry.valid(entity));
-	if (m_Registry.all_of<Components::NativeScript>(entity))
-	{
-		auto& scripts = m_Registry.get<Components::NativeScript>(entity);
-		for (auto& script : scripts.Instances)
-		{
-			if (script)
-				script->OnDestroy();
-		}
-	}
-
-	// Schedule the removal so the script can remove itself.
-	m_ToBeRemoved.push_back(entity);
 }
 
 void Canvas::UpdateChildrenOf(Entity parent)

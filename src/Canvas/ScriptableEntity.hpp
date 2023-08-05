@@ -15,10 +15,10 @@ public:
 	template<typename T>
 	T& GetComponent()
 	{
-		return m_Entity.GetComponent<T>();
+		return m_Entity->GetComponent<T>();
 	}
 
 protected:
-	Entity m_Entity; // Initialized by ScriptEngine
+	std::unique_ptr<Entity> m_Entity; // Initialized by ScriptEngine
 	friend class ScriptEngine;
 };

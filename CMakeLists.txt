@@ -101,8 +101,9 @@ if(WIN32)
     target_compile_definitions(CodeMap PRIVATE UNICODE _UNICODE)
 endif()
 
-file(GLOB IMGUI_SOURCES ${imgui_SOURCE_DIR}/*.cpp ${imgui_SOURCE_DIR}/*.h)
+file(GLOB IMGUI_SOURCES ${imgui_SOURCE_DIR}/*.cpp ${imgui_SOURCE_DIR}/*.h ${imgui_SOURCE_DIR}/misc/cpp/*)
 add_library(imgui ${IMGUI_SOURCES})
+target_include_directories(imgui PRIVATE ${imgui_SOURCE_DIR})
 
 get_target_property(dependencies CodeMap INTERFACE_LINK_LIBRARIES)
 foreach(dependency ${dependencies})

@@ -1,11 +1,11 @@
 #pragma once
+#include "Canvas/Entity.hpp"
 
 namespace Events::Gui
 {
-	template<typename Component>
 	struct ShowProperties
 	{
-		Component& Component;
+		Entity Entity;
 	};
 	struct ShowPopup {};
 }

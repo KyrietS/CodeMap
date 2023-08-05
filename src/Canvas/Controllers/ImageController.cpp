@@ -5,6 +5,7 @@
 #include "Prefabs/ImageEntity.hpp"
 #include "Events/CanvasEvents.hpp"
 #include "Events/EventDispatcher.hpp"
+#include "Canvas/Canvas.hpp"
 
 namespace
 {

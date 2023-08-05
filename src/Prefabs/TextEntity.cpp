@@ -94,7 +94,6 @@ TextEntity& TextEntity::Build(const std::string& content, float fontSize)
 
 	auto& focus = GetComponent<Components::Focusable>();
 	UpdateTextFocusArea(focus, text);
-	focus.IsFocused = true;
 
 	return *this;
 }

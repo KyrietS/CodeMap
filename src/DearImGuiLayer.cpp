@@ -3,7 +3,8 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
-#include <Events/MouseEvents.hpp>
+#include "Events/MouseEvents.hpp"
+#include "Events/EventUtils.hpp"
 
 DearImGuiLayer::DearImGuiLayer()
 {
@@ -25,21 +26,17 @@ DearImGuiLayer::~DearImGuiLayer()
 	ImGui::DestroyContext();
 }
 
-bool IsMouseEvent(const Event& event)
-{
-	return event.IsType<Events::Input::MousePressed>() ||
-		event.IsType<Events::Input::MouseReleased>() ||
-		event.IsType<Events::Input::MouseMoved>() ||
-		event.IsType<Events::Input::MouseScrolled>();
-}
-
 void DearImGuiLayer::OnEvent(Event& event)
 {
 	// TODO: Capture all inputs:
 	// - Mouse press, release, move, scroll
 	// - Key press, release, type
 	ImGuiIO& io = ImGui::GetIO();
-	if (io.WantCaptureMouseUnlessPopupClose && IsMouseEvent(event))
+	if (io.WantCaptureMouseUnlessPopupClose && Events::IsMouseEvent(event))
+	{
+		event.Handled = true;
+	}
+	if (io.WantCaptureKeyboard && Events::IsKeyEvent(event))
 	{
 		event.Handled = true;
 	}

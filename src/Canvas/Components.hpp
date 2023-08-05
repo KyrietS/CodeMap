@@ -101,6 +101,7 @@ namespace Components
 	{
 		glm::vec2 End = { 1.0f, 0.0f };
 		glm::vec4 StrokeColor = VColor::Black;
+		glm::vec4 ArrowheadColor = VColor::Black;
 		float Thickness = 1.0f;
 		std::optional<glm::vec2> ControlPoint = std::nullopt;
 

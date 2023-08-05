@@ -17,6 +17,11 @@ namespace Events::Canvas
 		std::uint32_t EntityId; // TODO: In the future use UUID
 	};
 
+	struct Destroy
+	{
+		std::uint32_t EntityId;
+	};
+
 	struct SaveToFile
 	{
 		SaveToFile(const std::string& filename)
