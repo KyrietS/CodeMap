@@ -12,6 +12,7 @@
 #include "Input.hpp"
 #include "entt/entt.hpp"
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <misc/cpp/imgui_stdlib.h>
 
 
@@ -140,35 +141,34 @@ void GuiLayer::ShowProperties()
 	if (!m_SelectedEntity || !m_SelectedEntity->IsValid())
 		return;
 
-	ImGui::Begin("Properties");
+	if (m_SelectedEntity->HasComponent<Components::Transform>())
+	{
+		ImGui::Begin("Transform");
+		ShowPropertiesFor(m_SelectedEntity->GetComponent<Components::Transform>());
+		ImGui::End();
+	}
 	if (m_SelectedEntity->HasComponent<Components::Text>())
 	{
+		ImGui::Begin("Text");
 		ShowPropertiesFor(m_SelectedEntity->GetComponent<Components::Text>());
+		ImGui::End();
 	}
 	if (m_SelectedEntity->HasComponent<Components::Arrow>())
 	{
+		ImGui::Begin("Arrow");
 		ShowPropertiesFor(m_SelectedEntity->GetComponent<Components::Arrow>());
+		ImGui::End();
 	}
+}
 
-	//static char text[1024 * 16] =
-	//	"/*\n"
-	//	" The Pentium F00F bug, shorthand for F0 0F C7 C8,\n"
-	//	" the hexadecimal encoding of one offending instruction,\n"
-	//	" more formally, the invalid operand with locked CMPXCHG8B\n"
-	//	" instruction bug, is a design flaw in the majority of\n"
-	//	" Intel Pentium, Pentium MMX, and Pentium OverDrive\n"
-	//	" processors (all in the P5 microarchitecture).\n"
-	//	"*/\n\n"
-	//	"label:\n"
-	//	"\tlock cmpxchg8b eax\n";
-
-	//static ImGuiInputTextFlags flags = ImGuiInputTextFlags_AllowTabInput;
-	//ImGui::CheckboxFlags("ImGuiInputTextFlags_ReadOnly", &flags, ImGuiInputTextFlags_ReadOnly);
-	//ImGui::CheckboxFlags("ImGuiInputTextFlags_AllowTabInput", &flags, ImGuiInputTextFlags_AllowTabInput);
-	//ImGui::CheckboxFlags("ImGuiInputTextFlags_CtrlEnterForNewLine", &flags, ImGuiInputTextFlags_CtrlEnterForNewLine);
-	//ImGui::InputTextMultiline("##source", text, IM_ARRAYSIZE(text), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), flags);
-
-	ImGui::End();
+void GuiLayer::ShowPropertiesFor(Components::Transform& transform)
+{
+	ImGui::Text("Transform");
+	ImGui::Separator();
+	ImGui::DragFloat2("Position", &transform.Translation[0], 1.0f, 0.0f, 0.0f, "%.0f");
+	if (ImGui::IsItemHovered() && !ImGui::IsItemActive())
+		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+	ImGui::InputInt("Index", &transform.Index, 1, 10);
 }
 
 void GuiLayer::ShowPropertiesFor(Components::Text& text)
@@ -179,7 +179,10 @@ void GuiLayer::ShowPropertiesFor(Components::Text& text)
 	ImGui::DragFloat("Font size", &text.FontSize, 1.0f, 4.0f, 256.0f, "%.0f");
 	if (ImGui::IsItemHovered() && !ImGui::IsItemActive())
 		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
+	ImGui::BeginDisabled();
 	ImGui::ColorEdit4("Font color", &text.FontColor[0], ImGuiColorEditFlags_NoAlpha);
+	ImGui::EndDisabled();
 }
 
 void GuiLayer::ShowPropertiesFor(Components::Arrow& arrow)
@@ -188,8 +191,21 @@ void GuiLayer::ShowPropertiesFor(Components::Arrow& arrow)
 	ImGui::Separator();
 	ImGui::ColorPicker3("Arrow color", &arrow.StrokeColor[0], 
 		ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_DisplayHex);
-	ImGui::Separator();
-	ImGui::ColorEdit3("Arrowhead", &arrow.ArrowheadColor[0]);
+	ImGui::ColorEdit3("Arrowhead", &arrow.ArrowheadColor[0], ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_DisplayHex);
+}
+
+void SetupDockSpace(ImGuiID viewportDockSpaceId)
+{
+	static bool firstTime = true;
+	if (!firstTime)
+		return;
+
+	ImGuiID dockRight = ImGui::DockBuilderSplitNode(viewportDockSpaceId, ImGuiDir_Right, 0.3f, nullptr, &viewportDockSpaceId);
+	ImGui::DockBuilderDockWindow("Transform", dockRight);
+	ImGui::DockBuilderDockWindow("Arrow", dockRight);
+	ImGui::DockBuilderDockWindow("Text", dockRight);
+
+	firstTime = false;
 }
 
 GuiLayer::GuiLayer(EventQueue& eventQueue)
@@ -202,7 +218,8 @@ void GuiLayer::OnUpdate()
 	static ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_None 
 		| ImGuiDockNodeFlags_PassthruCentralNode
 		| ImGuiDockNodeFlags_NoDockingInCentralNode;
-	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockFlags);
+	ImGuiID viewportDockSpaceId = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockFlags);
+	SetupDockSpace(viewportDockSpaceId);
 
 	ShowProperties();
 	ShowMetaInfoOverlay();
@@ -210,8 +227,7 @@ void GuiLayer::OnUpdate()
 
 	if (ImGui::BeginPopupContextItem("popup_id"))
 	{
-		ImGui::Text("Edit name:");
-		//ImGui::InputText("##edit", name, IM_ARRAYSIZE(name));
+		ImGui::Text("Example popup");
 		if (ImGui::Button("Close"))
 			ImGui::CloseCurrentPopup();
 		ImGui::EndPopup();

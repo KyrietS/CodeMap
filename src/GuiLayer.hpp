@@ -21,6 +21,7 @@ private:
 	void OnShowPopupEvent(const Events::Gui::ShowPopup&);
 
 	void ShowProperties();
+	void ShowPropertiesFor(Components::Transform&);
 	void ShowPropertiesFor(Components::Text&);
 	void ShowPropertiesFor(Components::Arrow&);
 	void ShowMainMenuBar();
