@@ -140,6 +140,7 @@ namespace Components
 		float LetterSpacing = 0.0f;
 		glm::vec4 FontColor = {};
 
+		bool IsCursorShown = false;
 		unsigned int FontId = 0;
 	};
 

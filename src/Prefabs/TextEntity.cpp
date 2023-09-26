@@ -8,6 +8,7 @@
 #include "Render/Renderer.hpp"
 #include "Render/VColor.hpp"
 #include "Events/CanvasEvents.hpp"
+#include "Timer.hpp"
 
 namespace
 {
@@ -35,11 +36,13 @@ namespace
 			{
 				Input::BeginTextMode();
 				m_IsTextModeActive = true;
+				m_CursorTimer.Reset();
 				focus.BorderColor = VColor::Orange;
 			}
 
 			if (m_IsTextModeActive)
 			{
+				toggleCursorVisibility();
 				auto& content = text.Content;
 				auto contentBeforeChange = content;
 				while (char32_t character = Input::GetChar())
@@ -66,13 +69,27 @@ namespace
 				Input::EndTextMode();
 				m_IsTextModeActive = false;
 				focus.ResetBorderColor();
+				text.IsCursorShown = false;
 			}
 
 			UpdateTextFocusArea(focus, text);
 		}
 
+		void toggleCursorVisibility()
+		{
+			auto& isCursorShown = GetComponent<Components::Text>().IsCursorShown;
+			constexpr float cursorToggleInterval = 0.5f;
+			if (m_CursorTimer.Elapsed() >= cursorToggleInterval)
+			{
+				isCursorShown = !isCursorShown;
+				m_CursorTimer.Reset();
+			}
+			m_EventQueue.Push(EmptyEvent{});
+		}
+
 		bool m_IsTextModeActive = false;
 		EventQueue& m_EventQueue;
+		Timer m_CursorTimer;
 	};
 }
 

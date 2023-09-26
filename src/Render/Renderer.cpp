@@ -116,7 +116,7 @@ void Renderer::DrawImage(const glm::vec2& position, const Components::Image& ima
 	::DrawTextureV(texture2D, texturePosition, tint);
 }
 
-static void DrawTextLine(const glm::vec2& position, const FontInstance& font, std::string_view line)
+static int DrawTextLine(const glm::vec2& position, const FontInstance& font, std::string_view line)
 {
 	std::string strLine{ line.begin(), line.end() };
 	std::replace(strLine.begin(), strLine.end(), '\t', ' ');
@@ -141,6 +141,8 @@ static void DrawTextLine(const glm::vec2& position, const FontInstance& font, st
 		cursor.x += glyph.xAdvance;
 		cursor.y += glyph.yAdvance;
 	}
+
+	return cursor.x - position.x; // Return line length (in pixels)
 }
 
 void Renderer::DrawText(const glm::vec2& position, std::string_view text, float fontSize, const glm::vec4& fontColor)
@@ -150,14 +152,25 @@ void Renderer::DrawText(const glm::vec2& position, std::string_view text, float 
 
 void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
 {
+	const FontInstance& font = Renderer::s_FontStorage.GetFont(text.FontId, text.FontSize);
+	const Trex::FontMetrics fontMetrics = font.Shaper->GetFontMetrics();
 	// Draws text aligned to the left
 	glm::vec2 cursor = position;
+	glm::vec2 lastLineEnd = position;
 	auto lines = Utils::Strings::SplitToLines(text.Content);
 	for (const auto& line : lines)
 	{
-		const FontInstance& font = Renderer::s_FontStorage.GetFont(text.FontId, text.FontSize);
-		DrawTextLine(cursor, font, line);
-		cursor.y += font.Shaper->GetBaselineHeight();
+		lastLineEnd = cursor;
+		lastLineEnd.x += DrawTextLine(cursor, font, line);
+		cursor.y += fontMetrics.height;
+	}
+
+	if (text.IsCursorShown)
+	{
+		float cursorThickness = std::max(text.FontSize / 32.0f, 1.0f);
+		glm::vec2 cursorBarBegin = { lastLineEnd.x, lastLineEnd.y - fontMetrics.ascender };
+		glm::vec2 cursorBarEnd = { lastLineEnd.x, lastLineEnd.y - fontMetrics.descender };
+		DrawLine(cursorBarBegin, cursorBarEnd, cursorThickness, VColor::Black);
 	}
 }
 
@@ -196,13 +209,14 @@ TextMeasurement Renderer::MeasureText(const Components::Text& text)
 	}
 
 	// Calculate total size
-	return MeasureMultilineText(measurements, font.Shaper->GetBaselineHeight());
+	return MeasureMultilineText(measurements, GetBaselineHeight(text));
 }
 
 int Renderer::GetBaselineHeight(const Components::Text& text)
 {
 	auto& font = Renderer::s_FontStorage.GetFont(text.FontId, text.FontSize);
-	return font.Shaper->GetBaselineHeight();
+	auto metrics = font.Shaper->GetFontMetrics();
+	return metrics.height;
 }
 
 std::shared_ptr<TextureId> Renderer::LoadTextureFromBytes(std::span<uint8_t> data, int width, int height)
