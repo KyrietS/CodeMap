@@ -52,6 +52,29 @@ void Renderer::EndCameraView()
 	::EndMode2D();
 }
 
+void Renderer::BeginBlendMode(Render::BlendMode blendMode)
+{
+	using Render::BlendMode;
+
+	switch (blendMode)
+	{
+	case BlendMode::Default:
+		::BeginBlendMode(BLEND_ALPHA);
+		break;
+	case BlendMode::Multiply:
+		::BeginBlendMode(BLEND_MULTIPLIED);
+		break;
+	default:
+		LOG_ERROR("Unknown blend mode. Ignored.");
+		break;
+	}
+}
+
+void Renderer::EndBlendMode()
+{
+	::EndBlendMode();
+}
+
 void Renderer::ClearScreen(const glm::vec4& color)
 {
 	ClearBackground(vec4ToColor(color));
@@ -96,6 +119,45 @@ void Renderer::DrawCircleOutline(const glm::vec2& position, float radius, const 
 	int x = (int)std::round(position.x);
 	int y = (int)std::round(position.y);
 	::DrawCircleLines(x, y, radius, vec4ToColor(color));
+}
+
+glm::vec2 GetCenterPoint(const std::vector<glm::vec2>& points)
+{
+	glm::vec2 centerPoint{ 0.0f, 0.0f };
+	for (const glm::vec2& point : points)
+	{
+		centerPoint += point;
+	}
+	centerPoint /= static_cast<float>(points.size());
+	return centerPoint;
+}
+
+void SortPointsCounterClockwise(const glm::vec2& centerPoint, std::vector<glm::vec2>& points)
+{
+	std::sort(points.begin(), points.end(), [&centerPoint](const glm::vec2& a, const glm::vec2& b) {
+		return std::atan2(a.y - centerPoint.y, a.x - centerPoint.x) > std::atan2(b.y - centerPoint.y, b.x - centerPoint.x);
+	});
+}
+
+void Renderer::DrawPolygon(const std::vector<glm::vec2>& points, const glm::vec4& color)
+{
+	if (points.size() < 2)
+		return;
+	if (points.size() == 2)
+	{
+		DrawLine(points[0], points[1], 1.0f, color);
+		return;
+	}
+
+	glm::vec2 centerPoint = GetCenterPoint(points);
+	std::vector<glm::vec2> sortedPoints = points;
+	SortPointsCounterClockwise(centerPoint, sortedPoints);
+	for (size_t i = 1; i < sortedPoints.size(); ++i)
+	{
+		DrawTriangle(centerPoint, sortedPoints[i - 1], sortedPoints[i], color);
+	}
+
+	DrawTriangle(centerPoint, sortedPoints.back(), sortedPoints.front(), color);
 }
 
 void Renderer::DrawImage(const glm::vec2& position, const Components::Image& image)

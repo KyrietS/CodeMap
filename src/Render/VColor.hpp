@@ -12,6 +12,7 @@ namespace VColor
 	static constexpr glm::vec4 Black = FromBytes(0, 0, 0, 255);
 	static constexpr glm::vec4 Blue = FromBytes(0, 121, 241, 255);
 	static constexpr glm::vec4 Red = FromBytes(230, 41, 55, 255);
+	static constexpr glm::vec4 Yellow = FromBytes( 255, 255, 0, 255 );
 	static constexpr glm::vec4 Orange = FromBytes( 255, 161, 0, 255 );
 	static constexpr glm::vec4 LightGray = FromBytes(200, 200, 200, 255);
 	static constexpr glm::vec4 DarkGray = FromBytes(80, 80, 80, 255);

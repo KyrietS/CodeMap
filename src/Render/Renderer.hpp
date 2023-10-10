@@ -2,6 +2,7 @@
 
 #include "CameraData.hpp"
 #include "TextMeasurement.hpp"
+#include "BlendMode.hpp"
 #include "Render/Fonts/FontStorage.hpp"
 #include <glm/glm.hpp>
 #include <span>
@@ -32,6 +33,9 @@ public:
 	static void BeginCameraView(const CameraData&);
 	static void EndCameraView();
 
+	static void BeginBlendMode(Render::BlendMode);
+	static void EndBlendMode();
+
 	static void ClearScreen(const glm::vec4 & color);
 
 	static void DrawLine(const glm::vec2& p0, const glm::vec2 p1, float thickness, const glm::vec4& color);
@@ -41,6 +45,7 @@ public:
 	static void DrawRectangle(const glm::vec2& position, float width, float height, const glm::vec4& color);
 	static void DrawRectangleLines(const glm::vec2& position, float width, float height, float thickness, const glm::vec4& color);
 	static void DrawCircleOutline(const glm::vec2& position, float radius, const glm::vec4& color);
+	static void DrawPolygon(const std::vector<glm::vec2>& points, const glm::vec4& color);
 	static void DrawImage(const glm::vec2& position, const Components::Image& image);
 	static void DrawText(const glm::vec2& position, std::string_view text, float fontSize, const glm::vec4& fontColor);
 	static void DrawText(const glm::vec2& position, const Components::Text& text);

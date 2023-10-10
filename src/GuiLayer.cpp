@@ -16,6 +16,22 @@
 #include <misc/cpp/imgui_stdlib.h>
 
 
+namespace
+{
+static void HelpMarker(const char* desc)
+{
+	ImGui::TextDisabled("(?)");
+	if (ImGui::BeginItemTooltip())
+	{
+		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+		ImGui::TextUnformatted(desc);
+		ImGui::PopTextWrapPos();
+		ImGui::EndTooltip();
+	}
+}
+}
+
+
 void ShowMetaInfoOverlay()
 {
 	ImGuiWindowFlags window_flags = 
@@ -159,6 +175,12 @@ void GuiLayer::ShowProperties()
 		ShowPropertiesFor(m_SelectedEntity->GetComponent<Components::Arrow>());
 		ImGui::End();
 	}
+	if (m_SelectedEntity->HasComponent<Components::Highlight>())
+	{
+		ImGui::Begin("Highlight");
+		ShowPropertiesFor(m_SelectedEntity->GetComponent<Components::Highlight>());
+		ImGui::End();
+	}
 }
 
 void GuiLayer::ShowPropertiesFor(Components::Transform& transform)
@@ -194,6 +216,21 @@ void GuiLayer::ShowPropertiesFor(Components::Arrow& arrow)
 	ImGui::ColorEdit3("Arrowhead", &arrow.ArrowheadColor[0], ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_DisplayHex);
 }
 
+void GuiLayer::ShowPropertiesFor(Components::Highlight& highlight)
+{
+	ImGui::Text("Highlight");
+	ImGui::Separator();
+	ImGui::ColorPicker4("Highlight color", &highlight.Color[0],
+		ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_DisplayHex);
+
+	const char* items[] = { "Alpha", "Multiply" };
+	int currentOption = static_cast<int>(highlight.BlendMode);
+	ImGui::Combo("Blending", &currentOption, items, IM_ARRAYSIZE(items));
+	highlight.BlendMode = static_cast<Render::BlendMode>(currentOption);
+
+	ImGui::SameLine(); HelpMarker("Set the blending mode for Highligh object.");
+}
+
 void SetupDockSpace(ImGuiID viewportDockSpaceId)
 {
 	static bool firstTime = true;
@@ -204,6 +241,7 @@ void SetupDockSpace(ImGuiID viewportDockSpaceId)
 	ImGui::DockBuilderDockWindow("Transform", dockRight);
 	ImGui::DockBuilderDockWindow("Arrow", dockRight);
 	ImGui::DockBuilderDockWindow("Text", dockRight);
+	ImGui::DockBuilderDockWindow("Highlight", dockRight);
 
 	firstTime = false;
 }

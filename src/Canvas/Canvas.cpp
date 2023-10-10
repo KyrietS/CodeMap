@@ -6,6 +6,7 @@
 #include "Entity.hpp"
 #include "Prefabs/ImageEntity.hpp"
 #include "Prefabs/ArrowEntity.hpp"
+#include "Prefabs/HighlightEntity.hpp"
 #include "Input.hpp"
 #include "Timer.hpp"
 #include "Render/Renderer.hpp"
@@ -18,6 +19,7 @@
 #include "Controllers/TextController.hpp"
 #include "Controllers/ImageController.hpp"
 #include "Controllers/LineController.hpp"
+#include "Controllers/HighlightController.hpp"
 #include "Controllers/UndoRedoController.hpp"
 #include "Events/EventDispatcher.hpp"
 #include "Serializer/SVG/SvgSerializer.hpp"
@@ -55,6 +57,7 @@ Canvas::Canvas(EventQueue& eventQueue, bool primary) : m_Props{}, m_EventQueue(e
 	m_Controllers.push_back(std::make_unique<TextController>(m_EventQueue));
 	m_Controllers.push_back(std::make_unique<ImageController>(m_EventQueue));
 	m_Controllers.push_back(std::make_unique<LineController>(m_EventQueue));
+	m_Controllers.push_back(std::make_unique<HighlightController>(m_EventQueue));
     m_Controllers.push_back(std::make_unique<UndoRedoController>(m_EventQueue, m_Registry));
 	m_Controllers.push_back(std::make_unique<CommonKeyboardShortcutsController>(m_EventQueue));
 
@@ -141,6 +144,31 @@ void Canvas::Draw()
 				}
 			}
 
+			// Draw highlight
+			if (entity.HasComponent<Components::Highlight>())
+			{
+				const auto& highlight = entity.GetComponent<Components::Highlight>();
+				if (highlight.Points.size() < 2)
+					continue;
+
+				auto points = highlight.GetWorldPoints(transform);
+				Renderer::BeginBlendMode(highlight.BlendMode);
+				Renderer::DrawPolygon(points, highlight.Color);
+				Renderer::EndBlendMode();
+
+				// Draw edit points
+				if (entity.GetComponent<Components::Focusable>().IsFocused)
+				{
+					for (size_t i = 0; i < points.size(); i++)
+					{
+						glm::vec4 color = i == highlight.SelectedPointIndex ? VColor::Red : VColor::Blue;
+						float radius = HighlightEntity::EDIT_POINT_RADIUS / m_Camera.GetZoom();
+						float thickness = 1.0f / m_Camera.GetZoom();
+						Renderer::DrawCircleOutline(points[i], radius, color);
+					}
+				}
+			}
+
 			// Draw text
 			if (entity.HasComponent<Components::Text>())
 			{
@@ -157,6 +185,7 @@ void Canvas::Draw()
 					Renderer::DrawRectangleLines(topLeftCorner, textDimensions.Size.x, textDimensions.Size.y, thickness, VColor::LightGray);
 				}
 			}
+
 		}
 
 		// Draw selection rects

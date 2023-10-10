@@ -31,6 +31,12 @@ std::list<Entity> GetEntitiesUnderMouse()
 
 void SelectionController::OnUpdate()
 {
+	// Dirty hack to allow HighlightController to work properly.
+	// Better solution would be to make some Lock/Unlock Focus events.
+	// TODO: Fix it when tools modes are implemented.
+	if (Input::IsKeyDown(Key::LeftControl))
+		return;
+
 	if (Input::IsMouseButtonPressed(Mouse::ButtonLeft))
 	{
 		std::list<Entity> entitiesUnderMouse = GetEntitiesUnderMouse();

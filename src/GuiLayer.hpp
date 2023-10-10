@@ -24,6 +24,7 @@ private:
 	void ShowPropertiesFor(Components::Transform&);
 	void ShowPropertiesFor(Components::Text&);
 	void ShowPropertiesFor(Components::Arrow&);
+	void ShowPropertiesFor(Components::Highlight&);
 	void ShowMainMenuBar();
 	void SaveCanvasToFile(const std::string& filename);
 	void LoadCanvasFromFile(const std::string& filename);

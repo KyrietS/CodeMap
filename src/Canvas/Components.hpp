@@ -7,6 +7,7 @@
 #include <glm/gtx/transform.hpp>
 #include "Canvas/Box.hpp"
 #include "Render/VColor.hpp"
+#include "Render/BlendMode.hpp"
 
 
 class ScriptableEntity;
@@ -130,6 +131,31 @@ namespace Components
 		{
 			glm::vec2 control = ControlPoint.value_or(glm::vec2{ 0.0f, 0.0f });
 			return glm::orientedAngle(glm::vec2{ 1.0f, 0.0f }, glm::normalize(End - control));
+		}
+	};
+
+	struct Highlight
+	{
+		glm::vec4 Color = VColor::Yellow;
+		Render::BlendMode BlendMode = Render::BlendMode::Multiply;
+		
+		std::vector<glm::vec2> Points = {};
+		std::optional<size_t> SelectedPointIndex = std::nullopt;
+
+		std::vector<glm::vec2> GetWorldPoints(const Transform& transform) const
+		{
+			std::vector<glm::vec2> points;
+			points.reserve(Points.size());
+			for (const auto& point : Points)
+			{
+				points.emplace_back(transform.GetTransform() * glm::vec4{ point.x, point.y, 0.0f, 1.0f });
+			}
+			return points;
+		}
+
+		void AddPoint(const Transform& transform, const glm::vec2& point)
+		{
+			Points.emplace_back(glm::inverse(transform.GetTransform()) * glm::vec4{ point.x, point.y, 0.0f, 1.0f });
 		}
 	};
 
