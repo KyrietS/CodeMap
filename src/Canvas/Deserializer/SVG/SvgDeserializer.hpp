@@ -15,6 +15,7 @@ private:
 	void DeserializeText(const tinyxml2::XMLElement&);
 	void DeserializeArrow(const tinyxml2::XMLElement&);
 	void DeserializeImage(const tinyxml2::XMLElement&);
+	void DeserializeHighlight(const tinyxml2::XMLElement&);
 
 	Canvas& m_Canvas;
 	entt::registry& m_Registry;

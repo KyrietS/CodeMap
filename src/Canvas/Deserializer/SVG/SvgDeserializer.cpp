@@ -7,6 +7,7 @@
 #include <stb_image.h>
 #include <raylib.h> // DecodeDataBase64
 #include <Prefabs/ImageEntity.hpp>
+#include <Prefabs/HighlightEntity.hpp>
 
 namespace
 {
@@ -81,6 +82,12 @@ void SvgDeserializer::DeserializeElement(const tinyxml2::XMLElement& element)
 		DeserializeArrow(element);
 	else if (name == "image")
 		DeserializeImage(element);
+	else if (name == "polygon")
+		DeserializeHighlight(element);
+	else if (name == "defs")
+		return; // Ignore
+	else if (name == "style")
+		return; // Ignore
 	else
 		LOG_ERROR("Unsupported element type: <{}> in line: {}", name, element.GetLineNum());
 }
@@ -207,4 +214,63 @@ void SvgDeserializer::DeserializeImage(const tinyxml2::XMLElement& element)
 	ImageEntity(m_Canvas.CreateEntity(), m_EventQueue).Build({x, y}, rgbaData, pngImageWidth, pngImageHeight);
 
 	stbi_image_free(rgbaData);
+}
+
+glm::vec4 ParseColor(const char* attribute)
+{
+	if (attribute == nullptr)
+	{
+		return {0, 0, 0, 1};  
+	}
+
+	// TODO: This function is not robust. It only works for the specific format used in the svg files.
+	// Parse rgb(r g b / a)
+	std::istringstream iss(attribute);
+	std::vector<std::string> colorStr;
+	std::string strRed, strGreen, strBlue, strSlash, strAlpha;
+	iss.get(); iss.get(); iss.get(); iss.get(); // Skip rgb(
+	iss >> strRed >> strGreen >> strBlue >> strSlash >> strAlpha;
+
+	float red = std::stof(strRed) / 255.0f;
+	float green = std::stof(strGreen) / 255.0f;
+	float blue = std::stof(strBlue) / 255.0f;
+	float alpha = std::stof(strAlpha);
+
+	return { red, green, blue, alpha };
+}
+
+void SvgDeserializer::DeserializeHighlight(const tinyxml2::XMLElement& element)
+{
+	const char* rawPoints = element.Attribute("points");
+	const char* points = rawPoints ? rawPoints : "";
+	// Split the string by spaces
+	std::istringstream iss(points);
+	std::vector<std::string> pointsStr;
+	std::string word;
+	while (std::getline(iss, word, ' ')) {
+		pointsStr.push_back(word);
+	}
+	std::vector<glm::vec2> pointsVec;
+	for (const auto& point : pointsStr)
+	{
+		std::istringstream iss(point);
+		std::vector<std::string> pointStr;
+		std::string word;
+		while (std::getline(iss, word, ',')) {
+			pointStr.push_back(word);
+		}
+		pointsVec.emplace_back(std::stof(pointStr[0]), std::stof(pointStr[1]));
+	}
+	auto entity = HighlightEntity(m_Canvas.CreateEntity(), m_EventQueue);
+	auto& highlight = entity.GetComponent<Components::Highlight>();
+	highlight.Points = pointsVec;
+
+	const char* style = element.Attribute("style");
+	auto isBlendMultiply = style ? std::strstr(style, "mix-blend-mode: multiply") != nullptr : false;
+	if (isBlendMultiply)
+		highlight.BlendMode = Render::BlendMode::Multiply;
+	else
+		highlight.BlendMode = Render::BlendMode::Default;
+
+	highlight.Color = ParseColor(element.Attribute("fill"));
 }
