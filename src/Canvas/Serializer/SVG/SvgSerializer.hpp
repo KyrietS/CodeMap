@@ -28,6 +28,7 @@ private:
 	void SerializeText(tinyxml2::XMLElement& root, const Entity entity);
 	void SerializeTextContent(tinyxml2::XMLElement& textElement, const Components::Text&);
     void SerializeImage(tinyxml2::XMLElement& root, const Entity entity);
+	void SerializeHighlight(tinyxml2::XMLElement& root, const Entity entity);
 
 	const entt::registry& m_Registry;
 

@@ -15,7 +15,10 @@ namespace
 	std::string GetColorString(glm::vec4 color)
 	{
 		std::stringstream ss;
-		ss << "rgb(" << (int)(color.r * 255) << "," << (int)(color.g * 255) << "," << (int)(color.b * 255) << ")";
+		ss << "rgb(" << (int)(color.r * 255) 
+			<< " " << (int)(color.g * 255) 
+			<< " " << (int)(color.b * 255) 
+			<< " / " << color.a << ")";
 		return ss.str();
 	}
 }
@@ -127,7 +130,7 @@ void SvgSerializer::UpdateCanvasViewBoxFromFocusArea(ViewBoxBuilder& viewBoxBuil
 void SvgSerializer::SerializeAllEntities(tinyxml2::XMLElement& root)
 {
     // Draw entities in order of their z-Index (assume that components are already sorted)
-    for (Entity entity : m_Registry.view<Components::Transform>())
+    for (const Entity& entity : m_Registry.view<Components::Transform>())
     {
         // Serialize Arrow
         if (entity.HasComponent<Components::Arrow>())
@@ -140,6 +143,10 @@ void SvgSerializer::SerializeAllEntities(tinyxml2::XMLElement& root)
         // Serialize Image
         if (entity.HasComponent<Components::Image>())
             SerializeImage(root, entity);
+
+		// Serialize Highlight
+		if (entity.HasComponent<Components::Highlight>())
+			SerializeHighlight(root, entity);
     }
 }
 
@@ -276,4 +283,25 @@ void SvgSerializer::SerializeImage(tinyxml2::XMLElement& root, const Entity enti
     imageElement->SetAttribute("width", image.Width);
     imageElement->SetAttribute("height", image.Height);
     imageElement->SetAttribute("href", SerializeTextureAsUriScheme(image).c_str());
+}
+
+void SvgSerializer::SerializeHighlight(tinyxml2::XMLElement& root, const Entity entity)
+{
+	auto& transform = entity.GetComponent<Components::Transform>();
+	auto& highlight = entity.GetComponent<Components::Highlight>();
+	auto points = highlight.GetWorldPoints(transform);
+
+	// Serialize points as polygon
+	// TODO: FIXME: The order of points is wrong, it should be same as during rendering
+	auto polygon = root.InsertNewChildElement("polygon");
+	std::string pointsString;
+	for (const auto& point : points)
+	{
+		pointsString += fmt::format("{},{} ", point.x, point.y);
+	}
+	polygon->SetAttribute("points", pointsString.c_str());
+	polygon->SetAttribute("fill", GetColorString(highlight.Color).c_str());
+
+	if (highlight.BlendMode == Render::BlendMode::Multiply)
+		polygon->SetAttribute("style", "mix-blend-mode: multiply;");
 }
