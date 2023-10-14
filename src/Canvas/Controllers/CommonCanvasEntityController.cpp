@@ -27,7 +27,10 @@ void CommonCanvasEntityController::OnUpdate(Entity entity)
 		entity.GetComponent<Components::Transform>().Index -= 2;
 		m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
 	}
-	if (isFocused && Input::IsKeyPressed(Key::Delete))
+	// TODO: Make it more extensible because now Highlight component
+	//       need to handle deleting by itself because only this
+	//       component knows if control point is selected
+	if (isFocused && Input::IsKeyPressed(Key::Delete) && !entity.HasComponent<Components::Highlight>())
 	{
 		entity.Destroy();
 		m_EventQueue.Push(Events::Canvas::MakeSnapshot{});

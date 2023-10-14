@@ -9,8 +9,8 @@ namespace
 {
 	struct Script : ScriptableEntity
 	{
-		Script(EventQueue& eventQueue)
-			: m_EventQueue(eventQueue)
+		Script(Entity entity, EventQueue& eventQueue)
+			: m_Entity(entity), m_EventQueue(eventQueue)
 		{
 		}
 
@@ -35,7 +35,6 @@ namespace
 
 			if (Input::IsMouseButtonPressed(Mouse::ButtonLeft))
 			{
-				LOG_DEBUG("Mouse button pressed");
 				highlight.SelectedPointIndex = std::nullopt;
 				for (size_t index = 0; index < highlight.Points.size(); index++)
 				{
@@ -50,6 +49,11 @@ namespace
 				}
 			}
 
+			if (Input::IsMouseButtonReleased(Mouse::ButtonLeft) && m_ControlPointIsBeingDragged)
+			{
+				m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
+			}
+
 			if (Input::IsMouseButtonDown(Mouse::ButtonLeft)
 				&& m_ControlPointIsBeingDragged 
 				&& highlight.SelectedPointIndex < highlight.Points.size())
@@ -62,6 +66,23 @@ namespace
 			{
 				GetComponent<Components::Focusable>().IsDraggable = true;
 				m_ControlPointIsBeingDragged = false;
+			}
+
+			if (Input::IsKeyPressed(Key::Delete))
+			{
+				if (highlight.SelectedPointIndex.has_value())
+				{
+					highlight.Points.erase(highlight.Points.begin() + highlight.SelectedPointIndex.value());
+					highlight.SelectedPointIndex = std::nullopt;
+					LOG_DEBUG("Deleted point from Highlight entity");
+					if (highlight.Points.size() < 2)
+						m_Entity.Destroy();
+				}
+				else
+				{
+					m_Entity.Destroy();
+				}
+				m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
 			}
 		}
 
@@ -106,6 +127,7 @@ namespace
 			GetComponent<Components::Focusable>().Size = size;
 		}
 
+		Entity m_Entity;
 		EventQueue& m_EventQueue;
 		bool m_ControlPointIsBeingDragged = false;
 	};
@@ -117,6 +139,6 @@ HighlightEntity::HighlightEntity(const Entity& entity, EventQueue& eventQueue)
 	AddComponent<Components::Highlight>();
 	AddComponent<Components::Focusable>();
 
-	AttachScript<::Script>(std::ref(eventQueue));
+	AttachScript<::Script>(entity, std::ref(eventQueue));
 	AttachScript<MoveByDragScript>(std::ref(eventQueue));
 }

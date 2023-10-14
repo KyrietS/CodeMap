@@ -82,6 +82,7 @@ entt::registry UndoRedoController::CloneRegistry() const
         CopyComponentIfPresent<Components::Text>(entity, newEntity, registry);
         CopyComponentIfPresent<Components::NativeScript>(entity, newEntity, registry);
         CopyComponentIfPresent<Components::Focusable>(entity, newEntity, registry);
+        CopyComponentIfPresent<Components::Highlight>(entity, newEntity, registry);
 	}
 
     return registry;
