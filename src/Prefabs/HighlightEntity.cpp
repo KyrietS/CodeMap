@@ -16,6 +16,7 @@ namespace
 
 		void OnUpdate() override
 		{
+			UpdateFocusArea();
 			bool isFocused = GetComponent<Components::Focusable>().IsFocused;
 			if (not isFocused)
 				return;
