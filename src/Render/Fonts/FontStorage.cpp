@@ -5,13 +5,19 @@
 #include <TextShaper.hpp>
 #include <utility>
 
+std::vector<uint8_t> LoadDefaultFontData()
+{
+	int robotoDataSize;
+	unsigned char* robotoData = ::DecompressData(compressed_roboto_ttf, compressed_roboto_ttf_len, &robotoDataSize);
+	std::vector<uint8_t> fontData{robotoData, robotoData + robotoDataSize};
+	::MemFree(robotoData);
+	return fontData;
+}
 
 FontStorage::FontStorage()
 {
-    int robotoDataSize;
-    unsigned char* robotoData = ::DecompressData(compressed_roboto_ttf, compressed_roboto_ttf_len, &robotoDataSize);
-    m_Fonts.emplace_back("Roboto", std::span<uint8_t>{robotoData, (size_t)robotoDataSize});
-    ::MemFree(robotoData);
+    auto robotoData = LoadDefaultFontData();
+    m_Fonts.emplace_back("Roboto", robotoData);
 }
 
 const FontInstance& FontStorage::GetDefaultFont(FontSize fontSize)

@@ -11,5 +11,8 @@ public:
 
     void Begin();
     void End();
+
+private:
+    const std::vector<uint8_t> m_FontData;
 };
 

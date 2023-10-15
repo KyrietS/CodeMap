@@ -17,6 +17,8 @@ struct FontInstance
     std::unique_ptr<const Texture> Texture;
 };
 
+std::vector<uint8_t> LoadDefaultFontData();
+
 class FontStorage
 {
 public:

@@ -47,6 +47,7 @@ namespace
 				auto contentBeforeChange = content;
 				while (uint32_t character = Input::GetChar())
 				{
+					LOG_DEBUG("Character = {}", character);
 					content.push_back(character);
 				}
 				while (KeyCode keyCode = Input::GetKey())

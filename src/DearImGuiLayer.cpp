@@ -5,8 +5,10 @@
 #include <GLFW/glfw3.h>
 #include "Events/MouseEvents.hpp"
 #include "Events/EventUtils.hpp"
+#include "Render/Fonts/FontStorage.hpp"
 
 DearImGuiLayer::DearImGuiLayer()
+	: m_FontData(LoadDefaultFontData())
 {
 	GLFWwindow* glfwWindow = glfwGetCurrentContext();
 
@@ -18,6 +20,22 @@ DearImGuiLayer::DearImGuiLayer()
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	io.IniFilename = nullptr;
+
+
+	static const ImWchar ranges[] =
+	{
+		0x0020, 0x00FF, // Basic Latin + Latin Supplement
+		0x0100, 0x017F, // Latin Extended-A
+		0x0180, 0x024F, // Latin Extended-B
+		0x2000, 0x206F, // General Punctuation
+		0,
+	};
+
+	ImFontConfig fontConfig;
+	fontConfig.FontDataOwnedByAtlas = false;
+	fontConfig.GlyphRanges = ranges;
+
+	io.Fonts->AddFontFromMemoryTTF((void*)m_FontData.data(), (int)m_FontData.size(), 14.0f, &fontConfig);
 }
 
 DearImGuiLayer::~DearImGuiLayer()
