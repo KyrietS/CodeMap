@@ -37,7 +37,9 @@ void TextController::OnPasteEvent(const Events::Canvas::Paste&)
 		{
 			if (auto focusedText = GetFocusedText())
 			{
-				focusedText->GetComponent<Components::Text>().Content += clipboardText;
+				auto unicodeToPaste = Utils::Strings::Utf8ToUnicode(clipboardText);
+				auto& text = focusedText->GetComponent<Components::Text>().Content;
+				text.insert(text.end(), unicodeToPaste.begin(), unicodeToPaste.end());
 				m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
 			}
 			else

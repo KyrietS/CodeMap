@@ -8,6 +8,7 @@
 #include "Canvas/Box.hpp"
 #include "Render/VColor.hpp"
 #include "Render/BlendMode.hpp"
+#include "Utils/Strings.hpp"
 
 
 class ScriptableEntity;
@@ -161,13 +162,23 @@ namespace Components
 
 	struct Text
 	{
-		std::string Content = ""; // In UTF-8
+		std::vector<uint32_t> Content = {}; // In UTF-32 (Unicode codepoints)
 		float FontSize = 0.0f;
 		float LetterSpacing = 0.0f;
 		glm::vec4 FontColor = {};
 
 		bool IsCursorShown = false;
 		unsigned int FontId = 0;
+
+		void SetUtf8Content(const std::string& utf8Content)
+		{
+			Content = Utils::Strings::Utf8ToUnicode(utf8Content);
+		}
+
+		std::string GetContentInUtf8() const
+		{
+			return Utils::Strings::ToUtf8(Content);
+		}
 	};
 
 	struct NativeScript

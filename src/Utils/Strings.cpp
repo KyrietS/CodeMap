@@ -29,6 +29,13 @@ namespace Utils::Strings
 		return utf8::utf32to8(view);
 	}
 
+	std::string ToUtf8(std::span<const uint32_t> view)
+	{
+		std::string result;
+		utf8::utf32to8(view.begin(), view.end(), std::back_inserter(result));
+		return result;
+	}
+
 	std::string ToUtf8(char16_t character)
 	{
 		std::u16string str(1, character);
@@ -71,9 +78,31 @@ namespace Utils::Strings
 		return result;
 	}
 
-	std::vector<std::string_view> SplitToLines(const std::string& str, bool keepNewlines)
+	std::vector<uint32_t> Utf8ToUnicode(std::span<const char> utf8String)
 	{
-		std::vector<std::string_view> result;
+		std::vector<uint32_t> result;
+		utf8::utf8to32(utf8String.begin(), utf8String.end(), std::back_inserter(result));
+		return result;
+	}
+
+	// Sweet Jesus, I know this looks horryfying, but here is an explanation in simple words:
+	// StringType is a reference to some container (std::string or std::vector<uint32_t>, etc.)
+	// And we want to return a vector of spans of that container's elements but when StringType
+	// is a const reference we need to have spans of const elements. Otherwise we need spans of
+	// non-const elements. This template specifies the constness of the elements in the span.
+	template<typename StringType>
+	using SplitToLinesReturnType = std::vector<std::span<
+		std::conditional_t<std::is_const_v<std::remove_reference_t<StringType>>, 
+			const typename std::remove_reference_t<StringType>::value_type,
+			typename std::remove_reference_t<StringType>::value_type>>>;
+
+	template<typename StringType>
+	static auto SplitToLinesT(StringType& str, bool keepNewlines) -> SplitToLinesReturnType<decltype(str)>
+	{
+		if (str.size() == 0)
+			return {};
+
+		SplitToLinesReturnType<decltype(str)> result;
 
 		auto lineBegin = str.begin();
 		while (lineBegin < str.end())
@@ -84,9 +113,29 @@ namespace Utils::Strings
 			lineBegin = lineEnd == str.end() ? str.end() : lineEnd + 1;
 		}
 
-		if (str.ends_with('\n') && !keepNewlines)
-			result.emplace_back("");
+		if (str.back() == '\n' && !keepNewlines)
+			result.emplace_back();
 
 		return result;
+	}
+
+	std::vector<std::span<const char>> SplitToLines(const std::string& str, bool keepNewlines)
+	{
+		return SplitToLinesT(str, keepNewlines);
+	}
+	
+	std::vector<std::span<char>> SplitToLines(std::string& str, bool keepNewlines)
+	{
+		return SplitToLinesT(str, keepNewlines);
+	}
+
+	std::vector<std::span<const uint32_t>> SplitToLines(const std::vector<uint32_t>& str, bool keepNewlines)
+	{
+		return SplitToLinesT(str, keepNewlines);
+	}
+
+	std::vector<std::span<uint32_t>> SplitToLines(std::vector<uint32_t>& str, bool keepNewlines)
+	{
+		return SplitToLinesT(str, keepNewlines);
 	}
 }

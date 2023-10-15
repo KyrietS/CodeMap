@@ -105,7 +105,7 @@ void FontCollection::LoadFontWithSize(FontSize fontSize)
 {
     LOG_INFO("Loading font {} with size {}", m_Name, fontSize);
 
-    Trex::Atlas fontAtlas{m_FontData, (int)fontSize, Trex::Charset::Ascii()};
+    Trex::Atlas fontAtlas{m_FontData, (int)fontSize, Trex::Charset::Full()};
 
     // Text shaper
     auto textShaper = std::make_unique<Trex::TextShaper>(fontAtlas);

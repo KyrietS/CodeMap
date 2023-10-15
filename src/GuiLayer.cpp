@@ -197,7 +197,9 @@ void GuiLayer::ShowPropertiesFor(Components::Text& text)
 {
 	ImGui::Text("Text");
 	ImGui::Separator();
-	ImGui::InputTextMultiline("Content", &text.Content);
+	std::string utf8Content = text.GetContentInUtf8();
+	ImGui::InputTextMultiline("Content", &utf8Content);
+	text.SetUtf8Content(utf8Content);
 	ImGui::DragFloat("Font size", &text.FontSize, 1.0f, 4.0f, 256.0f, "%.0f");
 	if (ImGui::IsItemHovered() && !ImGui::IsItemActive())
 		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);

@@ -229,7 +229,8 @@ void SvgSerializer::SerializeText(tinyxml2::XMLElement& root, const Entity entit
 void SvgSerializer::SerializeTextContent(tinyxml2::XMLElement& textElement, const Components::Text& text)
 {
 	const bool keepNewlines = true;
-	auto lines = Utils::Strings::SplitToLines(text.Content, keepNewlines);
+	const auto contentInUtf8 = text.GetContentInUtf8();
+	auto lines = Utils::Strings::SplitToLines(contentInUtf8, keepNewlines);
 	float cursorX = textElement.FloatAttribute("x");
 	float cursorY = textElement.FloatAttribute("y");
 	int baselineHeight = Renderer::GetBaselineHeight(text);

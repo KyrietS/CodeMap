@@ -45,17 +45,17 @@ namespace
 				toggleCursorVisibility();
 				auto& content = text.Content;
 				auto contentBeforeChange = content;
-				while (char32_t character = Input::GetChar())
+				while (uint32_t character = Input::GetChar())
 				{
-					content += Utils::Strings::ToUtf8(character);
+					content.push_back(character);
 				}
 				while (KeyCode keyCode = Input::GetKey())
 				{
 					LOG_DEBUG("Key code = {}", keyCode);
-					if (keyCode == Key::Backspace)
-						content = content.substr(0, content.size() - 1);
+					if (keyCode == Key::Backspace && !content.empty())
+						content.pop_back();
 					if (keyCode == Key::Enter)
-						content += '\n';
+						content.push_back('\n');
 				}
 
 				if (contentBeforeChange != content)
@@ -107,7 +107,8 @@ TextEntity::TextEntity(const Entity& entity, EventQueue& eventQueue)
 TextEntity& TextEntity::Build(const std::string& content, float fontSize)
 {
 	auto& text = GetComponent<Components::Text>();
-	text = Components::Text{ content, fontSize, 0.0f, VColor::Black};
+	text = Components::Text{ {}, fontSize, 0.0f, VColor::Black };
+	text.SetUtf8Content(content);
 
 	auto& focus = GetComponent<Components::Focusable>();
 	UpdateTextFocusArea(focus, text);

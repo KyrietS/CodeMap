@@ -178,11 +178,11 @@ void Renderer::DrawImage(const glm::vec2& position, const Components::Image& ima
 	::DrawTextureV(texture2D, texturePosition, tint);
 }
 
-static int DrawTextLine(const glm::vec2& position, const FontInstance& font, std::string_view line)
+static int DrawTextLine(const glm::vec2& position, const FontInstance& font, std::span<const uint32_t> line)
 {
-	std::string strLine{ line.begin(), line.end() };
-	std::replace(strLine.begin(), strLine.end(), '\t', ' ');
-	Trex::ShapedGlyphs glyphs = font.Shaper->ShapeAscii(strLine);
+	std::vector<uint32_t> unicodeLine{line.begin(), line.end()};
+	std::replace(unicodeLine.begin(), unicodeLine.end(), '\t', ' ');
+	Trex::ShapedGlyphs glyphs = font.Shaper->ShapeUnicode(unicodeLine);
 
 	glm::vec2 cursor = position;
 	for (const Trex::ShapedGlyph& glyph : glyphs)
@@ -205,11 +205,6 @@ static int DrawTextLine(const glm::vec2& position, const FontInstance& font, std
 	}
 
 	return cursor.x - position.x; // Return line length (in pixels)
-}
-
-void Renderer::DrawText(const glm::vec2& position, std::string_view text, float fontSize, const glm::vec4& fontColor)
-{
-	Renderer::DrawText(position, Components::Text{ text.data(), fontSize, 1.0f, fontColor});
 }
 
 void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
@@ -265,8 +260,9 @@ TextMeasurement Renderer::MeasureText(const Components::Text& text)
 	// Measure each line separately
 	for (auto line : lines)
 	{
-		std::string lineStr{ line.begin(), line.end() };
-		const auto glyphs = font.Shaper->ShapeAscii(lineStr.c_str());
+		// TODO: Temporary, waiting for https://github.com/KyrietS/trex/issues/10
+		std::vector<uint32_t> lineVec{line.begin(), line.end()};
+		const auto glyphs = font.Shaper->ShapeUnicode(lineVec);
 		measurements.push_back(font.Shaper->Measure(glyphs));
 	}
 

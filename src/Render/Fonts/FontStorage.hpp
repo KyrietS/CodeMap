@@ -6,7 +6,7 @@ using FontSize = float;
 
 namespace Trex
 {
-    class TextShaper;
+class TextShaper;
 }
 class FontCollection;
 struct Texture;
