@@ -216,6 +216,9 @@ void GuiLayer::ShowPropertiesFor(Components::Arrow& arrow)
 	ImGui::ColorPicker3("Arrow color", &arrow.StrokeColor[0], 
 		ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_DisplayHex);
 	ImGui::ColorEdit3("Arrowhead", &arrow.ArrowheadColor[0], ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_DisplayHex);
+	ImGui::DragFloat("Thickness", &arrow.Thickness, 0.5f, 0.1f, 256.0f, "%.1f");
+	if (ImGui::IsItemHovered() && !ImGui::IsItemActive())
+		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 }
 
 void GuiLayer::ShowPropertiesFor(Components::Highlight& highlight)

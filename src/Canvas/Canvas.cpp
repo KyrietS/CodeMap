@@ -109,12 +109,9 @@ void Canvas::Draw()
 				Renderer::DrawBezier(begin, controlPoint, end, arrow.Thickness, arrow.StrokeColor);
 
 				// arrowhead directed to the right and pointing at (0,0)
-				// FIXME: Arrohead size should be relative to arrow.Thickness,
-				//        e.g. arrowHeadWidth = arrow.Thickness * 6.0f
-				//             arrowHeadHeight = arrow.Thickness * 4.0f
-				float arrowheadSize = 20.0f;
-				glm::vec2 tip1{ -30.0f, -10.0f };
-				glm::vec2 tip2{ -30.0f, +10.0f };
+				float arrowheadSize = 30.0f * arrow.Thickness / 5;
+				glm::vec2 tip1{ -arrowheadSize, -arrowheadSize / 3 };
+				glm::vec2 tip2{ -arrowheadSize, +arrowheadSize / 3 };
 				glm::vec2 tip3{ 0.0f, 0.0f };
 
 				// rotate relative to bezier control point

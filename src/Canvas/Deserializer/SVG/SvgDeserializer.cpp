@@ -171,10 +171,11 @@ void SvgDeserializer::DeserializeArrow(const tinyxml2::XMLElement& element)
 		}
 	}
 
-	auto arrow = ArrowEntity(m_Canvas.CreateEntity(begin), m_EventQueue).Build();
-	arrow.GetComponent<Components::Arrow>().End = end - begin;
+	auto entity = ArrowEntity(m_Canvas.CreateEntity(begin), m_EventQueue).Build();
+	entity.GetComponent<Components::Arrow>().End = end - begin;
+	entity.GetComponent<Components::Arrow>().Thickness = element.FloatAttribute("stroke-width");
 	if (isLineCurved)
-		arrow.GetComponent<Components::Arrow>().ControlPoint = bezier - begin;
+		entity.GetComponent<Components::Arrow>().ControlPoint = bezier - begin;
 }
 
 void SvgDeserializer::DeserializeImage(const tinyxml2::XMLElement& element)

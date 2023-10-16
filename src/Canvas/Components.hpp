@@ -102,9 +102,9 @@ namespace Components
 	struct Arrow
 	{
 		glm::vec2 End = { 1.0f, 0.0f };
-		glm::vec4 StrokeColor = VColor::Black;
-		glm::vec4 ArrowheadColor = VColor::Black;
-		float Thickness = 1.0f;
+		glm::vec4 StrokeColor = VColor::Blue;
+		glm::vec4 ArrowheadColor = VColor::Orange;
+		float Thickness = 5.0f;
 		std::optional<glm::vec2> ControlPoint = std::nullopt;
 
 		glm::vec2 GetBegin(const Transform& transform) const

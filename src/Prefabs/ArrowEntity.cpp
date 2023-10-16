@@ -124,8 +124,8 @@ namespace
 			float minY = std::min({ begin.y, end.y, control.y });
 			float maxX = std::max({ begin.x, end.x, control.x });
 			float maxY = std::max({ begin.y, end.y, control.y });
-			float width = std::fabs(maxX - minX);
-			float height = std::fabs(maxY - minY);
+			float width = std::max(10.0f, std::fabs(maxX - minX));
+			float height = std::max(10.0f, std::fabs(maxY - minY));
 
 			focus.Origin = glm::vec2{ minX, minY } - glm::vec2{ begin.x, begin.y };
 			focus.Size = { width, height };
@@ -185,10 +185,8 @@ ArrowEntity::ArrowEntity(const Entity& entity, EventQueue& eventQueue)
 ArrowEntity& ArrowEntity::Build()
 {
 	auto& arrow = GetComponent<Components::Arrow>();
-	arrow.End = { 10.0f, 0.0f };
-	arrow.StrokeColor = VColor::Blue;
-	arrow.ArrowheadColor = VColor::Orange;
-	arrow.Thickness = 5.0f;
+	// TODO: Set default arrow properties based on
+	//       the previous arrow properties
 
 	return *this;
 }
