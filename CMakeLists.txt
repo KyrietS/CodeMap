@@ -110,6 +110,8 @@ foreach(dependency ${dependencies})
     set_target_properties(${dependency} PROPERTIES FOLDER "Dependencies")
 endforeach()
 
+# Workaround for broken CLion's default MinGW toolset.
+# See my bug report: https://youtrack.jetbrains.com/issue/CPP-33763/
 if(WIN32 AND MINGW)
     # Needed by Clip library
     target_link_libraries(CodeMap windowscodecs)
