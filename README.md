@@ -5,8 +5,8 @@
 ## Features
 
 * Visualize source code using screenshots, arrows and highlights.
-* Export project to SVG format (coming soon 🚧)
-* Open project from SVG format (coming soon 🚧)
+* Export project to SVG format
+* Open project from SVG format
 
 ## Building
 
@@ -23,12 +23,16 @@ cmake --build CodeMapBuild
 The project relies on a various open source C++ libraries. All of them are fetched automatically during the CMake configuration process.
 
 * **clip** - multiplatform cliboard implementation
-* **entt** - fast and reliable entity-compontn system
+* **entt** - fast and reliable entity-component system
 * **glm** - mathemathics library
 * **imgui** - GUI library
 * **raylib** - simple graphics API that uses OpenGL underneath
+* **reasings** - single-header C++ library for easing functions
 * **spdlog** - logging library
-* **utfcpp** - library for handling Unicode encoded text
+* **utfcpp** - library for encoding and decoding UTF text
+* **tinyxml2** - library for parsing XML files
+* **stb** - encoding and decoding images to/from raw data
+* **[trex](https://github.com/KyrietS/trex)** - home-made font rasterizer and text shaper library
 
 Note: raylib library was modified for the purpose of this project. Some symbols had to be modified to prevent conflicts with `<Windows.h>`.
 
