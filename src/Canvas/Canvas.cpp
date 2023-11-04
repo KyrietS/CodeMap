@@ -127,16 +127,22 @@ void Canvas::Draw()
 
 				Renderer::DrawTriangle(tip1, tip2, tip3, arrow.ArrowheadColor);
 
+				// Draw edit points
 				if (entity.GetComponent<Components::Focusable>().IsFocused)
 				{
-					float radius = ArrowEntity::EDIT_POINT_RADIUS / m_Camera.GetZoom();
+					float renderRadius = ArrowEntity::EDIT_POINT_RADIUS / 2;
+					float radius = renderRadius / m_Camera.GetZoom();
 					float thickness = 1.0f / m_Camera.GetZoom();
 
+					// middle point
+					Renderer::DrawCircle(controlPoint, radius, VColor::White);
 					Renderer::DrawCircleOutline(controlPoint, radius, VColor::Blue);
 					Renderer::DrawLine(begin, controlPoint, thickness, VColor::Blue);
 					Renderer::DrawLine(controlPoint, end, thickness, VColor::Blue);
 
+					Renderer::DrawCircle(begin, radius, VColor::White);
 					Renderer::DrawCircleOutline(begin, radius, VColor::Blue);
+					Renderer::DrawCircle(end, radius, VColor::White);
 					Renderer::DrawCircleOutline(end, radius, VColor::Blue);
 				}
 			}
@@ -158,10 +164,12 @@ void Canvas::Draw()
 				{
 					for (size_t i = 0; i < points.size(); i++)
 					{
-						glm::vec4 color = i == highlight.SelectedPointIndex ? VColor::Red : VColor::Blue;
-						float radius = HighlightEntity::EDIT_POINT_RADIUS / m_Camera.GetZoom();
+						glm::vec4 color = i == highlight.SelectedPointIndex ? VColor::Blue : VColor::White;
+						float renderRadius = HighlightEntity::EDIT_POINT_RADIUS / 2;
+						float radius = renderRadius / m_Camera.GetZoom();
 						float thickness = 1.0f / m_Camera.GetZoom();
-						Renderer::DrawCircleOutline(points[i], radius, color);
+						Renderer::DrawCircle(points[i], radius, color);
+						Renderer::DrawCircleOutline(points[i], radius, VColor::Blue);
 					}
 				}
 			}
@@ -189,11 +197,12 @@ void Canvas::Draw()
 		auto viewFocus = m_Registry.view<Components::Transform, Components::Focusable>();
 		for (auto [entity, transform, focusable] : viewFocus.each())
 		{
+			float thickness = 1.0f / m_Camera.GetZoom();
 			Box box = focusable.AsBox(transform);
 			if (focusable.IsFocused)
-				Renderer::DrawRectangleLines(box.GetPosition(), box.width, box.height, 2.0f, focusable.BorderColor);
+				Renderer::DrawRectangleLines(box.GetPosition(), box.width, box.height, thickness, focusable.BorderColor);
 			else if (m_DebugMode) // this is debug line. It should always be 1px thick
-				Renderer::DrawRectangleLines(box.GetPosition(), box.width, box.height, 1.0f / m_Camera.GetZoom(), VColor::Red);
+				Renderer::DrawRectangleLines(box.GetPosition(), box.width, box.height, thickness, VColor::Red);
 		}
 		
 		

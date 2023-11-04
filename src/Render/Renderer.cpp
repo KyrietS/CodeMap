@@ -114,6 +114,13 @@ void Renderer::DrawRectangleLines(const glm::vec2& position, float width, float 
 	::DrawRectangleLinesEx(rectangle, thickness, strokeColor);
 }
 
+void Renderer::DrawCircle(const glm::vec2& position, float radius, const glm::vec4& color)
+{
+	int x = (int)std::round(position.x);
+	int y = (int)std::round(position.y);
+	::DrawCircle(x, y, radius, vec4ToColor(color));
+}
+
 void Renderer::DrawCircleOutline(const glm::vec2& position, float radius, const glm::vec4& color)
 {
 	int x = (int)std::round(position.x);

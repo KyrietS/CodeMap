@@ -44,6 +44,7 @@ public:
 	static void DrawTriangle(const glm::vec2& p0, const glm::vec2& p1, const glm::vec2& p2, const glm::vec4& color);
 	static void DrawRectangle(const glm::vec2& position, float width, float height, const glm::vec4& color);
 	static void DrawRectangleLines(const glm::vec2& position, float width, float height, float thickness, const glm::vec4& color);
+	static void DrawCircle(const glm::vec2& position, float radius, const glm::vec4& color);
 	static void DrawCircleOutline(const glm::vec2& position, float radius, const glm::vec4& color);
 	static void DrawPolygon(const std::vector<glm::vec2>& points, const glm::vec4& color);
 	static void DrawImage(const glm::vec2& position, const Components::Image& image);
