@@ -29,7 +29,7 @@ ImageEntity::ImageEntity(const Entity& entity, EventQueue& eventQueue)
 
 ImageEntity& ImageEntity::Build(glm::vec2 pos, uint8_t* data, int width, int height)
 {
-	size_t dataSize = width * height;
+	size_t dataSize = width * height * 4; // RGBA
 	std::span<uint8_t> pixels{ data, dataSize };
 	auto& image = Image();
 	image.TextureId = Renderer::LoadTextureFromBytes(pixels, width, height);

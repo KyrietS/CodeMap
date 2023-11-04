@@ -63,8 +63,12 @@ void ImageController::PasteImageFromClipboard()
 	std::vector<uint8_t> rgbaData = PrepareRgbaData(clipboardImage);
 	glm::vec2 imagePos = Input::GetWorldMousePosition();
 
+	auto width = imageSpec.width;
+	auto height = imageSpec.height;
+	assert(rgbaData.size() == width * height * 4);
+
 	auto entity = ImageEntity(
-		Canvas::Get().CreateEntity(), m_EventQueue).Build(imagePos, rgbaData.data(), imageSpec.width, imageSpec.height);
+		Canvas::Get().CreateEntity(), m_EventQueue).Build(imagePos, rgbaData.data(), width, height);
 
 	m_EventQueue.Push(Events::Canvas::SetFocus{ entity });
 }

@@ -1,0 +1,4 @@
+# Ignore file with compressed font when calculating language statistics
+# This way CodeMap will not be shown as mostly C code on GitHub.
+# See: https://github.com/github-linguist/linguist/blob/master/docs/overrides.md
+*.h linguist-generated

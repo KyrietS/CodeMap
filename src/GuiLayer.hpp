@@ -3,6 +3,7 @@
 #include "Canvas/Serializer/CanvasSerializer.hpp"
 #include "Events/EventQueue.hpp"
 #include "Events/GuiEvents.hpp"
+#include "Render/Renderer.hpp"
 
 namespace Components
 {
@@ -26,9 +27,11 @@ private:
 	void ShowPropertiesFor(Components::Arrow&);
 	void ShowPropertiesFor(Components::Highlight&);
 	void ShowMainMenuBar();
+	void ShowToolbar();
 	void SaveCanvasToFile(const std::string& filename);
 	void LoadCanvasFromFile(const std::string& filename);
 
 	EventQueue& m_EventQueue;
 	std::unique_ptr<Entity> m_SelectedEntity;
+	std::shared_ptr<TextureId> m_IconPlaceholder;
 };

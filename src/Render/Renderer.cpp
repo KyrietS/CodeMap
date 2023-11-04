@@ -286,7 +286,7 @@ int Renderer::GetBaselineHeight(const Components::Text& text)
 
 std::shared_ptr<TextureId> Renderer::LoadTextureFromBytes(std::span<uint8_t> data, int width, int height)
 {
-	assert(data.size() == width * height);
+	assert(data.size() == width * height * 4);
 
 	void* pixelData = data.data();
 	PixelFormat format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
