@@ -35,13 +35,9 @@ public:
 
 private:
 	void OnShowPopupEvent(const Events::Gui::ShowPopup&);
-
-	void ShowToolbar();
 	void ShowPopups();
 
 	std::vector<std::unique_ptr<GuiElement>> m_GuiElements;
-
 	EventQueue& m_EventQueue;
-	std::shared_ptr<unsigned int> m_IconPlaceholder;
 };
 }
