@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <misc/cpp/imgui_stdlib.h>
+#include "Gui/MenuBar.hpp"
 #include "Events/EventDispatcher.hpp"
 #include "Events/GuiEvents.hpp"
 #include "Events/CanvasEvents.hpp"
@@ -44,19 +45,23 @@ Gui::Gui(EventQueue& eventQueue)
 {
 	Assets::Icon icon = Assets::LoadNoIconRGBA();
 	m_IconPlaceholder = Renderer::LoadTextureFromBytes(icon.RGBA, icon.Width, icon.Height);
+
+	m_GuiElements.push_back(std::make_unique<MenuBar>(eventQueue));
 }
 
 Gui::~Gui() {}
 
 void Gui::OnUpdate()
 {
-	ShowMainMenuBar();
 	ShowToolbar();
 	ShowMetaInfoOverlay();
 	ShowMousePositionOverlay();
 	ShowProperties();
 
 	ShowPopups();
+
+	for(auto& guiElement : m_GuiElements)
+		guiElement->OnUpdate();
 }
 
 void Gui::OnEvent(Event& event)
@@ -85,62 +90,6 @@ void Gui::OnShowPopupEvent(const Events::Gui::ShowPopup& event)
 	LOG_DEBUG("ShowPopup");
 	ImGui::OpenPopup("popup_id");
 }
-
-
-void Gui::ShowMainMenuBar()
-{
-	if (ImGui::BeginMainMenuBar())
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-			if (ImGui::MenuItem("New")) {}
-			if (ImGui::MenuItem("Open", "Ctrl+O"))
-			{
-				LoadCanvasFromFile("test.svg");
-			}
-			if (ImGui::MenuItem("Save", "Ctrl+S"))
-			{
-				SaveCanvasToFile("canvas.xml");
-			}
-			if (ImGui::MenuItem("Save As..")) {}
-			if (ImGui::MenuItem("Quit", "Alt+F4"))
-			{
-				m_EventQueue.Push(Events::App::Quit{});
-			}
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Edit"))
-		{
-			if (ImGui::MenuItem("Undo", "CTRL+Z"))
-			{
-				m_EventQueue.Push(Events::Canvas::Undo{});
-			}
-			if (ImGui::MenuItem("Redo", "CTRL+Y"))
-			{
-				m_EventQueue.Push(Events::Canvas::Redo{});
-			}
-			ImGui::Separator();
-			if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-			if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-			if (ImGui::MenuItem("Paste", "CTRL+V", false, false)) {}
-			ImGui::EndMenu();
-		}
-		ImGui::EndMainMenuBar();
-	}
-}
-
-void Gui::SaveCanvasToFile(const std::string& filename)
-{
-	LOG_DEBUG("Saving canvas to: {}", filename);
-	m_EventQueue.Push(Events::Canvas::SaveToFile{ filename });
-}
-
-void Gui::LoadCanvasFromFile(const std::string& filename)
-{
-	LOG_DEBUG("Loading canvas from: {}", filename);
-	m_EventQueue.Push(Events::Canvas::LoadFromFile{ filename });
-}
-
 
 // TODO: Move to separate file and class
 void Gui::ShowToolbar()

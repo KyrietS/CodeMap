@@ -1,4 +1,5 @@
 #pragma once
+#include "Gui/GuiElement.hpp"
 
 namespace Events::Gui
 {
@@ -35,9 +36,6 @@ private:
 	void OnShowPropertiesEvent(const Events::Gui::ShowProperties&);
 	void OnShowPopupEvent(const Events::Gui::ShowPopup&);
 
-	void ShowMainMenuBar();
-	void SaveCanvasToFile(const std::string& path);
-	void LoadCanvasFromFile(const std::string& path);
 	void ShowToolbar();
 	void ShowMetaInfoOverlay();
 	void ShowMousePositionOverlay();
@@ -49,6 +47,8 @@ private:
 	void ShowPropertiesFor(Components::Highlight&);
 
 	void ShowPopups();
+
+	std::vector<std::unique_ptr<GuiElement>> m_GuiElements;
 
 	EventQueue& m_EventQueue;
 	std::unique_ptr<Entity> m_SelectedEntity;
