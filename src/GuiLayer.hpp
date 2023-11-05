@@ -17,6 +17,6 @@ public:
 
 private:
 
-	Gui m_Gui;
+	Gui::Gui m_Gui;
 	bool firstRun = true;
 };

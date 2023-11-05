@@ -2,6 +2,8 @@
 
 class Event;
 
+namespace Gui
+{
 class GuiElement
 {
 public:
@@ -10,3 +12,4 @@ public:
 	virtual void OnUpdate() = 0;
 	virtual void OnEvent(Event&) {};
 };
+}

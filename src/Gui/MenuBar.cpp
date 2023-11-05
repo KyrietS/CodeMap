@@ -4,6 +4,8 @@
 #include "Events/AppEvents.hpp"
 #include "Events/CanvasEvents.hpp"
 
+namespace Gui
+{
 MenuBar::MenuBar(EventQueue& eventQueue)
 	: m_EventQueue(eventQueue)
 {
@@ -61,4 +63,5 @@ void MenuBar::LoadCanvasFromFile(const std::string& filename)
 {
 	LOG_DEBUG("Loading canvas from: {}", filename);
 	m_EventQueue.Push(Events::Canvas::LoadFromFile{ filename });
+}
 }

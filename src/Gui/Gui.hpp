@@ -21,6 +21,8 @@ class EventQueue;
 
 using ImGuiID = unsigned int;
 
+namespace Gui
+{
 class Gui
 {
 public:
@@ -37,8 +39,6 @@ private:
 	void OnShowPopupEvent(const Events::Gui::ShowPopup&);
 
 	void ShowToolbar();
-	void ShowMetaInfoOverlay();
-	void ShowMousePositionOverlay();
 
 	void ShowProperties();
 	void ShowPropertiesFor(Components::Transform&);
@@ -54,3 +54,4 @@ private:
 	std::unique_ptr<Entity> m_SelectedEntity;
 	std::shared_ptr<unsigned int> m_IconPlaceholder;
 };
+}

@@ -2,6 +2,8 @@
 #include "GuiElement.hpp"
 #include "Events/EventQueue.hpp"
 
+namespace Gui
+{
 class MenuBar : public GuiElement
 {
 public:
@@ -14,3 +16,4 @@ private:
 
 	EventQueue& m_EventQueue;
 };
+}
