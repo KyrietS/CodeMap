@@ -28,30 +28,20 @@ class Gui
 public:
 	Gui(EventQueue&);
 	Gui(const Gui&) = delete;
-	~Gui();
 
+	void OnSetup(ImGuiID);
 	void OnUpdate();
 	void OnEvent(Event& event);
-	void SetupDockSpace(ImGuiID viewportDockSpaceId);
 
 private:
-	void OnShowPropertiesEvent(const Events::Gui::ShowProperties&);
 	void OnShowPopupEvent(const Events::Gui::ShowPopup&);
 
 	void ShowToolbar();
-
-	void ShowProperties();
-	void ShowPropertiesFor(Components::Transform&);
-	void ShowPropertiesFor(Components::Text&);
-	void ShowPropertiesFor(Components::Arrow&);
-	void ShowPropertiesFor(Components::Highlight&);
-
 	void ShowPopups();
 
 	std::vector<std::unique_ptr<GuiElement>> m_GuiElements;
 
 	EventQueue& m_EventQueue;
-	std::unique_ptr<Entity> m_SelectedEntity;
 	std::shared_ptr<unsigned int> m_IconPlaceholder;
 };
 }

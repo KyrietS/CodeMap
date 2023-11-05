@@ -17,7 +17,7 @@ void GuiLayer::OnUpdate()
 
 	if (firstRun)
 	{
-		m_Gui.SetupDockSpace(viewportDockSpaceId);
+		m_Gui.OnSetup(viewportDockSpaceId);
 		firstRun = false;
 	}
 
