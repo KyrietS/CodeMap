@@ -17,7 +17,7 @@ Gui::Gui(EventQueue& eventQueue)
 void Gui::OnSetup(ImGuiID viewportDockSpaceId)
 {
 	m_GuiElements.push_back(std::make_unique<MenuBar>(m_EventQueue));
-	m_GuiElements.push_back(std::make_unique<Toolbar>());
+	m_GuiElements.push_back(std::make_unique<Toolbar>(m_EventQueue));
 	m_GuiElements.push_back(std::make_unique<PropertiesWindow>(m_EventQueue, viewportDockSpaceId));
 	m_GuiElements.push_back(std::make_unique<Overlay>());
 	m_GuiElements.push_back(std::make_unique<Popup>());

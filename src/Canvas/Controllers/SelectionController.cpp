@@ -44,7 +44,7 @@ void SelectionController::OnUpdate()
 		// Clicked on empty space. Reset focus.
 		if (entitiesUnderMouse.empty())
 		{
-			UnfocusAllEntities();
+			m_EventQueue.Push(Events::Canvas::ClearFocus{});
 			return;
 		}
 
@@ -54,8 +54,7 @@ void SelectionController::OnUpdate()
 		});
 		if (noneEntityIsFocued)
 		{
-			UnfocusAllEntities();
-			FocusOn(entitiesUnderMouse.front());
+			m_EventQueue.Push(Events::Canvas::SetFocus{entitiesUnderMouse.front()});
 			return;
 		}
 	}
@@ -77,56 +76,7 @@ void SelectionController::OnUpdate()
 			auto nextEntity = std::next(focusedEntityUnderMouse);
 			if (nextEntity == entitiesUnderMouse.end())
 				nextEntity = entitiesUnderMouse.begin();
-			FocusOn(*nextEntity);
-			UnfocusOn(*focusedEntityUnderMouse);
+			m_EventQueue.Push(Events::Canvas::SetFocus{*nextEntity});
 		}
 	}
-}
-
-void SelectionController::OnEvent(Event& event)
-{
-	EventDispatcher dispatcher(event);
-	dispatcher.Dispatch<Events::Canvas::SetFocus>(BIND_EVENT(SelectionController::OnSetFocus));
-}
-
-void SelectionController::OnSetFocus(const Events::Canvas::SetFocus& event)
-{
-	UnfocusAllEntities();
-	FocusOn(entt::entity{ event.EntityId });
-}
-
-void SelectionController::FocusOn(Entity entity)
-{
-	if (entity && entity.HasComponent<Components::Focusable>())
-	{
-		entity.GetComponent<Components::Focusable>().IsFocused = true;
-		m_EventQueue.Push(Events::Gui::ShowProperties{entity});
-	}
-	else
-	{
-		LOG_WARN("Tried to set focus to invalid entity");
-
-	}
-}
-
-void SelectionController::UnfocusOn(Entity entity)
-{
-	if (entity && entity.HasComponent<Components::Focusable>())
-	{
-		entity.GetComponent<Components::Focusable>().IsFocused = false;
-		m_EventQueue.Push(Events::Gui::ShowProperties(entt::entity{ entt::null }));
-	}
-	else
-	{
-		LOG_WARN("Tried to unset focus to invalid entity");
-	}
-}
-
-void SelectionController::UnfocusAllEntities()
-{
-	for (const Entity& entity : Canvas::GetAllEntitiesWith<Components::Focusable>())
-	{
-		entity.GetComponent<Components::Focusable>().IsFocused = false;
-	}
-	m_EventQueue.Push(Events::Gui::ShowProperties(entt::entity{ entt::null }));
 }

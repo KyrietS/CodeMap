@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "Canvas/Tool.hpp"
 
 namespace Events::Canvas
 {
@@ -16,6 +17,8 @@ namespace Events::Canvas
 	{
 		std::uint32_t EntityId; // TODO: In the future use UUID
 	};
+
+	struct ClearFocus {};
 
 	struct Destroy
 	{
@@ -34,5 +37,10 @@ namespace Events::Canvas
 		LoadFromFile(const std::string& filename)
 			: Filename(filename) {}
 		std::string Filename;
+	};
+
+	struct SelectTool
+	{
+		ToolType Tool;
 	};
 }

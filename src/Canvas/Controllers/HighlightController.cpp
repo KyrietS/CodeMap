@@ -15,8 +15,7 @@ bool noHighlightIsFocused()
 
 void HighlightController::OnUpdate()
 {
-	if (Input::IsKeyDown(Key::LeftControl) && Input::IsMouseButtonPressed(Mouse::ButtonLeft)
-		&& noHighlightIsFocused())
+	if (Input::IsMouseButtonPressed(Mouse::ButtonRight) && noHighlightIsFocused())
 	{
 		auto entity = HighlightEntity(Canvas::Get().CreateEntity(Input::GetWorldMousePosition()), m_EventQueue);
 		const auto& transform = entity.GetComponent<Components::Transform>();

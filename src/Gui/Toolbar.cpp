@@ -1,12 +1,14 @@
 #include "pch.hpp"
 #include "Toolbar.hpp"
 #include <imgui.h>
+#include "Events/CanvasEvents.hpp"
 #include "Assets/AssetLoader.hpp"
 #include "Render/Renderer.hpp"
 
 namespace Gui
 {
-Toolbar::Toolbar()
+Toolbar::Toolbar(EventQueue& eventQueue)
+	: m_EventQueue(eventQueue)
 {
 	Assets::Icon icon = Assets::LoadNoIconRGBA();
 	m_IconPlaceholder = Renderer::LoadTextureFromBytes(icon.RGBA, icon.Width, icon.Height);
@@ -35,7 +37,7 @@ void Toolbar::OnUpdate()
 
 	if (ImGui::Begin("Toolbar", nullptr, window_flags))
 	{
-		static const Tool tools[] = { Tool::Hand, Tool::Select, Tool::Arrow, Tool::Highlight };
+		static const ToolType tools[] = { ToolType::Hand, ToolType::Select, ToolType::Arrow, ToolType::Highlight };
 		for (auto tool : tools)
 		{
 			ShowToolButton(tool);
@@ -44,7 +46,7 @@ void Toolbar::OnUpdate()
 	ImGui::End();
 }
 
-void Toolbar::ShowToolButton(Tool tool)
+void Toolbar::ShowToolButton(ToolType tool)
 {
 	float height = 32.0f; // Icon size
 	std::uintptr_t textureId = *m_IconPlaceholder;
@@ -61,7 +63,8 @@ void Toolbar::ShowToolButton(Tool tool)
 	}
 	if (ImGui::ImageButton("tool_button", (void*)textureId, ImVec2(height, height)))
 	{
-		m_SelectedTool = tool; // TODO: Send event that tool has changed
+		m_SelectedTool = tool;
+		m_EventQueue.Push(Events::Canvas::SelectTool{ tool });
 	}
 	ImGui::PopStyleColor();
 	ImGui::PopID();

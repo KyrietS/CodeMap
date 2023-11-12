@@ -1,6 +1,8 @@
 #pragma once
 
+#include "Events/EventQueue.hpp"
 #include "GuiElement.hpp"
+#include "Canvas/Tool.hpp"
 
 using TextureId = unsigned int;
 
@@ -10,22 +12,14 @@ namespace Gui
 class Toolbar : public GuiElement
 {
 public:
-	Toolbar();
+	Toolbar(EventQueue&);
 	void OnUpdate() override;
 
 private:
-	enum class Tool
-	{
-		None,
-		Hand,
-		Select,
-		Arrow,
-		Highlight
-	};
-
-	void ShowToolButton(Tool tool);
+	void ShowToolButton(ToolType tool);
 
 	std::shared_ptr<TextureId> m_IconPlaceholder;
-	Tool m_SelectedTool = Tool::None;
+	ToolType m_SelectedTool = ToolType::None;
+    EventQueue& m_EventQueue;
 };
 }

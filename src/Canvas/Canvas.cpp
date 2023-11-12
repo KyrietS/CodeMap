@@ -19,6 +19,7 @@
 #include "Controllers/TextController.hpp"
 #include "Controllers/ImageController.hpp"
 #include "Controllers/LineController.hpp"
+#include "Controllers/ToolController.hpp"
 #include "Controllers/HighlightController.hpp"
 #include "Controllers/UndoRedoController.hpp"
 #include "Events/EventDispatcher.hpp"
@@ -52,13 +53,10 @@ Canvas* Canvas::m_PrimaryInstance = nullptr;
 Canvas::Canvas(EventQueue& eventQueue, bool primary) : m_Props{}, m_EventQueue(eventQueue)
 {
 	m_Controllers.push_back(std::make_unique<CameraController>(m_Camera));
-	m_Controllers.push_back(std::make_unique<SelectionController>(m_EventQueue));
 	m_Controllers.push_back(std::make_unique<CommonCanvasEntityController>(m_EventQueue));
-	m_Controllers.push_back(std::make_unique<TextController>(m_EventQueue));
 	m_Controllers.push_back(std::make_unique<ImageController>(m_EventQueue));
-	m_Controllers.push_back(std::make_unique<LineController>(m_EventQueue));
-	m_Controllers.push_back(std::make_unique<HighlightController>(m_EventQueue));
-    m_Controllers.push_back(std::make_unique<UndoRedoController>(m_EventQueue, m_Registry));
+	m_Controllers.push_back(std::make_unique<ToolController>(m_EventQueue, m_Camera));
+	m_Controllers.push_back(std::make_unique<UndoRedoController>(m_EventQueue, m_Registry));
 	m_Controllers.push_back(std::make_unique<CommonKeyboardShortcutsController>(m_EventQueue));
 
 	if (primary)

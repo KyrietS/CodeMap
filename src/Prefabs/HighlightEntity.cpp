@@ -23,7 +23,7 @@ namespace
 
 			auto& highlight = GetComponent<Components::Highlight>();
 			const auto& transform = GetComponent<Components::Transform>();
-			if (Input::IsKeyDown(Key::LeftControl) && Input::IsMouseButtonPressed(Mouse::ButtonLeft))
+			if (Input::IsMouseButtonPressed(Mouse::ButtonRight)) // TODO: Check if Highlight tool is selected
 			{
 				auto point = Input::GetWorldMousePosition();
 				highlight.AddPoint(transform, point);
