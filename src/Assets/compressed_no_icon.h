@@ -1,4 +1,4 @@
-// This is no_icon.png compressed with raylib's CompressData() function.
+// This is no_icon.png (64x64) compressed with raylib's CompressData() function.
 // To decompress this data, use:
 // int no_icon_png_len = 0;
 // unsigned char * no_icon_png = DecompressData(compressed_no_icon_png, compressed_no_icon_png_len, &no_icon_png_len);

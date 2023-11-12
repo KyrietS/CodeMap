@@ -16,7 +16,7 @@ Icon LoadNoIconRGBA()
 	ImageFormat(&image, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
 	std::vector<uint8_t> no_icon_rgba((uint8_t*)image.data, (uint8_t*)image.data + image.width * image.height * 4);
 	UnloadImage(image);
-
+	LOG_INFO("Loaded no icon image with size: {}x{}", image.width, image.height);
 
 	return { no_icon_rgba, image.width, image.height };
 }
