@@ -2,11 +2,15 @@
 
 **CodeMap** is a simple graphical editor for creating maps from screenshots. It allows you to create visual maps and diagrams of source code using arrows. The application provides a user-friendly and minimal interface.
 
+![image](https://github.com/KyrietS/CodeMap/assets/19170699/d96c677c-aadd-411a-a6bd-4f3f3a1c2f62)
+
 ## Features
 
 * Visualize source code using screenshots, arrows and highlights.
 * Export project to SVG format
 * Open project from SVG format
+* Standalone app (the binary weights around 6 MB)
+* Supports Windows and Linux
 
 ## Building
 
@@ -32,7 +36,7 @@ The project relies on a various open source C++ libraries. All of them are fetch
 * **utfcpp** - library for encoding and decoding UTF text
 * **tinyxml2** - library for parsing XML files
 * **stb** - encoding and decoding images to/from raw data
-* **[trex](https://github.com/KyrietS/trex)** - home-made font rasterizer and text shaper library
+* **[trex](https://github.com/KyrietS/trex)** - self-made font rasterizer and text shaper library
 
 Note: raylib library was modified for the purpose of this project. Some symbols had to be modified to prevent conflicts with `<Windows.h>`.
 
