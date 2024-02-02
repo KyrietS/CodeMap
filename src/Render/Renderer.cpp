@@ -4,8 +4,8 @@
 #include "rlgl.h"
 #include "Canvas/Components.hpp"
 #include <Utils/System.hpp>
-#include "Atlas.hpp"
-#include "TextShaper.hpp"
+#include "Trex/Atlas.hpp"
+#include "Trex/TextShaper.hpp"
 #include "Render/Fonts/compressed_roboto.h"
 #include "render/Fonts/FontStorage.hpp"
 #include "Utils/Strings.hpp"

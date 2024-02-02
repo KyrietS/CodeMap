@@ -1,8 +1,8 @@
 #include "Render/Fonts/FontStorage.hpp"
 #include "Render/Fonts/compressed_roboto.h"
 #include "raylib.h"
-#include <Atlas.hpp>
-#include <TextShaper.hpp>
+#include <Trex/Atlas.hpp>
+#include <Trex/TextShaper.hpp>
 #include <utility>
 
 std::vector<uint8_t> LoadDefaultFontData()
