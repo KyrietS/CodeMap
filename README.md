@@ -43,7 +43,7 @@ Note: raylib library was modified for the purpose of this project. Some symbols 
 
 ## License
 
-Copyright © 2023 Sebastian Fojcik \
+Copyright © 2023-2024 Sebastian Fojcik \
 Use of this software is granted under the terms of the MIT License.
 
 See the [LICENCE](LICENSE) for the full license text.
