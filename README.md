@@ -2,7 +2,8 @@
 
 **CodeMap** is a simple graphical editor for creating maps from screenshots. It allows you to create visual maps and diagrams of source code using arrows. The application provides a user-friendly and minimal interface.
 
-![image](https://github.com/KyrietS/CodeMap/assets/19170699/d96c677c-aadd-411a-a6bd-4f3f3a1c2f62)
+![image](https://github.com/KyrietS/CodeMap/assets/19170699/a35fb351-f517-4e55-a35c-3b95cce2696d)
+
 
 ## Features
 
