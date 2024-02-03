@@ -10,4 +10,9 @@ struct Icon
 };
 
 Icon LoadNoIconRGBA();
+Icon LoadHandIconRGBA();
+Icon LoadCursorIconRGBA();
+Icon LoadTextIconRGBA();
+Icon LoadArrowIconRGBA();
+Icon LoadHighlightIconRGBA();
 }

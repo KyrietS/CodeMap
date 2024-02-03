@@ -18,7 +18,7 @@ public:
 private:
 	void ShowToolButton(ToolType tool);
 
-	std::shared_ptr<TextureId> m_IconPlaceholder;
+	std::map<ToolType, std::shared_ptr<TextureId>> m_ToolIcons;
 	ToolType m_SelectedTool = ToolType::None;
     EventQueue& m_EventQueue;
 };

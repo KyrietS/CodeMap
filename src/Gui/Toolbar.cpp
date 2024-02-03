@@ -7,11 +7,20 @@
 
 namespace Gui
 {
+static auto LoadIconAsTexture(const Assets::Icon& icon)
+{
+	return Renderer::LoadTextureFromBytes(icon.RGBA, icon.Width, icon.Height);
+}
+
 Toolbar::Toolbar(EventQueue& eventQueue)
 	: m_EventQueue(eventQueue)
 {
-	Assets::Icon icon = Assets::LoadNoIconRGBA();
-	m_IconPlaceholder = Renderer::LoadTextureFromBytes(icon.RGBA, icon.Width, icon.Height);
+	m_ToolIcons[ToolType::None] = LoadIconAsTexture(Assets::LoadNoIconRGBA());
+	m_ToolIcons[ToolType::Hand] = LoadIconAsTexture(Assets::LoadHandIconRGBA());
+	m_ToolIcons[ToolType::Select] = LoadIconAsTexture(Assets::LoadCursorIconRGBA());
+	m_ToolIcons[ToolType::Text] = LoadIconAsTexture(Assets::LoadTextIconRGBA());
+	m_ToolIcons[ToolType::Arrow] = LoadIconAsTexture(Assets::LoadArrowIconRGBA());
+	m_ToolIcons[ToolType::Highlight] = LoadIconAsTexture(Assets::LoadHighlightIconRGBA());
 }
 
 void Toolbar::OnUpdate()
@@ -37,7 +46,7 @@ void Toolbar::OnUpdate()
 
 	if (ImGui::Begin("Toolbar", nullptr, window_flags))
 	{
-		static const ToolType tools[] = { ToolType::Hand, ToolType::Select, ToolType::Arrow, ToolType::Highlight };
+		static const ToolType tools[] = { ToolType::Hand, ToolType::Select, ToolType::Arrow, ToolType::Highlight, ToolType::Text };
 		for (auto tool : tools)
 		{
 			ShowToolButton(tool);
@@ -49,7 +58,13 @@ void Toolbar::OnUpdate()
 void Toolbar::ShowToolButton(ToolType tool)
 {
 	float height = 32.0f; // Icon size
-	std::uintptr_t textureId = *m_IconPlaceholder;
+
+	std::uintptr_t textureId = *m_ToolIcons[ToolType::None];
+	if (m_ToolIcons.contains(tool))
+	{
+		textureId = *m_ToolIcons[tool];
+	}
+
 	auto buttonSelectedColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
 
 	ImGui::PushID((int)tool);

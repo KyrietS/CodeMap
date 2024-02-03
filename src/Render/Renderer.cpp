@@ -284,11 +284,11 @@ int Renderer::GetBaselineHeight(const Components::Text& text)
 	return metrics.height;
 }
 
-std::shared_ptr<TextureId> Renderer::LoadTextureFromBytes(std::span<uint8_t> data, int width, int height)
+std::shared_ptr<TextureId> Renderer::LoadTextureFromBytes(std::span<const uint8_t> data, int width, int height)
 {
 	assert(data.size() == width * height * 4);
 
-	void* pixelData = data.data();
+	const void* pixelData = data.data();
 	PixelFormat format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
 	int numOfMipmaps = 1;
 
