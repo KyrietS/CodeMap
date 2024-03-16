@@ -89,19 +89,19 @@ Image GetAtlasAsTransparentBitmapImage(Trex::Atlas& atlas)
 {
     // Rearrange the atlas 1-byte GRAY bitmap into 2-byte GRAY_ALPHA bitmap.
     const auto& bitmap = atlas.GetBitmap();
-    int dataSize = bitmap.size() * 2;
+    int dataSize = bitmap.Data().size() * 2;
     auto* data = (uint8_t*)RL_MALLOC(dataSize);
 
-    for (int i = 0; i < bitmap.size(); ++i)
+    for (int i = 0; i < bitmap.Data().size(); ++i)
     {
         data[i * 2] = 0; // Gray, font color
-        data[i * 2 + 1] = 255 - bitmap[i]; // Alpha
+        data[i * 2 + 1] = 255 - bitmap.Data()[i]; // Alpha
     }
 
     Image atlasImage;
     atlasImage.data = data;
-    atlasImage.width = atlas.GetWidth(); // width of the atlas bitmap
-    atlasImage.height = atlas.GetHeight(); // height of the atlas bitmap
+    atlasImage.width = bitmap.Width(); // width of the atlas bitmap
+    atlasImage.height = bitmap.Height(); // height of the atlas bitmap
     atlasImage.mipmaps = 1;
     atlasImage.format = PIXELFORMAT_UNCOMPRESSED_GRAY_ALPHA;
     return atlasImage;
