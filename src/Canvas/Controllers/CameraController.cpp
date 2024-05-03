@@ -21,14 +21,27 @@ namespace
 void CameraController::OnUpdate()
 {
 	glm::vec2 wheelMove = Input::GetMouseWheelMove();
-	if (wheelMove.y != 0)
+
+	// Camera zoom
+	if( Input::IsKeyDown( Key::LeftControl ) && wheelMove.y != 0 )
 	{
-		ZoomCamera(wheelMove.y);
+		ZoomCamera( wheelMove.y );
 	}
-	if (wheelMove.x != 0)
+	else // Camera move
 	{
-		glm::vec2 moveDelta = { wheelMove.x * 30.0f, 0.0f };
-		m_Camera.MoveOnScreenBy(moveDelta);
+		float zoomFactor = m_Camera.GetZoom();
+		zoomFactor = zoomFactor < 1.0 ? 1.0f : zoomFactor;
+
+		if( wheelMove.y != 0 )
+		{
+			glm::vec2 moveDelta = { 0.0f, wheelMove.y * 30.0f * zoomFactor };
+			m_Camera.MoveOnScreenBy( moveDelta );
+		}
+		if( wheelMove.x != 0 )
+		{
+			glm::vec2 moveDelta = { wheelMove.x * 30.0f * zoomFactor, 0.0f };
+			m_Camera.MoveOnScreenBy( moveDelta );
+		}
 	}
 
 	// Aerial view
