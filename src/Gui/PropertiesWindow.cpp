@@ -22,14 +22,19 @@ void HelpMarker(const char* desc)
 
 namespace Gui
 {
-PropertiesWindow::PropertiesWindow(EventQueue& eventQueue, ImGuiID viewportDockSpaceId)
+PropertiesWindow::PropertiesWindow(EventQueue& eventQueue, ImGuiID dockSpaceId )
 	: m_EventQueue(eventQueue)
 {
-	SetupDockSpace(viewportDockSpaceId);
+	ImGui::DockBuilderDockWindow( "Properties", dockSpaceId );
+	SetupDockSpace( dockSpaceId );
 }
 
 void PropertiesWindow::OnUpdate()
 {
+	ImGui::Begin( "Properties" );
+	ImGui::Text( "No entity selected." );
+	ImGui::End();
+
 	ShowProperties();
 }
 
@@ -39,13 +44,13 @@ void PropertiesWindow::OnEvent(Event& event)
 	dispatcher.Dispatch<Events::Gui::ShowProperties>(BIND_EVENT(PropertiesWindow::OnShowPropertiesEvent));
 }
 
-void PropertiesWindow::SetupDockSpace(ImGuiID viewportDockSpaceId)
+// TODO: Remove this function when all properties are move to Properties window
+void PropertiesWindow::SetupDockSpace(ImGuiID dockSpaceId)
 {
-	ImGuiID dockRight = ImGui::DockBuilderSplitNode(viewportDockSpaceId, ImGuiDir_Right, 0.3f, nullptr, &viewportDockSpaceId);
-	ImGui::DockBuilderDockWindow("Transform", dockRight);
-	ImGui::DockBuilderDockWindow("Arrow", dockRight);
-	ImGui::DockBuilderDockWindow("Text", dockRight);
-	ImGui::DockBuilderDockWindow("Highlight", dockRight);
+	ImGui::DockBuilderDockWindow("Transform", dockSpaceId);
+	ImGui::DockBuilderDockWindow("Arrow", dockSpaceId);
+	ImGui::DockBuilderDockWindow("Text", dockSpaceId);
+	ImGui::DockBuilderDockWindow("Highlight", dockSpaceId);
 }
 
 void PropertiesWindow::OnShowPropertiesEvent(const Events::Gui::ShowProperties& event)

@@ -5,8 +5,6 @@
 
 class Entity;
 
-using ImGuiID = unsigned int;
-
 namespace Gui
 {
 class PropertiesWindow : public GuiElement

@@ -2,6 +2,8 @@
 
 class Event;
 
+using ImGuiID = unsigned int;
+
 namespace Gui
 {
 class GuiElement

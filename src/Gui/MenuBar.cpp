@@ -13,6 +13,8 @@ MenuBar::MenuBar(EventQueue& eventQueue)
 
 void MenuBar::OnUpdate()
 {
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
 	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("File"))
@@ -49,7 +51,23 @@ void MenuBar::OnUpdate()
 			if (ImGui::MenuItem("Paste", "CTRL+V", false, false)) {}
 			ImGui::EndMenu();
 		}
+		if( ImGui::BeginMenu( "View" ) )
+		{
+			if( ImGui::MenuItem( "Toolbox" ) ) {} // TODO: Show/Hide Toolbox
+			ImGui::EndMenu();
+		}
+		if( ImGui::BeginMenu( "Help" ) )
+		{
+			if( ImGui::MenuItem( "Show ImGui Demo", nullptr, &m_Demo ) ) {}
+			ImGui::EndMenu();
+		}
 		ImGui::EndMainMenuBar();
+	}
+	ImGui::PopStyleVar(); // ImGuiStyleVar_WindowBorderSize
+
+	if( m_Demo ) // TODO: Move somewhere else
+	{
+		ImGui::ShowDemoWindow( &m_Demo );
 	}
 }
 

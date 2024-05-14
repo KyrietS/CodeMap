@@ -15,5 +15,6 @@ private:
 	void LoadCanvasFromFile(const std::string& filePath);
 
 	EventQueue& m_EventQueue;
+	bool m_Demo = false; // TODO: Move to GuiContext
 };
 }

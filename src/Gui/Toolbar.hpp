@@ -16,10 +16,14 @@ public:
 	void OnUpdate() override;
 
 private:
-	void ShowToolButton(ToolType tool);
+	void ShowToolbar();
+	void ShowToolbox();
+	void ShowToolboxButton(ToolType tool);
 
 	std::map<ToolType, std::shared_ptr<TextureId>> m_ToolIcons;
 	ToolType m_SelectedTool = ToolType::None;
     EventQueue& m_EventQueue;
+	std::uint64_t frameNumber = 0; // TODO: Move to GuiContext
+	bool toolboxVisible = true; // TODO: Move to GuiContext
 };
 }
