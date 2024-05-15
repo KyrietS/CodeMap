@@ -48,16 +48,14 @@ void Toolbar::ShowToolbar()
 			ImVec2 buttonSize = { menuBarSize.y - buttonPadding.x * 2, menuBarSize.y - buttonPadding.y * 2 };
 			ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, buttonPadding );
 			ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( 1.f, 0 ) );
-			ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0.0f, 0.0f, 0.0f, 0.0f ) ); // Transparent background
 			{
-				ImGui::ImageButton( "tool_btn", (void*)(std::uintptr_t)(*m_ToolIcons[ ToolType::Hand ]), buttonSize );
-				ImGui::ImageButton( "tool_btn", (void*)(std::uintptr_t)(*m_ToolIcons[ ToolType::Select ]), buttonSize );
-				ImGui::ImageButton( "tool_btn", (void*)(std::uintptr_t)(*m_ToolIcons[ ToolType::Arrow ]), buttonSize );
-				ImGui::ImageButton( "tool_btn", (void*)(std::uintptr_t)(*m_ToolIcons[ ToolType::Highlight ]), buttonSize );
-				ImGui::ImageButton( "tool_btn", (void*)(std::uintptr_t)(*m_ToolIcons[ ToolType::Text ]), buttonSize );
+				ShowToolbarButton(ToolType::Hand, buttonSize.x, buttonSize.y);
+				ShowToolbarButton(ToolType::Select, buttonSize.x, buttonSize.y);
+				ShowToolbarButton(ToolType::Arrow, buttonSize.x, buttonSize.y);
+				ShowToolbarButton(ToolType::Highlight, buttonSize.x, buttonSize.y);
+				ShowToolbarButton(ToolType::Text, buttonSize.x, buttonSize.y);
 			}
 			ImGui::PopStyleVar( 2 );
-			ImGui::PopStyleColor();
 			{
 				ImGui::Spacing();
 				ImGui::Separator();
@@ -80,6 +78,31 @@ void Toolbar::ShowToolbar()
 
 		ImGui::End();
 	}
+}
+
+void Toolbar::ShowToolbarButton( ToolType tool, float width, float height )
+{
+	void* textureId = GetToolIcon( tool );
+	const auto& buttonSelectedColor = ImGui::GetStyleColorVec4( ImGuiCol_ButtonActive );
+
+	ImGui::PushID( (int)tool );
+	if( tool == m_SelectedTool )
+	{
+		ImGui::PushStyleColor( ImGuiCol_Button, buttonSelectedColor );
+	}
+	else
+	{
+		ImGui::PushStyleColor( ImGuiCol_Button, ImVec4( 0.0f, 0.0f, 0.0f, 0.0f ) );
+	}
+
+	if (ImGui::ImageButton( "toolbar_button", textureId, {width, height}))
+	{
+		m_SelectedTool = tool;
+		m_EventQueue.Push( Events::Canvas::SelectTool { tool } );
+	}
+
+	ImGui::PopStyleColor();
+	ImGui::PopID();
 }
 
 void Toolbar::ShowToolbox()
@@ -109,24 +132,19 @@ void Toolbar::ShowToolbox()
 
 	if( toolboxVisible && ImGui::Begin( "Tools", &toolboxVisible, toolboxWindowFlags ) )
 	{
-		static const ToolType tools[] = { ToolType::Hand, ToolType::Select, ToolType::Arrow, ToolType::Highlight, ToolType::Text };
-		for( auto tool : tools )
-		{
-			ShowToolboxButton( tool );
-		}
+		float buttonSize = 32.0f;
+		ShowToolboxButton( ToolType::Hand, buttonSize, buttonSize );
+		ShowToolboxButton( ToolType::Select, buttonSize, buttonSize );
+		ShowToolboxButton( ToolType::Arrow, buttonSize, buttonSize );
+		ShowToolboxButton( ToolType::Highlight, buttonSize, buttonSize );
+		ShowToolboxButton( ToolType::Text, buttonSize, buttonSize );
 		ImGui::End();
 	}
 }
 
-void Toolbar::ShowToolboxButton(ToolType tool)
+void Toolbar::ShowToolboxButton(ToolType tool, float width, float height)
 {
-	float height = 32.0f; // Icon size
-
-	std::uintptr_t textureId = *m_ToolIcons[ToolType::None];
-	if (m_ToolIcons.contains(tool))
-	{
-		textureId = *m_ToolIcons[tool];
-	}
+	void* textureId = GetToolIcon( tool );
 
 	auto buttonSelectedColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
 
@@ -139,13 +157,24 @@ void Toolbar::ShowToolboxButton(ToolType tool)
 	{
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Transparent background
 	}
-	if (ImGui::ImageButton("tool_button", (void*)textureId, ImVec2(height, height)))
+	if (ImGui::ImageButton("toolbox_button", (void*)textureId, ImVec2( width, height )))
 	{
 		m_SelectedTool = tool;
 		m_EventQueue.Push(Events::Canvas::SelectTool{ tool });
 	}
 	ImGui::PopStyleColor();
 	ImGui::PopID();
+}
+
+void* Toolbar::GetToolIcon( ToolType tool )
+{
+	std::uintptr_t textureId = *m_ToolIcons[ ToolType::None ];
+
+	if( m_ToolIcons.contains( tool ) )
+	{
+		textureId = *m_ToolIcons[ tool ];
+	}
+	return (void*)textureId;
 }
 
 }

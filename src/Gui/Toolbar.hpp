@@ -17,8 +17,11 @@ public:
 
 private:
 	void ShowToolbar();
+	void ShowToolbarButton(ToolType tool, float width, float height);
 	void ShowToolbox();
-	void ShowToolboxButton(ToolType tool);
+	void ShowToolboxButton(ToolType tool, float width, float height);
+
+	void* GetToolIcon(ToolType tool);
 
 	std::map<ToolType, std::shared_ptr<TextureId>> m_ToolIcons;
 	ToolType m_SelectedTool = ToolType::None;
