@@ -14,6 +14,7 @@ class Toolbar : public GuiElement
 public:
 	Toolbar(EventQueue&);
 	void OnUpdate() override;
+	void OnEvent(Event&) override;
 
 private:
 	void ShowToolbar();

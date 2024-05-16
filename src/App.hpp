@@ -1,5 +1,6 @@
 #pragma once
 #include "Canvas/Canvas.hpp"
+#include "Canvas2/Canvas2.hpp"
 #include "ScriptEngine.hpp"
 #include "Events/Event.hpp"
 #include "Events/EventQueue.hpp"
@@ -36,6 +37,7 @@ private:
 	AppConfig m_AppConfig;
 	bool m_Running = true;
 	std::unique_ptr<Canvas> m_Canvas;
+	std::unique_ptr<Canvas2> m_Canvas2;
 	std::unique_ptr<ScriptEngine> m_ScriptEngine;
 	EventQueue m_EventQueue;
 

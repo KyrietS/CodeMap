@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "App.hpp"
 #include "Canvas/Canvas.hpp"
+#include "Canvas2/Canvas2.hpp"
 #include "rlgl.h"
 #include "Input.hpp"
 #include "Time.hpp"
@@ -8,6 +9,7 @@
 #include "GuiLayer.hpp"
 #include "Render/Renderer.hpp"
 #include "CanvasLayer.hpp"
+#include "Canvas2Layer.hpp"
 #include "Events/EventDispatcher.hpp"
 #include "Events/AppEvents.hpp"
 
@@ -23,9 +25,11 @@ App::App(const AppConfig& appConfig) : m_AppConfig{appConfig}
 
 	m_Instance = this;
 	m_Canvas = std::make_unique<Canvas>(m_EventQueue);
+	m_Canvas2 = std::make_unique<Canvas2>(m_EventQueue);
 	m_ScriptEngine = std::make_unique<ScriptEngine>(*m_Canvas);
 
-	m_Layers.push_back(std::make_unique<CanvasLayer>(*m_Canvas));
+	//m_Layers.push_back(std::make_unique<CanvasLayer>(*m_Canvas));
+	m_Layers.push_back(std::make_unique<Canvas2Layer>(*m_Canvas2));
 	m_Layers.push_back(std::make_unique<GuiLayer>(m_EventQueue));
 
 	auto dearImGuiLayer = std::make_unique<DearImGuiLayer>();

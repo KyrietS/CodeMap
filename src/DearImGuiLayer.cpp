@@ -47,13 +47,14 @@ DearImGuiLayer::~DearImGuiLayer()
 
 void DearImGuiLayer::OnEvent(Event& event)
 {
-	// TODO: Capture all inputs:
-	// - Mouse press, release, move, scroll
-	// - Key press, release, type
 	ImGuiIO& io = ImGui::GetIO();
 	if (io.WantCaptureMouseUnlessPopupClose && Events::IsMouseEvent(event))
 	{
-		event.Handled = true;
+		// This is an exception to allow MouseReleased events to propagate
+		// event when mouse is currently captured by ImGui. It solves the
+		// issue where mouse drag starts in canvas and ends on ImGui window.
+		if (!event.IsType<Events::Input::MouseReleased>())
+			event.Handled = true;
 	}
 	if (io.WantCaptureKeyboard && Events::IsKeyEvent(event))
 	{

@@ -30,6 +30,14 @@ void Toolbar::OnUpdate()
 	ShowToolbox();
 }
 
+void Toolbar::OnEvent(Event& event)
+{
+	if (event.IsType<Events::Canvas::SelectTool>())
+	{
+		m_SelectedTool = event.GetEvent<Events::Canvas::SelectTool>().Tool;
+	}
+}
+
 void Toolbar::ShowToolbar()
 {
 	ImGui::PushStyleVar( ImGuiStyleVar_FramePadding, ImVec2( 0.f, 7.f ) );
@@ -97,7 +105,6 @@ void Toolbar::ShowToolbarButton( ToolType tool, float width, float height )
 
 	if (ImGui::ImageButton( "toolbar_button", textureId, {width, height}))
 	{
-		m_SelectedTool = tool;
 		m_EventQueue.Push( Events::Canvas::SelectTool { tool } );
 	}
 
@@ -159,7 +166,6 @@ void Toolbar::ShowToolboxButton(ToolType tool, float width, float height)
 	}
 	if (ImGui::ImageButton("toolbox_button", (void*)textureId, ImVec2( width, height )))
 	{
-		m_SelectedTool = tool;
 		m_EventQueue.Push(Events::Canvas::SelectTool{ tool });
 	}
 	ImGui::PopStyleColor();

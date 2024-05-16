@@ -40,7 +40,7 @@ void CanvasCamera::CenterAtScreen(glm::vec2 screenTarget)
 void CanvasCamera::CenterAtWorld(glm::vec2 worldTarget)
 {
 	m_Target = worldTarget;
-	m_Offset = { Window::GetWidth() / 2.0f, Window::GetHeight() / 2.0f };
+	m_Offset = GetScreenCenter();
 }
 
 void CanvasCamera::MoveOnScreenBy(glm::vec2 screenDelta)

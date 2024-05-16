@@ -96,6 +96,11 @@ bool Input::IsMouseButtonDoubleClicked(MouseCode mouseCode)
 	return false;
 }
 
+bool Input::IsMouseDragged(MouseCode mouseCode)
+{
+	return IsMouseButtonDown(mouseCode) && GetMouseDelta() != glm::vec2(0.0f);
+}
+
 void Input::OnEvent(Event& event)
 {
 	EventDispatcher dispatcher(event);

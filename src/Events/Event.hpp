@@ -2,7 +2,7 @@
 #include <functional>
 #include <any>
 
-#define BIND_EVENT(callback) [this](auto& event) { this->callback(event); }
+#define BIND_EVENT(callback) [this](auto& event) { return this->callback(event); }
 
 struct EmptyEvent {};
 

@@ -25,6 +25,8 @@ public:
 	static bool IsMouseButtonUp(MouseCode);
 	static bool IsMouseButtonClicked(MouseCode);
 	static bool IsMouseButtonDoubleClicked(MouseCode);
+	static bool IsMouseDragged(MouseCode);
+
 
 	static void OnEvent(Event&);
 	static void OnMouseMoved(Events::Input::MouseMoved&);
