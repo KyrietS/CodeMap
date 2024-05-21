@@ -6,10 +6,10 @@
 
 namespace Controllers
 {
-class ToolController : public IController
+class ToolboxController : public IController
 {
 public:
-	ToolController(CanvasCamera& camera, EventQueue& eventQueue)
+	ToolboxController(CanvasCamera& camera, EventQueue& eventQueue)
 		: m_Camera(camera), m_EventQueue(eventQueue) {}
 	void Draw() override;
 	void OnEvent(Event& event) override;

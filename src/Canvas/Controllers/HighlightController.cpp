@@ -17,9 +17,9 @@ void HighlightController::OnUpdate()
 {
 	if (Input::IsMouseButtonPressed(Mouse::ButtonRight) && noHighlightIsFocused())
 	{
-		auto entity = HighlightEntity(Canvas::Get().CreateEntity(Input::GetWorldMousePosition()), m_EventQueue);
+		auto entity = HighlightEntity(Canvas::Get().CreateEntity(Input::GetWorldMousePosition(Canvas::Camera())), m_EventQueue);
 		const auto& transform = entity.GetComponent<Components::Transform>();
-		entity.GetComponent<Components::Highlight>().AddPoint(transform, Input::GetWorldMousePosition());
+		entity.GetComponent<Components::Highlight>().AddPoint(transform, Input::GetWorldMousePosition(Canvas::Camera()));
 		m_EventQueue.Push(Events::Canvas::SetFocus{ entity });
 		LOG_DEBUG("Created Highlight entity");
 	}

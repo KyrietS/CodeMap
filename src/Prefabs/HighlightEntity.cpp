@@ -25,7 +25,7 @@ namespace
 			const auto& transform = GetComponent<Components::Transform>();
 			if (Input::IsMouseButtonPressed(Mouse::ButtonRight)) // TODO: Check if Highlight tool is selected
 			{
-				auto point = Input::GetWorldMousePosition();
+				auto point = Input::GetWorldMousePosition(Canvas::Camera());
 				highlight.AddPoint(transform, point);
 				highlight.SelectedPointIndex = highlight.Points.size() - 1;
 				LOG_DEBUG("Added point to Highlight entity");
@@ -90,7 +90,7 @@ namespace
 		{
 			auto& highlight = GetComponent<Components::Highlight>();
 			const auto& transform = GetComponent<Components::Transform>();
-			const auto mousePosition = Input::GetWorldMousePosition();
+			const auto mousePosition = Input::GetWorldMousePosition(Canvas::Camera());
 			const auto localMousePosition = mousePosition - transform.GetGlobalTranslation();
 
 			highlight.Points.at(selectedPointIndex) = localMousePosition;
@@ -101,7 +101,7 @@ namespace
 			const auto& transform = GetComponent<Components::Transform>();
 			glm::vec2 worldEditPoint = transform.GetGlobalTranslation() + editPoint;
 			float radius = HighlightEntity::EDIT_POINT_RADIUS / Canvas::Camera().GetZoom();
-			auto distanceFromTheCenter = glm::length(Input::GetWorldMousePosition() - worldEditPoint);
+			auto distanceFromTheCenter = glm::length(Input::GetWorldMousePosition(Canvas::Camera()) - worldEditPoint);
 			return distanceFromTheCenter <= radius;
 		}
 

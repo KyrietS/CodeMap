@@ -1,26 +1,27 @@
 #include "pch.hpp"
-#include "ToolController.hpp"
+#include "ToolboxController.hpp"
 #include "Events/EventDispatcher.hpp"
 #include "Events/CanvasEvents.hpp"
-#include "HandController.hpp"
+#include "Tools/HandController.hpp"
+#include "Tools/SelectionController.hpp"
 
 namespace Controllers
 {
-	void ToolController::Draw()
+	void ToolboxController::Draw()
 	{
 		if (m_ActiveTool)
 			m_ActiveTool->Draw();
 	}
-	void ToolController::OnEvent(Event& event)
+	void ToolboxController::OnEvent(Event& event)
 	{
 		EventDispatcher dispatcher(event);
-		dispatcher.Dispatch<Events::Canvas::SelectTool>(BIND_EVENT(ToolController::OnToolSelectedEvent));
+		dispatcher.Dispatch<Events::Canvas::SelectTool>(BIND_EVENT(ToolboxController::OnToolSelectedEvent));
 
 		if (m_ActiveTool)
 			m_ActiveTool->OnEvent(event);
 	}
 
-	void ToolController::OnToolSelectedEvent(const Events::Canvas::SelectTool& event)
+	void ToolboxController::OnToolSelectedEvent(const Events::Canvas::SelectTool& event)
 	{
 		m_EventQueue.Push(Events::Canvas::ClearFocus {});
 		switch (event.Tool)
@@ -34,7 +35,7 @@ namespace Controllers
 			LOG_INFO("Hand tool selected");
 			break;
 		case ToolType::Select:
-			m_ActiveTool.reset();
+			m_ActiveTool = std::make_unique<SelectionController>(m_Camera);
 			LOG_WARN("Select tool not implemented yet!");
 			break;
 		case ToolType::Text:

@@ -74,7 +74,7 @@ void Overlay::ShowMousePositionOverlay()
 	ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
 	if (ImGui::Begin("MousePositionOverlay", nullptr, window_flags))
 	{
-		auto mousePos = Input::GetWorldMousePosition();
+		auto mousePos = Input::GetWorldMousePosition(Canvas::Camera());
 		ImGui::Text("(%.0f, %.0f)", mousePos.x, mousePos.y);
 	}
 	ImGui::End();

@@ -61,7 +61,7 @@ void ImageController::PasteImageFromClipboard()
 
 	clip::image_spec imageSpec = clipboardImage.spec();
 	std::vector<uint8_t> rgbaData = PrepareRgbaData(clipboardImage);
-	glm::vec2 imagePos = Input::GetWorldMousePosition();
+	glm::vec2 imagePos = Input::GetWorldMousePosition(Canvas::Camera());
 
 	auto width = imageSpec.width;
 	auto height = imageSpec.height;

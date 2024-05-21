@@ -59,7 +59,7 @@ void CameraController::OnUpdate()
 		m_ZoomAnimation = Animation(m_Camera.GetZoom(), m_ZoomBeforeAnimation, 0.35f, Animation::EasingType::ExpoIn);
 
 		glm::vec2 cameraStartPos = m_Camera.GetCenter();
-		glm::vec2 cameraStopPos = Input::GetWorldMousePosition();
+		glm::vec2 cameraStopPos = Input::GetWorldMousePosition(Canvas::Camera());
 		m_CameraTargetAnimation = AnimationVec2(cameraStartPos, cameraStopPos, 0.35f, Animation::EasingType::ExpoOut);
 	}
 	if (Input::IsKeyUp(Key::Space) && !m_ZoomAnimation.Finished() || !m_CameraTargetAnimation.Finished())

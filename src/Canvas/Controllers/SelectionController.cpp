@@ -19,7 +19,7 @@ std::list<Entity> GetEntitiesUnderMouse()
 			continue;
 		auto& transform = entity.GetComponent<Components::Transform>();
 		auto& focusable = entity.GetComponent<Components::Focusable>();
-		glm::vec2 vecWorldPos = Input::GetWorldMousePosition();
+		glm::vec2 vecWorldPos = Input::GetWorldMousePosition(Canvas::Camera());
 		if (focusable.AsBox(transform).Contains(vecWorldPos))
 		{
 			entitiesUnderMouse.push_back(entity);

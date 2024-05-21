@@ -22,7 +22,7 @@ void MoveByDragScript::OnUpdate()
 		return;
 
 	auto isFocused = focus.IsFocused;
-	glm::vec2 mouseVecPos = Input::GetWorldMousePosition();
+	glm::vec2 mouseVecPos = Input::GetWorldMousePosition(Canvas::Camera());
 	if (Input::IsMouseButtonDown(Mouse::ButtonLeft) && isFocused
 		&& (m_CurrentlyMoving || focus.AsBox(transform).Contains(mouseVecPos)))
 	{

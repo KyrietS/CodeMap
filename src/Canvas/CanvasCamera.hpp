@@ -11,7 +11,7 @@ public:
 	CanvasCamera();
 	CanvasCamera(const CanvasCamera&) = delete;
 
-	glm::vec2 GetScreenToWorld(glm::vec2 screenTarget);
+	glm::vec2 GetScreenToWorld(glm::vec2 screenTarget) const;
 	glm::vec2 GetWorldToScreen(glm::vec2 worldTarget);
 	glm::vec2 GetCenter();
 	CameraData GetData();
@@ -28,7 +28,7 @@ public:
 
 	glm::vec2 GetScreenCenter();
 
-	glm::mat4 GetTransform();
+	glm::mat4 GetTransform() const;
 
 private:
 	glm::vec2 m_Offset;         // Camera offset (displacement from target)

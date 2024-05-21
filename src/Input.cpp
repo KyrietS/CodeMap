@@ -24,14 +24,14 @@ glm::vec2 Input::GetScreenMousePosition()
 	return s_MousePosition;
 }
 
-glm::vec2 Input::GetWorldMousePosition()
+glm::vec2 Input::GetWorldMousePosition(const CanvasCamera& camera)
 {
-	return Canvas::Camera().GetScreenToWorld(s_MousePosition);
+	return camera.GetScreenToWorld(s_MousePosition);
 }
 
-glm::vec2 Input::GetWorldMousePositionRelativeTo(glm::vec2 origin)
+glm::vec2 Input::GetWorldMousePositionRelativeTo(const CanvasCamera& camera, glm::vec2 origin)
 {
-	return GetWorldMousePosition() - origin;
+	return GetWorldMousePosition(camera) - origin;
 }
 
 glm::vec2 Input::GetMouseDelta()

@@ -12,7 +12,7 @@ CanvasCamera::CanvasCamera()
 	m_Zoom = 1.0f;
 }
 
-glm::mat4 CanvasCamera::GetTransform()
+glm::mat4 CanvasCamera::GetTransform() const
 {
 	glm::mat4 offset = glm::translate(glm::vec3{ m_Offset.x, m_Offset.y, 0.0f });
 	glm::mat4 target = glm::translate(glm::vec3{ -m_Target.x, -m_Target.y, 0.0f });
@@ -22,7 +22,7 @@ glm::mat4 CanvasCamera::GetTransform()
 	return offset * ((rotation * scale) * target);
 }
 
-glm::vec2 CanvasCamera::GetScreenToWorld(glm::vec2 screenTarget)
+glm::vec2 CanvasCamera::GetScreenToWorld(glm::vec2 screenTarget) const
 {
 	return glm::inverse(GetTransform()) * glm::vec4{ screenTarget.x, screenTarget.y, 0.0f, 1.0f };
 }

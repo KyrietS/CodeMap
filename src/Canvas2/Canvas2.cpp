@@ -4,13 +4,13 @@
 #include "Events/EventDispatcher.hpp"
 #include "Window.hpp"
 #include "Controllers/CameraController.hpp"
-#include "Controllers/ToolController.hpp"
+#include "Controllers/ToolboxController.hpp"
 
 Canvas2::Canvas2(EventQueue& eventQueue)
 	: m_EventQueue(eventQueue)
 {
 	m_Controllers.push_back(std::make_unique<Controllers::CameraController>(m_Camera));
-	m_Controllers.push_back(std::make_unique<Controllers::ToolController>(m_Camera, m_EventQueue));
+	m_Controllers.push_back(std::make_unique<Controllers::ToolboxController>(m_Camera, m_EventQueue));
 }
 
 void Canvas2::Draw()

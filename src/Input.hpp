@@ -9,13 +9,14 @@
 #include "Events/KeyEvents.hpp"
 #include "Time.hpp"
 
+class CanvasCamera;
 
 class Input
 {
 public:
 	static glm::vec2 GetScreenMousePosition();
-	static glm::vec2 GetWorldMousePosition();
-	static glm::vec2 GetWorldMousePositionRelativeTo(glm::vec2 origin);
+	static glm::vec2 GetWorldMousePosition(const CanvasCamera&);
+	static glm::vec2 GetWorldMousePositionRelativeTo(const CanvasCamera&, glm::vec2 origin);
 	static glm::vec2 GetMouseDelta();
 	static glm::vec2 GetMouseWheelMove();
 

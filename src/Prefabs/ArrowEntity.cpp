@@ -72,9 +72,9 @@ namespace
 			{
 				switch (m_EditMode)
 				{
-				case EditMode::End: SetEndAt(Input::GetWorldMousePosition()); break;
-				case EditMode::Begin: SetBeginAt(Input::GetWorldMousePosition()); break;
-				case EditMode::Bezier: SetControlPointAt(Input::GetWorldMousePosition()); break;
+				case EditMode::End: SetEndAt(Input::GetWorldMousePosition(Canvas::Camera())); break;
+				case EditMode::Begin: SetBeginAt(Input::GetWorldMousePosition(Canvas::Camera())); break;
+				case EditMode::Bezier: SetControlPointAt(Input::GetWorldMousePosition(Canvas::Camera())); break;
 				default: break;
 				}
 			}
@@ -155,7 +155,7 @@ namespace
 		bool IsMouseOverEditPoint(glm::vec2 editPoint)
 		{
 			float radius = ArrowEntity::EDIT_POINT_RADIUS / Canvas::Camera().GetZoom();
-			auto distanceFromTheCenter = glm::length(Input::GetWorldMousePosition() - editPoint);
+			auto distanceFromTheCenter = glm::length(Input::GetWorldMousePosition(Canvas::Camera()) - editPoint);
 			return distanceFromTheCenter <= radius;
 		}
 

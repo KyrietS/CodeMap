@@ -51,7 +51,7 @@ void DearImGuiLayer::OnEvent(Event& event)
 	if (io.WantCaptureMouseUnlessPopupClose && Events::IsMouseEvent(event))
 	{
 		// This is an exception to allow MouseReleased events to propagate
-		// event when mouse is currently captured by ImGui. It solves the
+		// even when mouse is currently captured by ImGui. It solves the
 		// issue where mouse drag starts in canvas and ends on ImGui window.
 		if (!event.IsType<Events::Input::MouseReleased>())
 			event.Handled = true;
