@@ -13,7 +13,7 @@ void GuiLayer::OnUpdate()
 	static ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_None
 		| ImGuiDockNodeFlags_PassthruCentralNode
 		| ImGuiDockNodeFlags_NoDockingInCentralNode;
-	ImGuiID viewportDockSpaceId = ImGui::DockSpaceOverViewport(ImGui::GetMainViewport(), dockFlags);
+	ImGuiID viewportDockSpaceId = ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockFlags);
 
 	if (firstRun)
 	{

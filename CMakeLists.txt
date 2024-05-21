@@ -34,7 +34,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     imgui
     GIT_REPOSITORY https://github.com/ocornut/imgui.git
-    GIT_TAG        docking
+    GIT_TAG        36ffdd69d304659388ad3d3be487a467de65eaf6 # docking branch
 )
 FetchContent_Declare(
     tinyxml2
