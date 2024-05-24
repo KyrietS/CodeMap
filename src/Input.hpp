@@ -15,6 +15,8 @@ class Input
 {
 public:
 	static glm::vec2 GetScreenMousePosition();
+	// TODO: These "World" functions should be in a separate class, eg. InputProvider
+	// and the camera should be stored there.
 	static glm::vec2 GetWorldMousePosition(const CanvasCamera&);
 	static glm::vec2 GetWorldMousePositionRelativeTo(const CanvasCamera&, glm::vec2 origin);
 	static glm::vec2 GetMouseDelta();
@@ -67,6 +69,7 @@ private:
 	static glm::vec2 s_MousePosition;
 	static glm::vec2 s_LastMousePos;
 	static glm::vec2 s_MouseScroll;
+	static glm::vec2 s_MouseClickPos;
 
 	static bool s_IsTextMode;
 	static std::queue<KeyCode> s_KeyQueue;

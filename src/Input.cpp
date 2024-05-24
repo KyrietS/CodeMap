@@ -13,6 +13,7 @@ std::array<TimePoint, GLFW_MOUSE_BUTTON_LAST + 1> Input::s_CurrentClickTime;
 glm::vec2 Input::s_MousePosition;
 glm::vec2 Input::s_LastMousePos;
 glm::vec2 Input::s_MouseScroll;
+glm::vec2 Input::s_MouseClickPos;
 
 bool Input::s_IsTextMode = false;
 std::queue<KeyCode> Input::s_KeyQueue;
@@ -66,14 +67,8 @@ bool Input::IsMouseButtonUp(MouseCode mouseCode)
 
 bool Input::IsMouseButtonClicked(MouseCode mouseCode)
 {
-	static auto clickedPos = s_MousePosition;
-	if (IsMouseButtonPressed(mouseCode))
-	{
-		clickedPos = s_MousePosition;
-	}
-
 	// If mouse button is released in the same position it was pressed
-	if (IsMouseButtonReleased(mouseCode) && clickedPos == s_MousePosition)
+	if (IsMouseButtonReleased(mouseCode) && s_MousePosition == s_MouseClickPos)
 	{
 		return true;
 	}
@@ -115,6 +110,7 @@ void Input::OnEvent(Event& event)
 
 void Input::OnMouseMoved(Events::Input::MouseMoved& event)
 {
+	s_LastMousePos = s_MousePosition;
 	s_MousePosition = { event.GetX(), event.GetY() };
 }
 
@@ -122,6 +118,7 @@ void Input::OnMousePressed(Events::Input::MousePressed& event)
 {
 	s_MouseState[event.GetButton()].IsDown = true;
 	s_MouseState[event.GetButton()].IsPressed = true;
+	s_MouseClickPos = s_MousePosition;
 }
 
 void Input::OnMouseReleased(Events::Input::MouseReleased& event)
@@ -250,7 +247,6 @@ void Input::ResetStates()
 		state.IsReleased = false;
 	}
 
-	s_LastMousePos = s_MousePosition;
 	s_MouseScroll = { 0.0f, 0.0f };
 
 	s_KeyQueue = {};
