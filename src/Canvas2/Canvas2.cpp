@@ -5,20 +5,34 @@
 #include "Window.hpp"
 #include "Controllers/CameraController.hpp"
 #include "Controllers/ToolboxController.hpp"
+#include "Elements/ArrowElement.hpp"
 
 Canvas2::Canvas2(EventQueue& eventQueue)
 	: m_EventQueue(eventQueue)
 {
 	m_Controllers.push_back(std::make_unique<Controllers::CameraController>(m_Camera));
-	m_Controllers.push_back(std::make_unique<Controllers::ToolboxController>(m_Camera, m_EventQueue));
+	m_Controllers.push_back(std::make_unique<Controllers::ToolboxController>(m_Camera, m_EventQueue, m_Elements));
+
+	// Temporary add arrow element
+	std::unique_ptr arrow = std::make_unique<Elements::ArrowElement>(m_Camera);
+	auto& data = arrow->GetData();
+	data.Begin = { 100, 100 };
+	data.End = { 200, 200 };
+	m_Elements.Add(std::move(arrow));
 }
 
 void Canvas2::Draw()
 {
-	Renderer::ClearScreen(VColor::Yellow);
+	Renderer::ClearScreen(VColor::RayWhite);
 	Renderer::BeginCameraView(m_Camera.GetData());
 	{
 		DrawGrid();
+
+		for (auto& [id, element] : m_Elements)
+		{
+			element->Draw();
+		}
+
 		for (auto& controller : m_Controllers)
 		{
 			controller->Draw();
@@ -31,7 +45,16 @@ void Canvas2::OnEvent(Event& event)
 {
 	for (auto& controller : m_Controllers)
 	{
+		if (event.Handled)
+			return;
 		controller->OnEvent(event);
+	}
+
+	for (auto& [id, element] : m_Elements)
+	{
+		if (event.Handled)
+			return;
+		element->OnEvent(event);
 	}
 }
 

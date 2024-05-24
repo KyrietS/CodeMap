@@ -54,7 +54,7 @@ void CanvasCamera::MoveInWorldBy(glm::vec2 worldDelta)
 	m_Target = m_Target + worldDelta;
 }
 
-float CanvasCamera::GetZoom()
+float CanvasCamera::GetZoom() const
 {
 	return m_Zoom;
 }

@@ -12,4 +12,6 @@ namespace Controllers
 		virtual void Draw() {};
 		virtual void OnEvent(Event&) {};
 	};
+
+	using CanvasControllers = std::vector<std::unique_ptr<IController>>;
 }

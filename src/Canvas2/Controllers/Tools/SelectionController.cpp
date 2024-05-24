@@ -4,11 +4,32 @@
 #include "Input.hpp"
 #include "Render/Renderer.hpp"
 #include "Render/VColor.hpp"
+#include "Canvas/Box.hpp"
 
 namespace Controllers
 {
 	void SelectionController::Draw()
 	{
+		if (m_HoveredElement.has_value())
+		{
+			if (auto* element = m_Elements.TryGet(*m_HoveredElement))
+			{
+				const auto box = element->GetBoundingBox();
+				const float thickness = 1.0f / m_Camera.GetZoom();
+				Renderer::DrawRectangleLines({ box.x, box.y }, box.width, box.height, thickness, VColor::Red);
+			}
+		}
+
+		for (const auto id : m_SelectedElements)
+		{
+			if (auto* element = m_Elements.TryGet(id))
+			{
+				const auto box = element->GetBoundingBox();
+				const float thickness = 1.0f / m_Camera.GetZoom();
+				Renderer::DrawRectangleLines({ box.x, box.y }, box.width, box.height, thickness, VColor::Blue);
+			}
+		}
+
 		if (m_SelectionStart.has_value() && m_SelectionEnd.has_value())
 		{
 			DrawSelection(m_SelectionStart.value(), m_SelectionEnd.value());
@@ -33,11 +54,35 @@ namespace Controllers
 		EventDispatcher dispatcher(event);
 		dispatcher.Handle<Events::Input::MousePressed>(BIND_EVENT(SelectionController::OnMousePressed));
 		dispatcher.Handle<Events::Input::MouseReleased>(BIND_EVENT(SelectionController::OnMouseReleased));
-		dispatcher.Handle<Events::Input::MouseMoved>(BIND_EVENT(SelectionController::OnMouseMoved));
+
+		OnUpdate();
+	}
+
+	void SelectionController::OnUpdate()
+	{
+		HandleMouseHoveredOverElement();
+
+		if (m_SelectionStart.has_value())
+		{
+			m_SelectionEnd = Input::GetWorldMousePosition(m_Camera);
+		}
+		if (m_MoveByDrag)
+		{
+			glm::vec2 delta = Input::GetWorldMousePosition(m_Camera) - m_LastMouseWorldPosition;
+			MoveSelectedElementsBy(delta);
+		}
+		m_LastMouseWorldPosition = Input::GetWorldMousePosition(m_Camera);
 	}
 
 	bool SelectionController::OnMousePressed(const Events::Input::MousePressed& event)
 	{
+		if (SelectHoveredElement())
+		{
+			m_MoveByDrag = true;
+			m_LastMouseWorldPosition = Input::GetWorldMousePosition(m_Camera);
+			return true;
+		}
+
 		if (event.GetButton() == Mouse::ButtonLeft)
 		{
 			m_SelectionStart = Input::GetWorldMousePosition(m_Camera);
@@ -50,21 +95,54 @@ namespace Controllers
 	{
 		if (event.GetButton() == Mouse::ButtonLeft)
 		{
+			m_MoveByDrag = false;
 			ClearSelection();
 			return true;
 		}
 		return false;
 	}
 
-	bool SelectionController::OnMouseMoved(const Events::Input::MouseMoved& event)
+	bool SelectionController::SelectHoveredElement()
 	{
-		if (m_SelectionStart.has_value() && Input::IsMouseDragged(Mouse::ButtonLeft))
+		auto mousePos = Input::GetWorldMousePosition(m_Camera);
+		for (const auto& [id, element] : m_Elements)
 		{
-			m_SelectionEnd = Input::GetWorldMousePosition(m_Camera);
-			return true;
+			if (element->Contains(mousePos))
+			{
+				m_SelectedElements.insert(id);
+				return true;
+			}
 		}
 
+		// Clicked on empty space
+		m_SelectedElements.clear();
 		return false;
+	}
+
+	void SelectionController::HandleMouseHoveredOverElement()
+	{
+		m_HoveredElement.reset();
+
+		glm::vec2 mousePosition = Input::GetWorldMousePosition(m_Camera);
+		for (const auto& [id, element] : m_Elements)
+		{
+			if (element->Contains(mousePosition))
+			{
+				m_HoveredElement = id;
+				return;
+			}
+		}
+	}
+
+	void SelectionController::MoveSelectedElementsBy(glm::vec2 delta)
+	{
+		for (auto id : m_SelectedElements)
+		{
+			if (auto* element = m_Elements.TryGet(id))
+			{
+				element->MoveBy(delta.x, delta.y);
+			}
+		}
 	}
 
 	void SelectionController::ClearSelection()

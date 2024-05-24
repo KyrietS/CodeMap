@@ -73,17 +73,8 @@ namespace Controllers
 		{
 			float zoomFactor = m_Camera.GetZoom();
 			zoomFactor = zoomFactor < 1.0 ? 1.0f : zoomFactor;
-
-			if (wheelMove.y != 0)
-			{
-				glm::vec2 moveDelta = { 0.0f, wheelMove.y * 30.0f * zoomFactor };
-				m_Camera.MoveOnScreenBy(moveDelta);
-			}
-			if (wheelMove.x != 0)
-			{
-				glm::vec2 moveDelta = { wheelMove.x * 30.0f * zoomFactor, 0.0f };
-				m_Camera.MoveOnScreenBy(moveDelta);
-			}
+			glm::vec2 moveDelta = wheelMove * 30.0f * zoomFactor;
+			m_Camera.MoveOnScreenBy(moveDelta);
 		}
 	}
 }

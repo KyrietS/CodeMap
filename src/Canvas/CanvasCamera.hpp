@@ -22,7 +22,7 @@ public:
 	void MoveOnScreenBy(glm::vec2 screenDelta);
 	void MoveInWorldBy(glm::vec2 worldDelta);
 
-	float GetZoom();
+	float GetZoom() const;
 	void SetZoom(float zoomLevel);
 	void SetZoomAt(glm::vec2 screenPos, float zoomLevel);
 

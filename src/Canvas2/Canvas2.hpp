@@ -2,6 +2,7 @@
 #include "Events/EventQueue.hpp"
 #include "Canvas/CanvasCamera.hpp"
 #include "Controllers/IController.hpp"
+#include "Canvas2/CanvasElements.hpp"
 
 class Canvas2
 {
@@ -14,8 +15,8 @@ public:
 private:
 	void DrawGrid();
 
-	std::vector<std::unique_ptr<Controllers::IController>> m_Controllers;
-
+	Controllers::CanvasControllers m_Controllers;
+	CanvasElements m_Elements;
 
 	EventQueue& m_EventQueue;
 	CanvasCamera m_Camera;

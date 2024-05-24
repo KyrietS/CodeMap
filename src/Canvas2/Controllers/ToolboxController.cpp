@@ -35,8 +35,8 @@ namespace Controllers
 			LOG_INFO("Hand tool selected");
 			break;
 		case ToolType::Select:
-			m_ActiveTool = std::make_unique<SelectionController>(m_Camera);
-			LOG_WARN("Select tool not implemented yet!");
+			m_ActiveTool = std::make_unique<SelectionController>(m_Camera, m_Elements);
+			LOG_INFO("Selection tool selected");
 			break;
 		case ToolType::Text:
 			m_ActiveTool.reset();
