@@ -6,6 +6,7 @@
 #include "Controllers/CameraController.hpp"
 #include "Controllers/ToolboxController.hpp"
 #include "Elements/ArrowElement.hpp"
+#include <ranges>
 
 Canvas2::Canvas2(EventQueue& eventQueue)
 	: m_EventQueue(eventQueue)
@@ -21,7 +22,7 @@ void Canvas2::Draw()
 	{
 		DrawGrid();
 
-		for (auto& [id, element] : m_Elements)
+		for (auto& [id, element] : m_Elements | std::views::reverse)
 		{
 			element->Draw();
 		}

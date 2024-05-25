@@ -8,7 +8,7 @@ class CanvasElements
 public:
 	ElementId Add(std::unique_ptr<Elements::IElement> element)
 	{
-		m_Elements.push_back({ m_NextId, std::move(element) });
+		m_Elements.push_front({ m_NextId, std::move(element) });
 		return m_NextId++;
 	}
 
@@ -40,6 +40,6 @@ public:
 	auto end() { return m_Elements.end(); }
 
 private:
-	std::vector<std::pair<ElementId, std::unique_ptr<Elements::IElement>>> m_Elements;
+	std::list<std::pair<ElementId, std::unique_ptr<Elements::IElement>>> m_Elements;
 	std::uint64_t m_NextId = 1; // 0 is reserved for invalid id
 };
