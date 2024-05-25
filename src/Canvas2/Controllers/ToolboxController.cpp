@@ -19,7 +19,7 @@ namespace Controllers
 		dispatcher.Dispatch<Events::Canvas::SelectTool>(BIND_EVENT(ToolboxController::OnToolSelectedEvent));
 		dispatcher.Handle<Events::Input::KeyPressed>(BIND_EVENT(ToolboxController::OnKeyPressed));
 
-		if (m_ActiveTool)
+		if (m_ActiveTool and not event.Handled)
 			m_ActiveTool->OnEvent(event);
 	}
 
