@@ -60,17 +60,21 @@ namespace Controllers
 
 	void SelectionController::OnUpdate()
 	{
-		HandleMouseHoveredOverElement();
-
 		if (m_SelectionStart.has_value())
 		{
 			m_SelectionEnd = Input::GetWorldMousePosition(m_Camera);
 		}
+
 		if (m_MoveByDrag)
 		{
 			glm::vec2 delta = Input::GetWorldMousePosition(m_Camera) - m_LastMouseWorldPosition;
 			MoveSelectedElementsBy(delta);
 		}
+		else
+		{
+			HandleMouseHoveredOverElement();
+		}
+
 		m_LastMouseWorldPosition = Input::GetWorldMousePosition(m_Camera);
 	}
 
