@@ -12,13 +12,6 @@ Canvas2::Canvas2(EventQueue& eventQueue)
 {
 	m_Controllers.push_back(std::make_unique<Controllers::CameraController>(m_Camera));
 	m_Controllers.push_back(std::make_unique<Controllers::ToolboxController>(m_Camera, m_EventQueue, m_Elements));
-
-	// Temporary add arrow element
-	std::unique_ptr arrow = std::make_unique<Elements::ArrowElement>(m_Camera);
-	auto& data = arrow->GetData();
-	data.Begin = { 100, 100 };
-	data.End = { 200, 200 };
-	m_Elements.Add(std::move(arrow));
 }
 
 void Canvas2::Draw()

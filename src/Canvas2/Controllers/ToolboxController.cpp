@@ -4,6 +4,7 @@
 #include "Events/CanvasEvents.hpp"
 #include "Tools/HandController.hpp"
 #include "Tools/SelectionController.hpp"
+#include "Tools/ArrowController.hpp"
 
 namespace Controllers
 {
@@ -43,8 +44,8 @@ namespace Controllers
 			LOG_WARN("Text tool not implemented yet!");
 			break;
 		case ToolType::Arrow:
-			m_ActiveTool.reset();
-			LOG_WARN("Arrow tool not implemented yet!");
+			m_ActiveTool = std::make_unique<ArrowController>(m_Camera, m_Elements);
+			LOG_INFO("Arrow tool selected");
 			break;
 		case ToolType::Highlight:
 			m_ActiveTool.reset();

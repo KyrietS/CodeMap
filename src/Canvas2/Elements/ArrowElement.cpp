@@ -51,17 +51,18 @@ namespace Elements
 
 	Box ArrowElement::GetBoundingBox() const
 	{
+		// TODO: Instead of max(width, 5.0f) use arrow thickness
 		return Box {
 			.x = std::min(m_Data.Begin.x, m_Data.End.x),
 			.y = std::min(m_Data.Begin.y, m_Data.End.y),
-			.width = std::abs(m_Data.End.x - m_Data.Begin.x),
-			.height = std::abs(m_Data.End.y - m_Data.Begin.y)
+			.width = std::max(std::abs(m_Data.End.x - m_Data.Begin.x), 5.0f),
+			.height = std::max(std::abs(m_Data.End.y - m_Data.Begin.y), 5.0f)
 		};
 	}
 
 	float ArrowElement::GetLength() const
 	{
-		return glm::length(m_Data.End);
+		return glm::length(m_Data.End - m_Data.Begin);
 	}
 	float ArrowElement::GetEndAngle() const
 	{
