@@ -3,6 +3,7 @@
 #include "Canvas2/CanvasElements.hpp"
 #include "Canvas/CanvasCamera.hpp"
 #include "Events/MouseEvents.hpp"
+#include "Events/KeyEvents.hpp"
 
 namespace Controllers
 {
@@ -19,9 +20,11 @@ namespace Controllers
 		void OnUpdate();
 		bool OnMousePressed(const Events::Input::MousePressed&);
 		bool OnMouseReleased(const Events::Input::MouseReleased&);
+		bool OnKeyPressed(const Events::Input::KeyPressed&);
 		bool SelectHoveredElement();
 		void HandleMouseHoveredOverElement();
 		void MoveSelectedElementsBy(glm::vec2);
+		void RemoveSelectedElements();
 		void ClearSelection();
 
 		bool m_MoveByDrag = false;

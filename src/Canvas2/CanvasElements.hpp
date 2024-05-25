@@ -24,6 +24,11 @@ public:
 		throw std::runtime_error("Element not found");
 	}
 
+	void Remove(ElementId id)
+	{
+		m_Elements.remove_if([id](const auto& pair) { return pair.first == id; });
+	}
+
 	Elements::IElement* TryGet(ElementId id)
 	{
 		auto it = std::find_if(m_Elements.begin(), m_Elements.end(), [id](const auto& pair) { return pair.first == id; });

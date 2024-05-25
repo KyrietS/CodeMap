@@ -54,6 +54,7 @@ namespace Controllers
 		EventDispatcher dispatcher(event);
 		dispatcher.Handle<Events::Input::MousePressed>(BIND_EVENT(SelectionController::OnMousePressed));
 		dispatcher.Handle<Events::Input::MouseReleased>(BIND_EVENT(SelectionController::OnMouseReleased));
+		dispatcher.Handle<Events::Input::KeyPressed>(BIND_EVENT(SelectionController::OnKeyPressed));
 
 		OnUpdate();
 	}
@@ -106,6 +107,16 @@ namespace Controllers
 		return false;
 	}
 
+	bool SelectionController::OnKeyPressed(const Events::Input::KeyPressed& event)
+	{
+		if (event.GetKey() == Key::Delete)
+		{
+			RemoveSelectedElements();
+			return true;
+		}
+		return false;
+	}
+
 	bool SelectionController::SelectHoveredElement()
 	{
 		auto mousePos = Input::GetWorldMousePosition(m_Camera);
@@ -147,6 +158,15 @@ namespace Controllers
 				element->MoveBy(delta.x, delta.y);
 			}
 		}
+	}
+
+	void SelectionController::RemoveSelectedElements()
+	{
+		for (auto id : m_SelectedElements)
+		{
+			m_Elements.Remove(id);
+		}
+		m_SelectedElements.clear();
 	}
 
 	void SelectionController::ClearSelection()

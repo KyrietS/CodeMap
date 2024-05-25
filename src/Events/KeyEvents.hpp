@@ -10,9 +10,9 @@ namespace Events::Input
 	public:
 		KeyPressed(KeyCode key, bool repeated = false) : m_KeyCode(key), m_Repeated(repeated) {}
 
-		KeyCode GetKey() { return m_KeyCode; }
+		KeyCode GetKey() const { return m_KeyCode; }
 
-		bool IsRepeated() { return m_Repeated; }
+		bool IsRepeated() const { return m_Repeated; }
 
 	private:
 		KeyCode m_KeyCode;

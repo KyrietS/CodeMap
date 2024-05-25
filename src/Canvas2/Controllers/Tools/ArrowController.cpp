@@ -75,6 +75,7 @@ namespace Controllers
 	{
 		if (m_Arrow and m_Arrow->GetLength() > 5.0f)
 		{
+			LOG_DEBUG("Arrow added to canvas");
 			m_Elements.Add(std::move(m_Arrow));
 		}
 		m_Arrow.reset();
