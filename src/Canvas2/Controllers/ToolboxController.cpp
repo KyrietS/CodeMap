@@ -17,6 +17,7 @@ namespace Controllers
 	{
 		EventDispatcher dispatcher(event);
 		dispatcher.Dispatch<Events::Canvas::SelectTool>(BIND_EVENT(ToolboxController::OnToolSelectedEvent));
+		dispatcher.Handle<Events::Input::KeyPressed>(BIND_EVENT(ToolboxController::OnKeyPressed));
 
 		if (m_ActiveTool)
 			m_ActiveTool->OnEvent(event);
@@ -54,6 +55,30 @@ namespace Controllers
 		default:
 			LOG_WARN("Unknown tool type: {}", static_cast<int>(event.Tool));
 		}
+	}
+
+	bool ToolboxController::OnKeyPressed(const Events::Input::KeyPressed& event)
+	{
+		switch (event.GetKey())
+		{
+		case Key::D1:
+			m_EventQueue.Push(Events::Canvas::SelectTool { ToolType::Hand });
+			return true;
+		case Key::D2:
+			m_EventQueue.Push(Events::Canvas::SelectTool { ToolType::Select });
+			return true;
+		case Key::D3:
+			m_EventQueue.Push(Events::Canvas::SelectTool { ToolType::Arrow });
+			return true;
+		case Key::D4:
+			m_EventQueue.Push(Events::Canvas::SelectTool { ToolType::Highlight });
+			return true;
+		case Key::D5:
+			m_EventQueue.Push(Events::Canvas::SelectTool { ToolType::Text });
+			return true;
+		}
+
+		return false;
 	}
 
 }
