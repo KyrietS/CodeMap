@@ -5,6 +5,7 @@
 #include "Tools/HandController.hpp"
 #include "Tools/SelectionController.hpp"
 #include "Tools/ArrowController.hpp"
+#include "Tools/ShapeController.hpp"
 
 namespace Controllers
 {
@@ -49,8 +50,8 @@ namespace Controllers
 			LOG_INFO("Arrow tool selected");
 			break;
 		case ToolType::Highlight:
-			m_ActiveTool.reset();
-			LOG_WARN("Highlight tool not implemented yet!");
+			m_ActiveTool = std::make_unique<ShapeController>(m_Camera, m_Elements);
+			LOG_INFO("Shape tool selected");
 			break;
 		default:
 			LOG_WARN("Unknown tool type: {}", static_cast<int>(event.Tool));
