@@ -48,6 +48,7 @@ public:
 	static void DrawCircleOutline(const glm::vec2& position, float radius, const glm::vec4& color);
 	static void DrawPolygon(const std::vector<glm::vec2>& points, const glm::vec4& color);
 	static void DrawImage(const glm::vec2& position, const Components::Image& image);
+	static void DrawImage(const glm::vec2& position, int width, int height, TextureId);
 	static void DrawText(const glm::vec2& position, const Components::Text& text);
 
 	static TextMeasurement MeasureText(const Components::Text& text);

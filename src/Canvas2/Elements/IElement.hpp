@@ -1,8 +1,8 @@
 #pragma once
 #include <glm/glm.hpp>
+#include "Canvas/Box.hpp"
 
 class Event;
-struct Box;
 
 namespace Elements
 {
@@ -15,8 +15,11 @@ namespace Elements
 		virtual void OnEvent(Event&) {};
 
 		virtual void MoveBy(float x, float y) = 0;
-		virtual bool Contains(const glm::vec2& point) const = 0;
 		virtual Box GetBoundingBox() const = 0;
+		virtual bool Contains(const glm::vec2& point) const
+		{
+			return GetBoundingBox().Contains(point);
+		}
 
 		bool InEditMode = false;
 	};

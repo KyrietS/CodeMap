@@ -5,6 +5,7 @@
 #include "Window.hpp"
 #include "Controllers/CameraController.hpp"
 #include "Controllers/ToolboxController.hpp"
+#include "Controllers/PasteImageController.hpp"
 #include "Elements/ArrowElement.hpp"
 #include <ranges>
 
@@ -13,6 +14,7 @@ Canvas2::Canvas2(EventQueue& eventQueue)
 {
 	m_Controllers.push_back(std::make_unique<Controllers::CameraController>(m_Camera));
 	m_Controllers.push_back(std::make_unique<Controllers::ToolboxController>(m_Camera, m_EventQueue, m_Elements));
+	m_Controllers.push_back(std::make_unique<Controllers::PasteImageController>(m_Camera, m_EventQueue, m_Elements));
 }
 
 void Canvas2::Draw()

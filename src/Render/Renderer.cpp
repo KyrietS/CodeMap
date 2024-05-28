@@ -169,13 +169,19 @@ void Renderer::DrawPolygon(const std::vector<glm::vec2>& points, const glm::vec4
 
 void Renderer::DrawImage(const glm::vec2& position, const Components::Image& image)
 {
+	assert(image.TextureId);
+	DrawImage(position, *image.TextureId, image.Width, image.Height);
+}
+
+void Renderer::DrawImage(const glm::vec2& position,int width, int height, TextureId textureId)
+{
 	int mipmaps = 1;
 	int format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
 
 	Texture2D texture2D = {
-		*image.TextureId,
-		image.Width,
-		image.Height,
+		textureId,
+		width,
+		height,
 		mipmaps,
 		format
 	};
