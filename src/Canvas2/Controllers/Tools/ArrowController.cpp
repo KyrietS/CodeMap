@@ -74,7 +74,8 @@ namespace Controllers
 	void ArrowController::AddArrowToCanvas()
 	{
 		auto box = m_Arrow->GetBoundingBox();
-		if (m_Arrow and box.width > 5.0f and box.height > 5.0f)
+		bool isTooSmall = box.width < 5.0f and box.height < 5.0f;
+		if (m_Arrow and not isTooSmall)
 		{
 			LOG_DEBUG("Arrow added to canvas");
 			m_Elements.Add(std::move(m_Arrow));
