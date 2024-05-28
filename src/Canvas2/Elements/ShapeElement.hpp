@@ -34,7 +34,11 @@ namespace Elements
 		void AddPoint(const glm::vec2& point);
 
 	private:
+		void OnUpdate();
+
 		const CanvasCamera& m_Camera;
 		Data m_Data;
+
+		bool m_IsRectangle = true;
 	};
 }

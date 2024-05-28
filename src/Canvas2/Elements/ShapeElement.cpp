@@ -10,17 +10,6 @@
 
 namespace Elements
 {
-	namespace
-	{
-		template <std::ranges::input_range Range>
-		void printTransformedVec2(Range&& range) {
-			LOG_INFO("Size: {}", range.size());
-			for (const auto& vec : range) {
-				LOG_INFO("x: {0}, y: {1}", vec.x, vec.y);
-			}
-		}
-	}
-
 	void Elements::ShapeElement::Draw()
 	{
 		Renderer::BeginBlendMode(m_Data.BlendMode);
@@ -48,9 +37,11 @@ namespace Elements
 			for (auto& point : m_Data.Points)
 			{
 				if (event.Handled)
-					return;
+					break;
 				point.OnEvent(event);
 			}
+
+			OnUpdate();
 		}
 	}
 
@@ -96,5 +87,39 @@ namespace Elements
 	void ShapeElement::AddPoint(const glm::vec2& point)
 	{
 		m_Data.Points.emplace_back(point, m_Camera);
+	}
+
+	void ShapeElement::OnUpdate()
+	{
+		if (m_IsRectangle)
+		{
+			// Keep the rectangle shape by aligning other corners to the dragged corner
+			assert(m_Data.Points.size() == 4);
+			auto& point1 = m_Data.Points[0]; // Top left
+			auto& point2 = m_Data.Points[1]; // Top right
+			auto& point3 = m_Data.Points[2]; // Bottom right
+			auto& point4 = m_Data.Points[3]; // Bottom left
+
+			if (point1.Dragging)
+			{
+				point2.Position.y = point1.Position.y;
+				point4.Position.x = point1.Position.x;
+			}
+			else if (point2.Dragging)
+			{
+				point1.Position.y = point2.Position.y;
+				point3.Position.x = point2.Position.x;
+			}
+			else if (point3.Dragging)
+			{
+				point2.Position.x = point3.Position.x;
+				point4.Position.y = point3.Position.y;
+			}
+			else if (point4.Dragging)
+			{
+				point1.Position.x = point4.Position.x;
+				point3.Position.y = point4.Position.y;
+			}
+		}
 	}
 }
