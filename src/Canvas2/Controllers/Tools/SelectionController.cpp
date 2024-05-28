@@ -91,6 +91,9 @@ namespace Controllers
 
 	bool SelectionController::OnMousePressed(const Events::Input::MousePressed& event)
 	{
+		if (event.GetButton() != Mouse::ButtonLeft)
+			return false;
+
 		if (SelectHoveredElement())
 		{
 			m_MoveByDrag = true;
@@ -98,12 +101,8 @@ namespace Controllers
 			return true;
 		}
 
-		if (event.GetButton() == Mouse::ButtonLeft)
-		{
-			m_SelectionStart = Input::GetWorldMousePosition(m_Camera);
-			return true;
-		}
-		return false;
+		m_SelectionStart = Input::GetWorldMousePosition(m_Camera);
+		return true;
 	}
 
 	bool SelectionController::OnMouseReleased(const Events::Input::MouseReleased& event)
