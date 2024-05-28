@@ -8,20 +8,6 @@
 
 namespace Elements
 {
-	namespace
-	{
-		void DrawControlPoint(const ControlPoint point, const CanvasCamera& camera)
-		{
-			float radius = point.Radius / camera.GetZoom();
-
-			glm::vec4 backgroundColor = point.Hovering ? VColor::Blue : point.BackgroundColor;
-			backgroundColor = point.Dragging ? VColor::Red : backgroundColor;
-
-			Renderer::DrawCircle(point.Position, radius, backgroundColor);
-			Renderer::DrawCircleOutline(point.Position, radius, VColor::Blue);
-		}
-	}
-
 	void ArrowElement::Draw()
 	{
 		glm::vec2 begin = m_Data.Points.front().Position;
@@ -53,7 +39,8 @@ namespace Elements
 		{
 			for (const auto& point : m_Data.Points)
 			{
-				DrawControlPoint(point, m_Camera);
+				point.Draw(m_Camera);
+				//DrawControlPoint(point, m_Camera);
 			}
 		}
 	}
@@ -62,11 +49,12 @@ namespace Elements
 	{
 		if (InEditMode)
 		{
-			EventDispatcher dispatcher(event);
-			dispatcher.Handle<Events::Input::MousePressed>(BIND_EVENT(OnMousePressed));
-			dispatcher.Handle<Events::Input::MouseReleased>(BIND_EVENT(OnMouseReleased));
-
-			HandleArrowEdit();
+			for (auto& point : m_Data.Points)
+			{
+				if (event.Handled)
+					return;
+				point.OnEvent(event);
+			}
 		}
 	}
 
@@ -115,49 +103,5 @@ namespace Elements
 		glm::vec2 end = m_Data.Points.back().Position;
 
 		return glm::orientedAngle(glm::vec2 { 1.0f, 0.0f }, glm::normalize(end - begin/*control*/));
-	}
-
-	bool ArrowElement::OnMousePressed(const Events::Input::MousePressed& event)
-	{
-		const auto mousePos = Input::GetWorldMousePosition(m_Camera);
-		if (event.GetButton() == Mouse::ButtonLeft)
-		{
-			for (auto& point : m_Data.Points)
-			{
-				if (point.Contains(mousePos))
-				{
-					point.Dragging = true;
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	bool ArrowElement::OnMouseReleased(const Events::Input::MouseReleased& event)
-	{
-		if (event.GetButton() == Mouse::ButtonLeft)
-		{
-			for (auto& point : m_Data.Points)
-			{
-				point.Dragging = false;
-			}
-		}
-
-		return false;
-	}
-
-	void ArrowElement::HandleArrowEdit()
-	{
-		const auto mousePos = Input::GetWorldMousePosition(m_Camera);
-		for (auto& point : m_Data.Points)
-		{
-			point.Hovering = point.Contains(mousePos);
-			if (point.Dragging)
-			{
-				point.Position = mousePos;
-			}
-		}
 	}
 }

@@ -33,10 +33,10 @@ namespace Controllers
 		if (m_Shape)
 		{
 			glm::vec2 mousePos = Input::GetWorldMousePosition(m_Camera);
-			const glm::vec2 origin = m_Shape->GetData().Points.at(0);
-			glm::vec2& cornerA = m_Shape->GetData().Points.at(1);
-			glm::vec2& cornerB = m_Shape->GetData().Points.at(2);
-			glm::vec2& cornerC = m_Shape->GetData().Points.at(3);
+			const glm::vec2 origin = m_Shape->GetData().Points.at(0).Position;
+			glm::vec2& cornerA = m_Shape->GetData().Points.at(1).Position;
+			glm::vec2& cornerB = m_Shape->GetData().Points.at(2).Position;
+			glm::vec2& cornerC = m_Shape->GetData().Points.at(3).Position;
 
 			cornerA = { mousePos.x, origin.y };
 			cornerB = mousePos;
@@ -55,10 +55,10 @@ namespace Controllers
 
 			// rectangle by default for now
 			glm::vec2 begin = Input::GetWorldMousePosition(m_Camera);
-			m_Shape->GetData().Points.push_back(begin);
-			m_Shape->GetData().Points.push_back(begin);
-			m_Shape->GetData().Points.push_back(begin);
-			m_Shape->GetData().Points.push_back(begin);
+			m_Shape->AddPoint(begin);
+			m_Shape->AddPoint(begin);
+			m_Shape->AddPoint(begin);
+			m_Shape->AddPoint(begin);
 		}
 
 		return true;

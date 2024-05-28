@@ -6,6 +6,7 @@
 #include "Canvas/Box.hpp"
 #include "Events/MouseEvents.hpp"
 #include "Render/BlendMode.hpp"
+#include "ControlPoint.hpp"
 
 class CanvasCamera;
 
@@ -16,9 +17,9 @@ namespace Elements
 	public:
 		struct Data
 		{
+			std::vector<ControlPoint> Points = {};
 			glm::vec4 Color = VColor::Yellow;
 			Render::BlendMode BlendMode = Render::BlendMode::Multiply;
-			std::vector<glm::vec2> Points = {};
 		};
 
 		ShapeElement(CanvasCamera& camera)
@@ -30,6 +31,7 @@ namespace Elements
 		Box GetBoundingBox() const override;
 
 		Data& GetData() { return m_Data; }
+		void AddPoint(const glm::vec2& point);
 
 	private:
 		const CanvasCamera& m_Camera;

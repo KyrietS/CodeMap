@@ -46,8 +46,8 @@ namespace Controllers
 			m_Arrow = std::make_unique<Elements::ArrowElement>(m_Camera);
 
 			glm::vec2 begin = Input::GetWorldMousePosition(m_Camera);
-			m_Arrow->GetData().Points.front().Position = begin;
-			m_Arrow->GetData().Points.back().Position = begin;
+			m_Arrow->GetData().Points.emplace_back(begin, m_Camera);
+			m_Arrow->GetData().Points.emplace_back(begin, m_Camera);
 		}
 		else
 		{

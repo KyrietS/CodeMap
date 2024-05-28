@@ -128,7 +128,7 @@ void Renderer::DrawCircleOutline(const glm::vec2& position, float radius, const 
 	::DrawCircleLines(x, y, radius, vec4ToColor(color));
 }
 
-glm::vec2 GetCenterPoint(const std::vector<glm::vec2>& points)
+glm::vec2 GetCenterPoint(std::span<const glm::vec2> points)
 {
 	glm::vec2 centerPoint{ 0.0f, 0.0f };
 	for (const glm::vec2& point : points)
@@ -146,7 +146,7 @@ void SortPointsCounterClockwise(const glm::vec2& centerPoint, std::vector<glm::v
 	});
 }
 
-void Renderer::DrawPolygon(const std::vector<glm::vec2>& points, const glm::vec4& color)
+void Renderer::DrawPolygon(std::span<const glm::vec2> points, const glm::vec4& color)
 {
 	if (points.size() < 2)
 		return;
@@ -157,7 +157,7 @@ void Renderer::DrawPolygon(const std::vector<glm::vec2>& points, const glm::vec4
 	}
 
 	glm::vec2 centerPoint = GetCenterPoint(points);
-	std::vector<glm::vec2> sortedPoints = points;
+	std::vector<glm::vec2> sortedPoints { points.begin(), points.end() };
 	SortPointsCounterClockwise(centerPoint, sortedPoints);
 	for (size_t i = 1; i < sortedPoints.size(); ++i)
 	{

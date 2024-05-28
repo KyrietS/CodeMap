@@ -1,10 +1,19 @@
 #pragma once
 #include "Render/VColor.hpp"
+#include "Events/Event.hpp"
+#include "Events/MouseEvents.hpp"
+#include <glm/vec2.hpp>
+#include <glm/geometric.hpp>
+
+class CanvasCamera;
 
 namespace Elements
 {
 	struct ControlPoint
 	{
+		ControlPoint(const glm::vec2& position, const CanvasCamera& camera)
+			: Position(position), m_Camera(camera) {}
+
 		// Properties
 		glm::vec2 Position = { 0.0f, 0.0f };
 		glm::vec4 BackgroundColor = VColor::White;
@@ -17,10 +26,19 @@ namespace Elements
 		bool Dragging = false;
 
 		// Methods
+		void Draw(const CanvasCamera&) const;
+		void OnEvent(Event&);
 		bool Contains(const glm::vec2& point) const
 		{
 			float distance = glm::distance(Position, point);
 			return distance <= Radius;
 		}
+
+	private:
+		bool OnMousePressed(const Events::Input::MousePressed&);
+		bool OnMouseReleased(const Events::Input::MouseReleased&);
+		void OnUpdate(Event&);
+
+		const CanvasCamera& m_Camera;
 	};
 }

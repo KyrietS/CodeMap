@@ -16,7 +16,7 @@ namespace Elements
 	public:
 		struct Data
 		{
-			std::list<ControlPoint> Points { ControlPoint{}, ControlPoint{} };
+			std::list<ControlPoint> Points {};
 			glm::vec4 StrokeColor = VColor::Blue;
 			glm::vec4 ArrowheadColor = VColor::Orange;
 			float Thickness = 5.0f;
@@ -34,10 +34,6 @@ namespace Elements
 		float GetEndAngle() const;
 
 	private:
-		bool OnMousePressed(const Events::Input::MousePressed&);
-		bool OnMouseReleased(const Events::Input::MouseReleased&);
-		void HandleArrowEdit();
-
 		const CanvasCamera& m_Camera;
 		Data m_Data;
 	};
