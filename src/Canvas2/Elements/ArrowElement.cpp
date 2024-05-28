@@ -10,12 +10,12 @@ namespace Elements
 {
 	namespace
 	{
-		void DrawControlPoint(const ArrowElement::Point point, const CanvasCamera& camera)
+		void DrawControlPoint(const ControlPoint point, const CanvasCamera& camera)
 		{
-			float radius = point.ControlPoint.Radius / camera.GetZoom();
+			float radius = point.Radius / camera.GetZoom();
 
-			glm::vec4 backgroundColor = point.ControlPoint.Hovering ? VColor::Blue : point.ControlPoint.BackgroundColor;
-			backgroundColor = point.ControlPoint.Dragging ? VColor::Red : backgroundColor;
+			glm::vec4 backgroundColor = point.Hovering ? VColor::Blue : point.BackgroundColor;
+			backgroundColor = point.Dragging ? VColor::Red : backgroundColor;
 
 			Renderer::DrawCircle(point.Position, radius, backgroundColor);
 			Renderer::DrawCircleOutline(point.Position, radius, VColor::Blue);
@@ -51,10 +51,6 @@ namespace Elements
 		// Draw edit points
 		if (InEditMode)
 		{
-			float renderRadius = ArrowElement::EDIT_POINT_RADIUS / 2;
-			float radius = renderRadius / m_Camera.GetZoom();
-			float thickness = 1.0f / m_Camera.GetZoom();
-
 			for (const auto& point : m_Data.Points)
 			{
 				DrawControlPoint(point, m_Camera);
@@ -130,7 +126,7 @@ namespace Elements
 			{
 				if (point.Contains(mousePos))
 				{
-					point.ControlPoint.Dragging = true;
+					point.Dragging = true;
 					return true;
 				}
 			}
@@ -145,7 +141,7 @@ namespace Elements
 		{
 			for (auto& point : m_Data.Points)
 			{
-				point.ControlPoint.Dragging = false;
+				point.Dragging = false;
 			}
 		}
 
@@ -157,8 +153,8 @@ namespace Elements
 		const auto mousePos = Input::GetWorldMousePosition(m_Camera);
 		for (auto& point : m_Data.Points)
 		{
-			point.ControlPoint.Hovering = point.Contains(mousePos);
-			if (point.ControlPoint.Dragging)
+			point.Hovering = point.Contains(mousePos);
+			if (point.Dragging)
 			{
 				point.Position = mousePos;
 			}
