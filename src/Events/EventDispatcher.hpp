@@ -25,7 +25,7 @@ public:
 	{
 		if (m_Event.IsType<T>())
 		{
-			m_Event.Handled = onEventCallback(m_Event.GetEvent<T>());
+			m_Event.Handled |= onEventCallback(m_Event.GetEvent<T>());
 			return true;
 		}
 		return false;

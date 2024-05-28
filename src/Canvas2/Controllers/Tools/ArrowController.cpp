@@ -32,7 +32,7 @@ namespace Controllers
 	{
 		if (m_Arrow)
 		{
-			m_Arrow->GetData().End = Input::GetWorldMousePosition(m_Camera);
+			m_Arrow->GetData().Points.back().Position = Input::GetWorldMousePosition(m_Camera);
 		}
 	}
 
@@ -46,8 +46,8 @@ namespace Controllers
 			m_Arrow = std::make_unique<Elements::ArrowElement>(m_Camera);
 
 			glm::vec2 begin = Input::GetWorldMousePosition(m_Camera);
-			m_Arrow->GetData().Begin = begin;
-			m_Arrow->GetData().End = begin;
+			m_Arrow->GetData().Points.front().Position = begin;
+			m_Arrow->GetData().Points.back().Position = begin;
 		}
 		else
 		{
@@ -73,7 +73,8 @@ namespace Controllers
 
 	void ArrowController::AddArrowToCanvas()
 	{
-		if (m_Arrow and m_Arrow->GetLength() > 5.0f)
+		auto box = m_Arrow->GetBoundingBox();
+		if (m_Arrow and box.width > 5.0f and box.height > 5.0f)
 		{
 			LOG_DEBUG("Arrow added to canvas");
 			m_Elements.Add(std::move(m_Arrow));

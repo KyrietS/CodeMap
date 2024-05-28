@@ -17,5 +17,7 @@ namespace Elements
 		virtual void MoveBy(float x, float y) = 0;
 		virtual bool Contains(const glm::vec2& point) const = 0;
 		virtual Box GetBoundingBox() const = 0;
+
+		bool InEditMode = false;
 	};
 }

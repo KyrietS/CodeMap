@@ -12,6 +12,7 @@ namespace Controllers
 	public:
 		SelectionController(CanvasCamera& camera, CanvasElements& elements) 
 			: m_Camera(camera), m_Elements(elements) {}
+		~SelectionController();
 		void Draw() override;
 		void OnEvent(Event& event) override;
 
@@ -21,11 +22,13 @@ namespace Controllers
 		bool OnMousePressed(const Events::Input::MousePressed&);
 		bool OnMouseReleased(const Events::Input::MouseReleased&);
 		bool OnKeyPressed(const Events::Input::KeyPressed&);
+		void PassEventToSelectedElements(Event&);
 		bool SelectHoveredElement();
 		void HandleMouseHoveredOverElement();
 		void MoveSelectedElementsBy(glm::vec2);
+		void UnselectAllElements();
 		void RemoveSelectedElements();
-		void ClearSelection();
+		void HideSelectionRectangle();
 
 		bool m_MoveByDrag = false;
 		glm::vec2 m_LastMouseWorldPosition {};

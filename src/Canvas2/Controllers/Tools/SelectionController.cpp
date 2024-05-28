@@ -8,6 +8,11 @@
 
 namespace Controllers
 {
+	SelectionController::~SelectionController()
+	{
+		UnselectAllElements();
+	}
+
 	void SelectionController::Draw()
 	{
 		if (m_HoveredElement.has_value())
@@ -51,6 +56,11 @@ namespace Controllers
 
 	void SelectionController::OnEvent(Event& event)
 	{
+		// We give the selected elements a chance to handle the event first
+		PassEventToSelectedElements(event);
+		if (event.Handled)
+			return;
+
 		EventDispatcher dispatcher(event);
 		dispatcher.Handle<Events::Input::MousePressed>(BIND_EVENT(SelectionController::OnMousePressed));
 		dispatcher.Handle<Events::Input::MouseReleased>(BIND_EVENT(SelectionController::OnMouseReleased));
@@ -101,7 +111,7 @@ namespace Controllers
 		if (event.GetButton() == Mouse::ButtonLeft)
 		{
 			m_MoveByDrag = false;
-			ClearSelection();
+			HideSelectionRectangle();
 			return true;
 		}
 		return false;
@@ -117,6 +127,17 @@ namespace Controllers
 		return false;
 	}
 
+	void SelectionController::PassEventToSelectedElements(Event& event)
+	{
+		for (auto id : m_SelectedElements)
+		{
+			if (auto* element = m_Elements.TryGet(id))
+			{
+				element->OnEvent(event);
+			}
+		}
+	}
+
 	bool SelectionController::SelectHoveredElement()
 	{
 		auto mousePos = Input::GetWorldMousePosition(m_Camera);
@@ -125,12 +146,13 @@ namespace Controllers
 			if (element->Contains(mousePos))
 			{
 				m_SelectedElements.insert(id);
+				element->InEditMode = true;
 				return true;
 			}
 		}
 
 		// Clicked on empty space
-		m_SelectedElements.clear();
+		UnselectAllElements();
 		return false;
 	}
 
@@ -160,6 +182,18 @@ namespace Controllers
 		}
 	}
 
+	void SelectionController::UnselectAllElements()
+	{
+		for (auto id : m_SelectedElements)
+		{
+			if (auto* element = m_Elements.TryGet(id))
+			{
+				element->InEditMode = false;
+			}
+		}
+		m_SelectedElements.clear();
+	}
+
 	void SelectionController::RemoveSelectedElements()
 	{
 		for (auto id : m_SelectedElements)
@@ -169,7 +203,7 @@ namespace Controllers
 		m_SelectedElements.clear();
 	}
 
-	void SelectionController::ClearSelection()
+	void SelectionController::HideSelectionRectangle()
 	{
 		m_SelectionStart.reset();
 		m_SelectionEnd.reset();

@@ -13,10 +13,29 @@ namespace Elements
 	class ArrowElement : public IElement
 	{
 	public:
+		struct ControlPoint
+		{
+			glm::vec4 BackgroundColor = VColor::White;
+			glm::vec4 BorderColor = VColor::Blue;
+			float Radius = 10.0f;
+			float Thickness = 2.0f;
+			bool Hovering = false;
+			bool Dragging = false;
+		};
+		struct Point
+		{
+			glm::vec2 Position { 0, 0 };
+			ControlPoint ControlPoint {};
+
+			bool Contains(const glm::vec2& point) const
+			{
+				float distance = glm::distance(Position, point);
+				return distance <= ControlPoint.Radius;
+			}
+		};
 		struct Data
 		{
-			glm::vec2 Begin { 0, 0 };
-			glm::vec2 End { 0, 0 };
+			std::list<Point> Points { Point{}, Point{} };
 			glm::vec4 StrokeColor = VColor::Blue;
 			glm::vec4 ArrowheadColor = VColor::Orange;
 			float Thickness = 5.0f;
@@ -31,11 +50,16 @@ namespace Elements
 		Box GetBoundingBox() const override;
 
 		Data& GetData() { return m_Data; }
-		float GetLength() const;
 		float GetEndAngle() const;
 
 	private:
+		bool OnMousePressed(const Events::Input::MousePressed&);
+		bool OnMouseReleased(const Events::Input::MouseReleased&);
+		void HandleArrowEdit();
+
 		const CanvasCamera& m_Camera;
 		Data m_Data;
+
+		static constexpr float EDIT_POINT_RADIUS = 10.0f;
 	};
 }
