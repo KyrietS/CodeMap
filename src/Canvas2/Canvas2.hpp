@@ -15,8 +15,8 @@ public:
 private:
 	void DrawGrid();
 
-	Controllers::CanvasControllers m_Controllers;
 	CanvasElements m_Elements;
+	Controllers::CanvasControllers m_Controllers;
 
 	EventQueue& m_EventQueue;
 	CanvasCamera m_Camera;
