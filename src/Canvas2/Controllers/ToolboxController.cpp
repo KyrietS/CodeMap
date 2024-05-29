@@ -43,7 +43,7 @@ namespace Controllers
 			LOG_INFO("Selection tool selected");
 			break;
 		case ToolType::Text:
-			m_ActiveTool = std::make_unique<TextController>(m_Camera, m_Elements);
+			m_ActiveTool = std::make_unique<TextController>(m_Camera, m_Elements, m_EventQueue);
 			LOG_INFO("Text tool selected");
 			break;
 		case ToolType::Arrow:

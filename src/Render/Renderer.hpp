@@ -50,7 +50,7 @@ public:
 	static void DrawImage(const glm::vec2& position, const Components::Image& image);
 	static void DrawImage(const glm::vec2& position, int width, int height, TextureId);
 	static void DrawText(const glm::vec2& position, const Components::Text& text);
-	static void DrawText(std::span<const uint32_t> text, glm::vec2 position, float fontSize, unsigned int fontId);
+	static void DrawText(std::span<const uint32_t> text, glm::vec2 position, float fontSize, unsigned int fontId, bool cursor = false);
 
 
 	static TextMeasurement MeasureText(const Components::Text& text);

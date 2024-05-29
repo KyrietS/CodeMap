@@ -3,13 +3,14 @@
 #include "Canvas2/CanvasElements.hpp"
 #include "Canvas/CanvasCamera.hpp"
 #include "Events/MouseEvents.hpp"
+#include "Events/EventQueue.hpp"
 
 namespace Controllers
 {
 	class TextController : public IController
 	{
 	public:
-		TextController(CanvasCamera& camera, CanvasElements& elements);
+		TextController(CanvasCamera& camera, CanvasElements& elements, EventQueue& eventQueue);
 		void OnEvent(Event& event) override;
 
 	private:
@@ -19,5 +20,6 @@ namespace Controllers
 
 		CanvasCamera& m_Camera;
 		CanvasElements& m_Elements;
+		EventQueue& m_EventQueue;
 	};
 }

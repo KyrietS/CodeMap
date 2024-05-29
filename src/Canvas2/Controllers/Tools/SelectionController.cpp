@@ -130,6 +130,9 @@ namespace Controllers
 	{
 		for (auto id : m_SelectedElements)
 		{
+			if (event.Handled)
+				return;
+
 			if (auto* element = m_Elements.TryGet(id))
 			{
 				element->OnEvent(event);

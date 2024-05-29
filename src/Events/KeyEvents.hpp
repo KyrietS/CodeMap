@@ -23,7 +23,7 @@ namespace Events::Input
 	public:
 		KeyReleased(KeyCode key) : m_KeyCode(key) {}
 
-		KeyCode GetKey() { return m_KeyCode; }
+		KeyCode GetKey() const { return m_KeyCode; }
 
 	private:
 		KeyCode m_KeyCode;
@@ -33,7 +33,7 @@ namespace Events::Input
 	public:
 		KeyTyped(uint32_t codePoint) : m_CodePoint(codePoint) {}
 
-		uint32_t GetCodePoint() { return m_CodePoint; }
+		uint32_t GetCodePoint() const { return m_CodePoint; }
 
 	private:
 		uint32_t m_CodePoint;

@@ -5,8 +5,11 @@
 #include "Render/VColor.hpp"
 #include "Canvas/Box.hpp"
 #include "Events/MouseEvents.hpp"
+#include "Events/KeyEvents.hpp"
 #include "Render/BlendMode.hpp"
 #include "ControlPoint.hpp"
+#include "Timer.hpp"
+#include "Events/EventQueue.hpp"
 
 class CanvasCamera;
 
@@ -26,8 +29,8 @@ namespace Elements
 			std::string GetTextInUtf8() const;
 		};
 
-		TextElement(CanvasCamera& camera)
-			: m_Camera(camera) {}
+		TextElement(CanvasCamera& camera, EventQueue& eventQueue)
+			: m_Camera(camera), m_EventQueue(eventQueue) {}
 		void Draw() override;
 		void OnEvent(Event&) override;
 		void MoveBy(float x, float y) override;
@@ -35,7 +38,17 @@ namespace Elements
 
 		Data& GetData() { return m_Data; }
 	private:
+		bool OnMousePressed(const Events::Input::MousePressed&);
+		bool OnMouseReleased(const Events::Input::MouseReleased&);
+		bool OnKeyPressed(const Events::Input::KeyPressed&);
+		bool OnKeyTyped(const Events::Input::KeyTyped&);
+		void ToggleCursorVisibility();
+
 		const CanvasCamera& m_Camera;
 		Data m_Data;
+		bool m_TextModeActive = false;
+		bool m_CursorVisible = false;
+		EventQueue& m_EventQueue;
+		Timer m_CursorTimer;
 	};
 }

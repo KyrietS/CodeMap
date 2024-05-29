@@ -20,15 +20,102 @@ namespace Elements
 
 	void TextElement::Draw()
 	{
-		Renderer::DrawText(m_Data.Text, m_Data.Position, m_Data.FontSize, m_Data.FontId);
+		const bool showCursor = m_TextModeActive and m_CursorVisible;
+		Renderer::DrawText(m_Data.Text, m_Data.Position, m_Data.FontSize, m_Data.FontId, showCursor);
+		if (m_TextModeActive)
+		{
+			auto textMeasure = Renderer::MeasureText(m_Data.Text, m_Data.FontSize, m_Data.FontId);
+			glm::vec2 topLeftCorner = {m_Data.Position.x + textMeasure.Offset.x, m_Data.Position.y + textMeasure.Offset.y};
+			float thickness = 1.0f / m_Camera.GetZoom();
+			Renderer::DrawRectangleLines(topLeftCorner, textMeasure.Size.x, textMeasure.Size.y, thickness, VColor::Orange);
+
+			ToggleCursorVisibility();
+		}
 	}
 
 	void TextElement::OnEvent(Event& event)
 	{
 		if (InEditMode)
 		{
-
+			EventDispatcher dispatcher(event);
+			dispatcher.Handle<Events::Input::MousePressed>(BIND_EVENT(OnMousePressed));
+			dispatcher.Handle<Events::Input::MouseReleased>(BIND_EVENT(OnMouseReleased));
+			dispatcher.Handle<Events::Input::KeyPressed>(BIND_EVENT(OnKeyPressed));
+			dispatcher.Handle<Events::Input::KeyTyped>(BIND_EVENT(OnKeyTyped));
 		}
+		else
+		{
+			m_TextModeActive = false;
+		}
+	}
+
+	bool TextElement::OnMousePressed(const Events::Input::MousePressed&)
+	{
+		const auto mousePos = Input::GetWorldMousePosition(m_Camera);
+		const bool mouseOverText = GetBoundingBox().Contains(mousePos);
+		if (mouseOverText and Input::IsMouseButtonDoublePressed(Mouse::ButtonLeft))
+		{
+			// Capture double click event by capturing both press and release events
+			return true;
+		}
+		return false;
+	}
+
+	bool TextElement::OnMouseReleased(const Events::Input::MouseReleased&)
+	{
+		const auto mousePos = Input::GetWorldMousePosition(m_Camera);
+		const bool mouseOverText = GetBoundingBox().Contains(mousePos);
+		if (mouseOverText and Input::IsMouseButtonDoubleClicked(Mouse::ButtonLeft))
+		{
+			m_TextModeActive = true;
+			return true;
+		}
+		else
+		{
+			m_TextModeActive = false;
+		}
+
+		return false;
+	}
+
+	bool TextElement::OnKeyPressed(const Events::Input::KeyPressed& key)
+	{
+		if (m_TextModeActive)
+		{
+			auto& text = m_Data.Text;
+			auto keyCode = key.GetKey();
+
+			LOG_DEBUG("Key = {}", keyCode);
+			if (keyCode == Key::Backspace and not text.empty())
+				text.pop_back();
+			if (keyCode == Key::Enter)
+				text.push_back('\n');
+
+			return true;
+		}
+		return false;
+	}
+
+	bool TextElement::OnKeyTyped(const Events::Input::KeyTyped& key)
+	{
+		if (m_TextModeActive)
+		{
+			LOG_DEBUG("Character = {}", key.GetCodePoint());
+			m_Data.Text.push_back(key.GetCodePoint());
+			return true;
+		}
+		return false;
+	}
+
+	void TextElement::ToggleCursorVisibility()
+	{
+		constexpr float cursorBlinkTime = 0.5f;
+		if (m_CursorTimer.Elapsed() >= cursorBlinkTime)
+		{
+			m_CursorVisible = not m_CursorVisible;
+			m_CursorTimer.Reset();
+		}
+		m_EventQueue.Push(EmptyEvent {});
 	}
 
 	void TextElement::MoveBy(float x, float y)

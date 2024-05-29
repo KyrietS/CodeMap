@@ -76,6 +76,20 @@ bool Input::IsMouseButtonClicked(MouseCode mouseCode)
 	return false;
 }
 
+bool Input::IsMouseButtonDoublePressed(MouseCode mouseCode)
+{
+	using namespace std::chrono_literals;
+
+	if (IsMouseButtonPressed(mouseCode))
+	{
+		auto difference = Time::Now() - s_CurrentClickTime[mouseCode];
+		auto diffInMs = std::chrono::duration_cast<std::chrono::milliseconds>(difference);
+		if (difference < 200ms)
+			return true;
+	}
+	return false;
+}
+
 bool Input::IsMouseButtonDoubleClicked(MouseCode mouseCode)
 {
 	using namespace std::chrono_literals;

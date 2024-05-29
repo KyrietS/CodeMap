@@ -6,8 +6,8 @@
 
 namespace Controllers
 {
-	TextController::TextController(CanvasCamera& camera, CanvasElements& elements)
-		: m_Camera(camera), m_Elements(elements)
+	TextController::TextController(CanvasCamera& camera, CanvasElements& elements, EventQueue& eventQueue)
+		: m_Camera(camera), m_Elements(elements), m_EventQueue(eventQueue)
 	{
 	}
 
@@ -30,7 +30,7 @@ namespace Controllers
 
 	void TextController::AddTextToCanvas()
 	{
-		auto text = std::make_unique<Elements::TextElement>(m_Camera);
+		auto text = std::make_unique<Elements::TextElement>(m_Camera, m_EventQueue);
 		text->GetData().Position = Input::GetWorldMousePosition(m_Camera);
 		text->GetData().SetUtf8Text("Hello, World!");
 

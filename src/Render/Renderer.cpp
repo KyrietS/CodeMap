@@ -226,7 +226,7 @@ void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
 }
 
 //void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
-void Renderer::DrawText(std::span<const uint32_t> text, glm::vec2 position, float fontSize, unsigned int fontId)
+void Renderer::DrawText(std::span<const uint32_t> text, glm::vec2 position, float fontSize, unsigned int fontId, bool showCursor)
 {
 	const FontInstance& font = Renderer::s_FontStorage.GetFont(fontId, fontSize);
 	const Trex::FontMetrics fontMetrics = font.Shaper->GetFontMetrics();
@@ -241,15 +241,15 @@ void Renderer::DrawText(std::span<const uint32_t> text, glm::vec2 position, floa
 		cursor.y += fontMetrics.height;
 	}
 
-	/*
-	if (text.IsCursorShown)
+	
+	if (showCursor)
 	{
-		float cursorThickness = std::max(text.FontSize / 32.0f, 1.0f);
+		float cursorThickness = std::max(fontSize / 32.0f, 1.0f);
 		glm::vec2 cursorBarBegin = { lastLineEnd.x, lastLineEnd.y - fontMetrics.ascender };
 		glm::vec2 cursorBarEnd = { lastLineEnd.x, lastLineEnd.y - fontMetrics.descender };
 		DrawLine(cursorBarBegin, cursorBarEnd, cursorThickness, VColor::Black);
 	}
-	*/
+	
 }
 
 static TextMeasurement MeasureMultilineText(const std::vector<Trex::TextMeasurement>& measurements, int baselineHeight)
