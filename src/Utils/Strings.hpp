@@ -28,6 +28,6 @@ namespace Utils::Strings
 	// The original string must be kept alive for the lifetime of the spans.
 	std::vector<std::span<char>> SplitToLines(std::string&, bool keepNewlines = false);
 	std::vector<std::span<const char>> SplitToLines(const std::string&, bool keepNewlines = false);
-	std::vector<std::span<const uint32_t>> SplitToLines(const std::vector<uint32_t>&, bool keepNewlines = false);
-	std::vector<std::span<uint32_t>> SplitToLines(std::vector<uint32_t>&, bool keepNewlines = false);
+	std::vector<std::span<const uint32_t>> SplitToLines(std::span<const uint32_t>, bool keepNewlines = false);
+	std::vector<std::span<uint32_t>> SplitToLines(std::span<uint32_t>, bool keepNewlines = false);
 }
