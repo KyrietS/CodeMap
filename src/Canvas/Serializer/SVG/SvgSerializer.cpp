@@ -233,7 +233,7 @@ void SvgSerializer::SerializeTextContent(tinyxml2::XMLElement& textElement, cons
 	auto lines = Utils::Strings::SplitToLines(contentInUtf8, keepNewlines);
 	float cursorX = textElement.FloatAttribute("x");
 	float cursorY = textElement.FloatAttribute("y");
-	int baselineHeight = Renderer::GetBaselineHeight(text);
+	int baselineHeight = Renderer::GetBaselineHeight(text.FontSize, text.FontId);
 	for (const auto& line : lines)
 	{
 		auto tspan = textElement.InsertNewChildElement("tspan");

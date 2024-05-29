@@ -6,6 +6,7 @@
 #include "Tools/SelectionController.hpp"
 #include "Tools/ArrowController.hpp"
 #include "Tools/ShapeController.hpp"
+#include "Tools/TextController.hpp"
 
 namespace Controllers
 {
@@ -42,8 +43,8 @@ namespace Controllers
 			LOG_INFO("Selection tool selected");
 			break;
 		case ToolType::Text:
-			m_ActiveTool.reset();
-			LOG_WARN("Text tool not implemented yet!");
+			m_ActiveTool = std::make_unique<TextController>(m_Camera, m_Elements);
+			LOG_INFO("Text tool selected");
 			break;
 		case ToolType::Arrow:
 			m_ActiveTool = std::make_unique<ArrowController>(m_Camera, m_Elements);

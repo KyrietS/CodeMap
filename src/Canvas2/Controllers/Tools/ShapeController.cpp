@@ -73,7 +73,6 @@ namespace Controllers
 		if (m_Shape and not Input::IsMouseButtonClicked(Mouse::ButtonLeft))
 		{
 			AddShapeToCanvas();
-			return true;
 		}
 
 		return true;

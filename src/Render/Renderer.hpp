@@ -50,9 +50,12 @@ public:
 	static void DrawImage(const glm::vec2& position, const Components::Image& image);
 	static void DrawImage(const glm::vec2& position, int width, int height, TextureId);
 	static void DrawText(const glm::vec2& position, const Components::Text& text);
+	static void DrawText(std::span<const uint32_t> text, glm::vec2 position, float fontSize, unsigned int fontId);
+
 
 	static TextMeasurement MeasureText(const Components::Text& text);
-	static int GetBaselineHeight(const Components::Text& text);
+	static TextMeasurement MeasureText(std::span<const uint32_t> text, float fontSize, unsigned int fontId);
+	static int GetBaselineHeight(float fontSize, unsigned int fontId);
 	// Loads texture from RGBA|RGBA|RGBA|... data.
 	// One color component is represented by 1 byte.
 	static std::shared_ptr<TextureId> LoadTextureFromBytes(std::span<const uint8_t> data, int width, int height);
