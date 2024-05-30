@@ -18,7 +18,7 @@ namespace
 		",#######,           "
 		",,,,#,,,,           "
 		"   ,#,,,,           "
-		"   ,#,,#,,          "
+		"   ,#,,#,,          " // TODO: Mouse cursor should be moved 1px to the right and 1px down
 		"   ,,,,##,,         "
 		"      ,#o#,,        "
 		"      ,#oo#,,       "
