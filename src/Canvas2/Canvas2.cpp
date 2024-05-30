@@ -8,6 +8,7 @@
 #include "Controllers/PasteImageController.hpp"
 #include "Elements/ArrowElement.hpp"
 #include "Canvas/Serializer/SVG/SvgSerializer2.hpp"
+#include "Canvas/Deserializer/SVG/SvgDeserializer2.hpp"
 #include <ranges>
 
 Canvas2::Canvas2(EventQueue& eventQueue)
@@ -42,6 +43,7 @@ void Canvas2::OnEvent(Event& event)
 {
 	EventDispatcher dispatcher(event);
 	dispatcher.Handle<Events::Canvas::SaveToFile>(BIND_EVENT(OnCanvasSaveToFile));
+	dispatcher.Handle<Events::Canvas::LoadFromFile>(BIND_EVENT(OnCanvasLoadFromFile));
 
 	for (auto& controller : m_Controllers)
 	{
@@ -62,6 +64,13 @@ bool Canvas2::OnCanvasSaveToFile(const Events::Canvas::SaveToFile& event)
 {
 	LOG_DEBUG("[EVENT] Canvas received SaveToFile event with path: {}", event.Filename);
 	SvgSerializer2 { m_Elements }.Serialize();
+	return true;
+}
+
+bool Canvas2::OnCanvasLoadFromFile(const Events::Canvas::LoadFromFile& event)
+{
+	LOG_DEBUG("[EVENT] Canvas received LoadFromFile event with path: {}", event.Filename);
+	SvgDeserializer2 { m_Camera, m_Elements, m_EventQueue }.Deserialize(event.Filename);
 	return true;
 }
 

@@ -85,6 +85,8 @@ namespace Utils::Strings
 		return result;
 	}
 
+	// TODO: Make it more generic "SplitBy(str, delimiter, keepDelimiters)" 
+	// and expose some interface in the header
 	template<typename CharT>
 	static std::vector<std::span<CharT>> SplitToLinesT(std::span<CharT> str, bool keepNewlines)
 	{

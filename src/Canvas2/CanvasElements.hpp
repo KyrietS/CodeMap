@@ -29,6 +29,11 @@ public:
 		m_Elements.remove_if([id](const auto& pair) { return pair.first == id; });
 	}
 
+	void Clear()
+	{
+		m_Elements.clear();
+	}
+
 	Elements::IElement* TryGet(ElementId id)
 	{
 		auto it = std::find_if(m_Elements.begin(), m_Elements.end(), [id](const auto& pair) { return pair.first == id; });

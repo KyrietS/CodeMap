@@ -15,6 +15,7 @@ public:
 
 private:
 	bool OnCanvasSaveToFile(const Events::Canvas::SaveToFile&);
+	bool OnCanvasLoadFromFile(const Events::Canvas::LoadFromFile&);
 	void DrawGrid();
 
 	CanvasElements m_Elements;
