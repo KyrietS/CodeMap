@@ -20,9 +20,9 @@ namespace Elements
 
 	void TextElement::Draw()
 	{
-		const bool showCursor = m_TextModeActive and m_CursorVisible;
+		const bool showCursor = InEditMode and m_CursorVisible;
 		Renderer::DrawText(m_Data.Text, m_Data.Position, m_Data.FontSize, m_Data.FontId, showCursor);
-		if (m_TextModeActive)
+		if (InEditMode)
 		{
 			auto textMeasure = Renderer::MeasureText(m_Data.Text, m_Data.FontSize, m_Data.FontId);
 			glm::vec2 topLeftCorner = {m_Data.Position.x + textMeasure.Offset.x, m_Data.Position.y + textMeasure.Offset.y};
@@ -80,25 +80,29 @@ namespace Elements
 
 	bool TextElement::OnKeyPressed(const Events::Input::KeyPressed& key)
 	{
-		if (m_TextModeActive)
+		if (InEditMode)
 		{
 			auto& text = m_Data.Text;
 			auto keyCode = key.GetKey();
 
 			LOG_DEBUG("Key = {}", keyCode);
 			if (keyCode == Key::Backspace and not text.empty())
+			{
 				text.pop_back();
+				return true;
+			}
 			if (keyCode == Key::Enter)
+			{
 				text.push_back('\n');
-
-			return true;
+				return true;
+			}
 		}
 		return false;
 	}
 
 	bool TextElement::OnKeyTyped(const Events::Input::KeyTyped& key)
 	{
-		if (m_TextModeActive)
+		if (InEditMode)
 		{
 			LOG_DEBUG("Character = {}", key.GetCodePoint());
 			m_Data.Text.push_back(key.GetCodePoint());

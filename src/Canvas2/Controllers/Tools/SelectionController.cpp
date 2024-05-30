@@ -5,6 +5,7 @@
 #include "Render/Renderer.hpp"
 #include "Render/VColor.hpp"
 #include "Canvas/Box.hpp"
+#include "Canvas2/Elements/TextElement.hpp"
 
 namespace Controllers
 {
@@ -140,6 +141,20 @@ namespace Controllers
 		}
 	}
 
+	static void DisableEditModeWhenThereAreMultipleTextElements(CanvasElements& elements, const std::set<ElementId>& selectedElements)
+	{
+		if (selectedElements.size() > 1)
+		{
+			for (auto id : selectedElements)
+			{
+				if (auto* textElement = elements.TryGet<Elements::TextElement>(id))
+				{
+					textElement->InEditMode = false;
+				}
+			}
+		}
+	}
+
 	bool SelectionController::SelectHoveredElement()
 	{
 		auto mousePos = Input::GetWorldMousePosition(m_Camera);
@@ -149,6 +164,7 @@ namespace Controllers
 			{
 				m_SelectedElements.insert(id);
 				element->InEditMode = true;
+				DisableEditModeWhenThereAreMultipleTextElements(m_Elements, m_SelectedElements);
 				return true;
 			}
 		}

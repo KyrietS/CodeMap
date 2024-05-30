@@ -36,6 +36,11 @@ public:
 			return nullptr;
 		return it->second.get();
 	}
+	template<typename T>
+	T* TryGet(ElementId id)
+	{
+		return dynamic_cast<T*>(TryGet(id));
+	}
 
 	auto& Data() { return m_Elements; }
 	const auto& Data() const { return m_Elements; }
