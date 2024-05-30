@@ -48,6 +48,8 @@ public:
 	// range-for loop support
 	auto begin() { return m_Elements.begin(); }
 	auto end() { return m_Elements.end(); }
+	const auto begin() const { return m_Elements.begin(); }
+	const auto end() const { return m_Elements.end(); }
 
 private:
 	std::list<std::pair<ElementId, std::unique_ptr<Elements::IElement>>> m_Elements;

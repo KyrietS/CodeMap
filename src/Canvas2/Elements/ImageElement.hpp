@@ -19,6 +19,7 @@ namespace Elements
 		Box GetBoundingBox() const override;
 
 		Data& GetData() { return m_Data; }
+		const Data& GetData() const { return m_Data; }
 
 	private:
 		Data m_Data;

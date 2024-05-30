@@ -7,6 +7,7 @@
 #include "Controllers/ToolboxController.hpp"
 #include "Controllers/PasteImageController.hpp"
 #include "Elements/ArrowElement.hpp"
+#include "Canvas/Serializer/SVG/SvgSerializer2.hpp"
 #include <ranges>
 
 Canvas2::Canvas2(EventQueue& eventQueue)
@@ -39,6 +40,9 @@ void Canvas2::Draw()
 
 void Canvas2::OnEvent(Event& event)
 {
+	EventDispatcher dispatcher(event);
+	dispatcher.Handle<Events::Canvas::SaveToFile>(BIND_EVENT(OnCanvasSaveToFile));
+
 	for (auto& controller : m_Controllers)
 	{
 		if (event.Handled)
@@ -52,6 +56,13 @@ void Canvas2::OnEvent(Event& event)
 			return;
 		element->OnEvent(event);
 	}
+}
+
+bool Canvas2::OnCanvasSaveToFile(const Events::Canvas::SaveToFile& event)
+{
+	LOG_DEBUG("[EVENT] Canvas received SaveToFile event with path: {}", event.Filename);
+	SvgSerializer2 { m_Elements }.Serialize();
+	return true;
 }
 
 void Canvas2::DrawGrid()

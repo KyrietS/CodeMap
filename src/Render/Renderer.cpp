@@ -322,10 +322,15 @@ std::shared_ptr<TextureId> Renderer::LoadTextureFromBytes(std::span<const uint8_
 
 std::vector<uint8_t> Renderer::LoadBytesFromImage(const Components::Image& image)
 {
+	return LoadBytesFromImage(*image.TextureId, image.Width, image.Height);
+}
+
+std::vector<uint8_t> Renderer::LoadBytesFromImage(unsigned int textureId, int width, int height)
+{
     Texture2D texture = {
-        *image.TextureId,
-        image.Width,
-        image.Height,
+        textureId,
+        width,
+        height,
         1,
         PIXELFORMAT_UNCOMPRESSED_R8G8B8A8
     };

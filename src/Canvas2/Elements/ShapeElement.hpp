@@ -31,6 +31,7 @@ namespace Elements
 		Box GetBoundingBox() const override;
 
 		Data& GetData() { return m_Data; }
+		const Data& GetData() const { return m_Data; }
 		void AddPoint(const glm::vec2& point);
 
 	private:
