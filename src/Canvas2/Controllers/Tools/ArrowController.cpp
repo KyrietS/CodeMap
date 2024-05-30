@@ -25,6 +25,7 @@ namespace Controllers
 		EventDispatcher dispatcher(event);
 		dispatcher.Handle<Events::Input::MousePressed>(BIND_EVENT(OnMousePressed));
 		dispatcher.Handle<Events::Input::MouseReleased>(BIND_EVENT(OnMouseReleased));
+		dispatcher.Handle<Events::Input::KeyPressed>(BIND_EVENT(OnKeyPressed));
 
 		OnUpdate();
 	}
@@ -51,10 +52,21 @@ namespace Controllers
 			glm::vec2 begin = Input::GetWorldMousePosition(m_Camera);
 			m_Arrow->GetData().Points.emplace_back(begin, m_Camera);
 			m_Arrow->GetData().Points.emplace_back(begin, m_Camera);
+			return true;
 		}
-		else
+
+		if (m_Arrow)
 		{
-			AddArrowToCanvas();
+			if (Input::IsMouseButtonDoublePressed(Mouse::ButtonLeft))
+			{
+				m_Arrow->GetData().Points.pop_back();
+				AddArrowToCanvas();
+			}
+			else
+			{
+				auto mousePos = Input::GetWorldMousePosition(m_Camera);
+				m_Arrow->GetData().Points.emplace_back(mousePos, m_Camera);
+			}
 		}
 
 		return true;
@@ -74,15 +86,40 @@ namespace Controllers
 		return true;
 	}
 
+	bool ArrowController::OnKeyPressed(Events::Input::KeyPressed& event)
+	{
+		if (event.GetKey() == Key::Escape)
+		{
+			m_Arrow.reset();
+			return true;
+		}
+		if (event.GetKey() == Key::Space)
+		{
+			m_Arrow->GetData().Points.pop_back();
+			AddArrowToCanvas();
+		}
+		return false;
+	}
+
 	void ArrowController::AddArrowToCanvas()
 	{
 		auto box = m_Arrow->GetBoundingBox();
-		bool isTooSmall = box.width < 5.0f and box.height < 5.0f;
-		if (m_Arrow and not isTooSmall)
+		bool isTooSmall = box.width < 30.0f and box.height < 30.0f;
+		bool enoughPoints = m_Arrow->GetData().Points.size() >= 2;
+		if (isTooSmall)
+		{
+			LOG_INFO("Arrow is too small to be added to canvas");
+		}
+		else if (not enoughPoints)
+		{
+			LOG_INFO("Arrow must have at least 2 points to be added to canvas");
+		}
+		else if (m_Arrow)
 		{
 			LOG_DEBUG("Arrow added to canvas");
 			m_Elements.Add(std::move(m_Arrow));
 		}
+
 		m_Arrow.reset();
 	}
 }

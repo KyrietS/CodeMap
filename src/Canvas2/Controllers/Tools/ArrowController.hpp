@@ -3,6 +3,7 @@
 #include "Canvas2/CanvasElements.hpp"
 #include "Canvas/CanvasCamera.hpp"
 #include "Events/MouseEvents.hpp"
+#include "Events/KeyEvents.hpp"
 
 namespace Elements
 {
@@ -22,6 +23,7 @@ namespace Controllers
 		void OnUpdate();
 		bool OnMousePressed(Events::Input::MousePressed& event);
 		bool OnMouseReleased(Events::Input::MouseReleased& event);
+		bool OnKeyPressed(Events::Input::KeyPressed& event);
 		
 		void AddArrowToCanvas();
 

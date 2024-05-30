@@ -13,7 +13,13 @@ namespace Elements
 		glm::vec2 begin = m_Data.Points.front().Position;
 		glm::vec2 end = m_Data.Points.back().Position;
 
-		Renderer::DrawLine(begin, end, m_Data.Thickness, m_Data.StrokeColor);
+		for (auto it = m_Data.Points.begin(); it != std::prev(m_Data.Points.end()); ++it)
+		{
+			auto next = std::next(it);
+			Renderer::DrawLine(it->Position, next->Position, m_Data.Thickness, m_Data.StrokeColor);
+		}
+
+
 
 		// Arrowhead directed to the right and pointing at (0,0)
 		float arrowheadSize = 30.0f * m_Data.Thickness / 5;
@@ -98,10 +104,20 @@ namespace Elements
 
 	float ArrowElement::GetEndAngle() const
 	{
-		glm::vec2 control = { 0.0f, 0.0f }; // TODO: take curvature into account
-		glm::vec2 begin = m_Data.Points.front().Position;
+		assert(m_Data.Points.size() >= 2);
 		glm::vec2 end = m_Data.Points.back().Position;
+		
+		// find previous point with different position
+		glm::vec2 prevEnd = end;
+		for (auto& point : m_Data.Points | std::views::reverse)
+		{
+			if (point.Position != end)
+			{
+				prevEnd = point.Position;
+				break;
+			}
+		}
 
-		return glm::orientedAngle(glm::vec2 { 1.0f, 0.0f }, glm::normalize(end - begin/*control*/));
+		return glm::orientedAngle(glm::vec2 { 1.0f, 0.0f }, glm::normalize(end - prevEnd));
 	}
 }
