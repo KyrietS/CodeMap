@@ -3,6 +3,7 @@
 #include <functional>
 #include "Events/Event.hpp"
 #include "Events/EventQueue.hpp"
+#include "Cursor.hpp"
 
 
 class Window
@@ -11,6 +12,7 @@ public:
 	static void Init(uint32_t width, uint32_t height, const std::string& title, EventQueue*);
 	static uint32_t GetWidth();
 	static uint32_t GetHeight();
+	static Cursor& GetMouseCursor();
 
 	static void PollEvents();
 	static void PollEventsOrWait();
@@ -26,5 +28,6 @@ private:
 	}
 
 	static EventQueue* s_EventQueue;
+	static std::unique_ptr<Cursor> s_MouseCursor;
 };
 

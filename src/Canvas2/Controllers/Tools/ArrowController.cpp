@@ -3,6 +3,7 @@
 #include "Canvas2/Elements/ArrowElement.hpp"
 #include "Events/EventDispatcher.hpp"
 #include "Input.hpp"
+#include "Window.hpp"
 
 namespace Controllers
 {
@@ -30,6 +31,8 @@ namespace Controllers
 
 	void ArrowController::OnUpdate()
 	{
+		Window::GetMouseCursor().SetArrowImage();
+
 		if (m_Arrow)
 		{
 			m_Arrow->GetData().Points.back().Position = Input::GetWorldMousePosition(m_Camera);

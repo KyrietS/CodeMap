@@ -6,6 +6,7 @@
 #include "Events/MouseEvents.hpp"
 #include "Events/EventUtils.hpp"
 #include "Render/Fonts/FontStorage.hpp"
+#include "Window.hpp"
 
 DearImGuiLayer::DearImGuiLayer()
 	: m_FontData(LoadDefaultFontData())
@@ -59,6 +60,17 @@ void DearImGuiLayer::OnEvent(Event& event)
 	if (io.WantCaptureKeyboard && Events::IsKeyEvent(event))
 	{
 		event.Handled = true;
+	}
+
+	if (io.WantCaptureMouse)
+	{
+		io.ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+		Window::GetMouseCursor().Lock(true);
+	}
+	else
+	{
+		io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+		Window::GetMouseCursor().Lock(false);
 	}
 }
 

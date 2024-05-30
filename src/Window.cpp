@@ -8,6 +8,7 @@
 
 
 EventQueue* Window::s_EventQueue;
+std::unique_ptr<Cursor> Window::s_MouseCursor;
 
 void Window::Init(uint32_t width, uint32_t height, const std::string& title, EventQueue* eventQueue)
 {
@@ -18,6 +19,7 @@ void Window::Init(uint32_t width, uint32_t height, const std::string& title, Eve
 	s_EventQueue = eventQueue;
 
 	GLFWwindow* glfwWindow = glfwGetCurrentContext();
+	s_MouseCursor = std::make_unique<Cursor>(glfwWindow);
 
 	glfwSetCursorPosCallback(glfwWindow, [](GLFWwindow* window, double xPos, double yPos) {
 		Events::Input::MouseMoved event((float)xPos, (float)yPos);
@@ -86,6 +88,11 @@ uint32_t Window::GetWidth()
 uint32_t Window::GetHeight()
 {
 	return (uint32_t)GetScreenHeight();
+}
+
+Cursor& Window::GetMouseCursor()
+{
+	return *s_MouseCursor;
 }
 
 void Window::PollEvents()
