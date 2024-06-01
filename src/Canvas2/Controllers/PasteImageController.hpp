@@ -2,7 +2,7 @@
 #include "IController.hpp"
 #include "Events/EventQueue.hpp"
 #include "Canvas/CanvasCamera.hpp"
-#include "Events/KeyEvents.hpp"
+#include "Events/CanvasEvents.hpp"
 #include "Canvas2/CanvasElements.hpp"
 
 namespace Controllers
@@ -15,7 +15,7 @@ public:
 	void OnEvent(Event& event) override;
 
 private:
-	bool OnKeyPressed(const Events::Input::KeyPressed& event);
+	bool OnPaste(const Events::Canvas::Paste&);
 	bool HasImageInClipboard();
 	void AddImageFromClipboardToCanvas();
 

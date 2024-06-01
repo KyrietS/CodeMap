@@ -170,7 +170,7 @@ void SvgDeserializer2::DeserializeArrow(const tinyxml2::XMLElement& element)
 				std::stof(commands.at( i + 1 )), 
 				std::stof(commands.at( i + 2 )) 
 			};
-			arrow->GetData().Points.emplace_back(point, m_Camera);
+			arrow->GetData().Points.emplace_back(point, m_Camera, m_EventQueue);
 
 			i += 2;
 		}
@@ -213,10 +213,10 @@ void SvgDeserializer2::DeserializeShape(const tinyxml2::XMLElement& element)
 		pointsVec.emplace_back(std::stof(pointStr.at(0)), std::stof(pointStr.at(1)));
 	}
 
-	auto shape = std::make_unique<Elements::ShapeElement>(m_Camera);
+	auto shape = std::make_unique<Elements::ShapeElement>(m_Camera, m_EventQueue);
 	for (const auto& point : pointsVec)
 	{
-		shape->GetData().Points.emplace_back(point, m_Camera);
+		shape->AddPoint(point);
 	}
 
 	const char* style = element.Attribute("style");

@@ -21,6 +21,8 @@ namespace Elements
 			return GetBoundingBox().Contains(point);
 		}
 
+		// TODO: Consider adding: std::unique_ptr<IElement> Clone() const = 0;
+
 		bool InEditMode = false;
 	};
 }

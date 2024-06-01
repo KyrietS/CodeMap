@@ -3,6 +3,7 @@
 #include "Canvas/CanvasCamera.hpp"
 #include "Render/Renderer.hpp"
 #include "Events/EventDispatcher.hpp"
+#include "Events/CanvasEvents.hpp"
 #include "Input.hpp"
 
 namespace Elements
@@ -45,6 +46,10 @@ namespace Elements
 	{
 		if (event.GetButton() == Mouse::ButtonLeft)
 		{
+			if (Dragging and not Input::IsMouseButtonClicked(Mouse::ButtonLeft))
+			{
+				 m_EventQueue.Push(Events::Canvas::MakeSnapshot{});
+			}
 			Dragging = false;
 		}
 

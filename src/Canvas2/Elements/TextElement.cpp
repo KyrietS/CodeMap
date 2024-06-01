@@ -2,6 +2,7 @@
 #include "Render/Renderer.hpp"
 #include "Render/VColor.hpp"
 #include "Events/EventDispatcher.hpp"
+#include "Events/CanvasEvents.hpp"
 #include "Input.hpp"
 #include "Canvas/CanvasCamera.hpp"
 #include "Utils/Strings.hpp"
@@ -89,11 +90,13 @@ namespace Elements
 			if (keyCode == Key::Backspace and not text.empty())
 			{
 				text.pop_back();
+				m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
 				return true;
 			}
 			if (keyCode == Key::Enter)
 			{
 				text.push_back('\n');
+				m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
 				return true;
 			}
 		}
@@ -106,6 +109,7 @@ namespace Elements
 		{
 			LOG_DEBUG("Character = {}", key.GetCodePoint());
 			m_Data.Text.push_back(key.GetCodePoint());
+			m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
 			return true;
 		}
 		return false;
@@ -119,6 +123,11 @@ namespace Elements
 			m_CursorVisible = not m_CursorVisible;
 			m_CursorTimer.Reset();
 		}
+		// TODO: Instead of EmptyEvent, I should push a RedrawNeeded{} event
+		// then handle it on App level and set some flag saying that when it's
+		// set to true, push an EmptyEvent to the system and redraw everything.
+		// The idea is that RedrawNeeded{} should be safe to push from OnEvent
+		// function. Currently this would lead to infinite loop and no drawing.
 		m_EventQueue.Push(EmptyEvent {});
 	}
 

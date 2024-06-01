@@ -2,13 +2,14 @@
 #include "ArrowController.hpp"
 #include "Canvas2/Elements/ArrowElement.hpp"
 #include "Events/EventDispatcher.hpp"
+#include "Events/CanvasEvents.hpp"
 #include "Input.hpp"
 #include "Window.hpp"
 
 namespace Controllers
 {
-	ArrowController::ArrowController(CanvasCamera& camera, CanvasElements& elements)
-		: m_Camera(camera), m_Elements(elements)
+	ArrowController::ArrowController(CanvasCamera& camera, CanvasElements& elements, EventQueue& eventQueue)
+		: m_Camera(camera), m_Elements(elements), m_EventQueue(eventQueue)
 	{
 	}
 
@@ -50,8 +51,9 @@ namespace Controllers
 			m_Arrow = std::make_unique<Elements::ArrowElement>(m_Camera);
 
 			glm::vec2 begin = Input::GetWorldMousePosition(m_Camera);
-			m_Arrow->GetData().Points.emplace_back(begin, m_Camera);
-			m_Arrow->GetData().Points.emplace_back(begin, m_Camera);
+			// TODO: Make AddPoint() method for ArrowElement
+			m_Arrow->GetData().Points.emplace_back(begin, m_Camera, m_EventQueue);
+			m_Arrow->GetData().Points.emplace_back(begin, m_Camera, m_EventQueue);
 			return true;
 		}
 
@@ -65,7 +67,7 @@ namespace Controllers
 			else
 			{
 				auto mousePos = Input::GetWorldMousePosition(m_Camera);
-				m_Arrow->GetData().Points.emplace_back(mousePos, m_Camera);
+				m_Arrow->GetData().Points.emplace_back(mousePos, m_Camera, m_EventQueue);
 			}
 		}
 
@@ -118,6 +120,7 @@ namespace Controllers
 		{
 			LOG_DEBUG("Arrow added to canvas");
 			m_Elements.Add(std::move(m_Arrow));
+			m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
 		}
 
 		m_Arrow.reset();

@@ -2,12 +2,13 @@
 #include "ShapeController.hpp"
 #include "Canvas2/Elements/ShapeElement.hpp"
 #include "Events/EventDispatcher.hpp"
+#include "Events/CanvasEvents.hpp"
 #include "Input.hpp"
 
 namespace Controllers
 {
-	ShapeController::ShapeController(CanvasCamera& camera, CanvasElements& elements)
-		: m_Camera(camera), m_Elements(elements)
+	ShapeController::ShapeController(CanvasCamera& camera, CanvasElements& elements, EventQueue& eventQueue)
+		: m_Camera(camera), m_Elements(elements), m_EventQueue(eventQueue)
 	{
 	}
 
@@ -51,7 +52,7 @@ namespace Controllers
 
 		if (not m_Shape)
 		{
-			m_Shape = std::make_unique<Elements::ShapeElement>(m_Camera);
+			m_Shape = std::make_unique<Elements::ShapeElement>(m_Camera, m_EventQueue);
 
 			// rectangle by default for now
 			glm::vec2 begin = Input::GetWorldMousePosition(m_Camera);
@@ -84,6 +85,7 @@ namespace Controllers
 		{
 			LOG_DEBUG("Shape added to canvas");
 			m_Elements.Add(std::move(m_Shape));
+			m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
 		}
 		m_Shape.reset();
 	}

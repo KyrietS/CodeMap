@@ -58,13 +58,12 @@ namespace Controllers
 	void PasteImageController::OnEvent(Event& event)
 	{
 		EventDispatcher dispatcher(event);
-		dispatcher.Handle<Events::Input::KeyPressed>(BIND_EVENT(OnKeyPressed));
+		dispatcher.Handle<Events::Canvas::Paste>(BIND_EVENT(OnPaste));
 	}
 
-	bool PasteImageController::OnKeyPressed(const Events::Input::KeyPressed& event)
+	bool PasteImageController::OnPaste(const Events::Canvas::Paste&)
 	{
-		const bool ctrlVPressed = Input::IsKeyDown(Key::LeftControl) and event.GetKey() == Key::V and not event.IsRepeated();
-		if (ctrlVPressed and HasImageInClipboard())
+		if (HasImageInClipboard())
 		{
 			AddImageFromClipboardToCanvas();
 			return true;
@@ -100,5 +99,6 @@ namespace Controllers
 		auto elementId = m_Elements.Add(std::move(imageElement));
 
 		//m_EventQueue.Push(Events::Canvas::SetFocus { elementId });
+		m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
 	}
 }

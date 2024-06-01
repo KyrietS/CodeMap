@@ -86,7 +86,7 @@ namespace Elements
 	}
 	void ShapeElement::AddPoint(const glm::vec2& point)
 	{
-		m_Data.Points.emplace_back(point, m_Camera);
+		m_Data.Points.emplace_back(point, m_Camera, m_EventQueue);
 	}
 
 	void ShapeElement::OnUpdate()

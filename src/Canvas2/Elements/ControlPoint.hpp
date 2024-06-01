@@ -1,6 +1,7 @@
 #pragma once
 #include "Render/VColor.hpp"
 #include "Events/Event.hpp"
+#include "Events/EventQueue.hpp"
 #include "Events/MouseEvents.hpp"
 #include <glm/vec2.hpp>
 #include <glm/geometric.hpp>
@@ -11,8 +12,8 @@ namespace Elements
 {
 	struct ControlPoint
 	{
-		ControlPoint(const glm::vec2& position, const CanvasCamera& camera)
-			: Position(position), m_Camera(camera) {}
+		ControlPoint(const glm::vec2& position, const CanvasCamera& camera, EventQueue& eventQueue)
+			: Position(position), m_Camera(camera), m_EventQueue(eventQueue) {}
 
 		// Properties
 		glm::vec2 Position = { 0.0f, 0.0f };
@@ -40,5 +41,6 @@ namespace Elements
 		void OnUpdate(Event&);
 
 		const CanvasCamera& m_Camera;
+		EventQueue& m_EventQueue;
 	};
 }

@@ -2,6 +2,7 @@
 #include "Canvas2/Controllers/IController.hpp"
 #include "Canvas2/CanvasElements.hpp"
 #include "Canvas/CanvasCamera.hpp"
+#include "Events/EventQueue.hpp"
 #include "Events/MouseEvents.hpp"
 #include "Events/KeyEvents.hpp"
 
@@ -15,7 +16,7 @@ namespace Controllers
 	class ArrowController : public IController
 	{
 	public:
-		ArrowController(CanvasCamera& camera, CanvasElements& elements);
+		ArrowController(CanvasCamera& camera, CanvasElements& elements, EventQueue& eventQueue);
 		void Draw() override;
 		void OnEvent(Event& event) override;
 
@@ -31,5 +32,6 @@ namespace Controllers
 
 		CanvasCamera& m_Camera;
 		CanvasElements& m_Elements;
+		EventQueue& m_EventQueue;
 	};
 }

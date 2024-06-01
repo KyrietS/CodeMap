@@ -5,6 +5,7 @@
 #include "Render/VColor.hpp"
 #include "Canvas/Box.hpp"
 #include "Events/MouseEvents.hpp"
+#include "Events/EventQueue.hpp"
 #include "Render/BlendMode.hpp"
 #include "ControlPoint.hpp"
 
@@ -22,8 +23,8 @@ namespace Elements
 			Render::BlendMode BlendMode = Render::BlendMode::Multiply;
 		};
 
-		ShapeElement(CanvasCamera& camera)
-			: m_Camera(camera) {}
+		ShapeElement(CanvasCamera& camera, EventQueue& eventQueue)
+			: m_Camera(camera), m_EventQueue(eventQueue) {}
 		void Draw() override;
 		void OnEvent(Event&) override;
 		void MoveBy(float x, float y) override;
@@ -38,6 +39,7 @@ namespace Elements
 		void OnUpdate();
 
 		const CanvasCamera& m_Camera;
+		EventQueue& m_EventQueue;
 		Data m_Data;
 
 		bool m_IsRectangle = true;

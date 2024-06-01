@@ -39,7 +39,7 @@ namespace Controllers
 			LOG_INFO("Hand tool selected");
 			break;
 		case ToolType::Select:
-			m_ActiveTool = std::make_unique<SelectionController>(m_Camera, m_Elements);
+			m_ActiveTool = std::make_unique<SelectionController>(m_Camera, m_Elements, m_EventQueue);
 			LOG_INFO("Selection tool selected");
 			break;
 		case ToolType::Text:
@@ -47,11 +47,11 @@ namespace Controllers
 			LOG_INFO("Text tool selected");
 			break;
 		case ToolType::Arrow:
-			m_ActiveTool = std::make_unique<ArrowController>(m_Camera, m_Elements);
+			m_ActiveTool = std::make_unique<ArrowController>(m_Camera, m_Elements, m_EventQueue);
 			LOG_INFO("Arrow tool selected");
 			break;
 		case ToolType::Highlight:
-			m_ActiveTool = std::make_unique<ShapeController>(m_Camera, m_Elements);
+			m_ActiveTool = std::make_unique<ShapeController>(m_Camera, m_Elements, m_EventQueue);
 			LOG_INFO("Shape tool selected");
 			break;
 		default:

@@ -4,14 +4,15 @@
 #include "Canvas/CanvasCamera.hpp"
 #include "Events/MouseEvents.hpp"
 #include "Events/KeyEvents.hpp"
+#include "Events/EventQueue.hpp"
 
 namespace Controllers
 {
 	class SelectionController : public IController
 	{
 	public:
-		SelectionController(CanvasCamera& camera, CanvasElements& elements) 
-			: m_Camera(camera), m_Elements(elements) {}
+		SelectionController(CanvasCamera& camera, CanvasElements& elements, EventQueue& eventQueue) 
+			: m_Camera(camera), m_Elements(elements), m_EventQueue(eventQueue) {}
 		~SelectionController();
 		void Draw() override;
 		void OnEvent(Event& event) override;
@@ -40,5 +41,6 @@ namespace Controllers
 
 		CanvasCamera& m_Camera;
 		CanvasElements& m_Elements;
+		EventQueue& m_EventQueue;
 	};
 }

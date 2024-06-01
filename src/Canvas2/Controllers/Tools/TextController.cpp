@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "TextController.hpp"
 #include "Events/EventDispatcher.hpp"
+#include "Events/CanvasEvents.hpp"
 #include "Canvas2/Elements/TextElement.hpp"
 #include "Input.hpp"
 
@@ -35,6 +36,7 @@ namespace Controllers
 		text->GetData().SetUtf8Text("Hello, World!");
 
 		m_Elements.Add(std::move(text));
+		m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
 	}
 
 }

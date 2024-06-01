@@ -3,6 +3,7 @@
 #include "Canvas2/CanvasElements.hpp"
 #include "Canvas/CanvasCamera.hpp"
 #include "Events/MouseEvents.hpp"
+#include "Events/EventQueue.hpp"
 
 namespace Elements
 {
@@ -14,7 +15,7 @@ namespace Controllers
 	class ShapeController : public IController
 	{
 	public:
-		ShapeController(CanvasCamera& camera, CanvasElements& elements);
+		ShapeController(CanvasCamera& camera, CanvasElements& elements, EventQueue& eventQueue);
 		void Draw() override;
 		void OnEvent(Event& event) override;
 
@@ -29,5 +30,6 @@ namespace Controllers
 
 		CanvasCamera& m_Camera;
 		CanvasElements& m_Elements;
+		EventQueue& m_EventQueue;
 	};
 }

@@ -15,7 +15,7 @@ glm::vec2 Input::s_LastMousePos;
 glm::vec2 Input::s_MouseScroll;
 glm::vec2 Input::s_MouseClickPos;
 
-bool Input::s_IsTextMode = false;
+bool Input::s_IsTextMode = false; // TODO: Unused anymore. Remove when ready.
 std::queue<KeyCode> Input::s_KeyQueue;
 std::queue<uint32_t> Input::s_CharQueue;
 

@@ -6,6 +6,7 @@
 #include "Render/VColor.hpp"
 #include "Canvas/Box.hpp"
 #include "Canvas2/Elements/TextElement.hpp"
+#include "Events/CanvasEvents.hpp"
 
 namespace Controllers
 {
@@ -110,6 +111,11 @@ namespace Controllers
 	{
 		if (event.GetButton() == Mouse::ButtonLeft)
 		{
+			if (m_MoveByDrag and not Input::IsMouseButtonClicked(Mouse::ButtonLeft))
+			{
+				m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
+			}
+
 			m_MoveByDrag = false;
 			HideSelectionRectangle();
 			return true;
