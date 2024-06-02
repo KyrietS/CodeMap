@@ -22,6 +22,8 @@ Toolbar::Toolbar(EventQueue& eventQueue)
 	m_ToolIcons[ToolType::Text] = LoadIconAsTexture(Assets::LoadTextIconRGBA());
 	m_ToolIcons[ToolType::Arrow] = LoadIconAsTexture(Assets::LoadArrowIconRGBA());
 	m_ToolIcons[ToolType::Highlight] = LoadIconAsTexture(Assets::LoadHighlightIconRGBA());
+
+	Renderer::SetImageFilter(*m_ToolIcons[ ToolType::Hand ], ImageFilter::Linear);
 }
 
 void Toolbar::OnUpdate()
