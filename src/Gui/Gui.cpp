@@ -12,8 +12,8 @@
 namespace Gui
 {
 
-Gui::Gui(EventQueue& eventQueue)
-	: m_EventQueue(eventQueue)
+Gui::Gui(CanvasElements& elements, EventQueue& eventQueue)
+	: m_CanvasElements(elements), m_EventQueue(eventQueue)
 {
 }
 
@@ -24,7 +24,7 @@ void Gui::OnSetup(ImGuiID viewportDockSpaceId)
 	m_GuiElements.push_back(std::make_unique<Toolbar>(m_EventQueue));
 	m_GuiElements.push_back(std::make_unique<StatusBar>());
 	m_GuiElements.push_back(std::make_unique<PropertiesWindow>(m_EventQueue, m_DockRightBottom));
-	m_GuiElements.push_back(std::make_unique<HierarchyWindow>(m_EventQueue, m_DockRightTop));
+	m_GuiElements.push_back(std::make_unique<HierarchyWindow>(m_EventQueue, m_CanvasElements, m_DockRightTop));
 	m_GuiElements.push_back(std::make_unique<Overlay>());
 	m_GuiElements.push_back(std::make_unique<Popup>());
 }

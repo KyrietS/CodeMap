@@ -39,16 +39,6 @@ namespace Elements
 		tip3 += end;
 
 		Renderer::DrawTriangle(tip1, tip2, tip3, m_Data.ArrowheadColor);
-
-		// Draw edit points
-		if (InEditMode)
-		{
-			for (const auto& point : m_Data.Points)
-			{
-				point.Draw(m_Camera);
-				//DrawControlPoint(point, m_Camera);
-			}
-		}
 	}
 
 	void ArrowElement::OnEvent(Event& event)

@@ -3,13 +3,14 @@
 
 class Event;
 class EventQueue;
+class CanvasElements;
 
 namespace Gui
 {
 class Gui
 {
 public:
-	Gui(EventQueue&);
+	Gui(CanvasElements&, EventQueue&);
 	Gui(const Gui&) = delete;
 
 	void OnSetup(ImGuiID);
@@ -20,6 +21,7 @@ private:
 	void SetupDockSpace(ImGuiID);
 
 	std::vector<std::unique_ptr<GuiElement>> m_GuiElements;
+	CanvasElements& m_CanvasElements;
 	EventQueue& m_EventQueue;
 
 	ImGuiID m_DockMain {};

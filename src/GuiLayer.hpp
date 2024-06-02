@@ -1,7 +1,9 @@
 #pragma once
 #include "Layer.hpp"
-#include "Events/EventQueue.hpp"
 #include "Gui/Gui.hpp"
+
+class EventQueue;
+class CanvasElements;
 
 namespace Components
 {
@@ -11,7 +13,7 @@ namespace Components
 class GuiLayer : public Layer
 {
 public:
-	GuiLayer(EventQueue&);
+	GuiLayer(CanvasElements&, EventQueue&);
 	void OnUpdate() override;
 	void OnEvent(Event& event) override;
 

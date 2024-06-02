@@ -25,12 +25,11 @@ App::App(const AppConfig& appConfig) : m_AppConfig{appConfig}
 
 	m_Instance = this;
 	m_Canvas = std::make_unique<Canvas>(m_EventQueue);
-	m_Canvas2 = std::make_unique<Canvas2>(m_EventQueue);
 	m_ScriptEngine = std::make_unique<ScriptEngine>(*m_Canvas);
 
 	//m_Layers.push_back(std::make_unique<CanvasLayer>(*m_Canvas));
-	m_Layers.push_back(std::make_unique<Canvas2Layer>(*m_Canvas2));
-	m_Layers.push_back(std::make_unique<GuiLayer>(m_EventQueue));
+	m_Layers.push_back(std::make_unique<Canvas2Layer>(m_CanvasElements, m_EventQueue));
+	m_Layers.push_back(std::make_unique<GuiLayer>(m_CanvasElements, m_EventQueue));
 
 	auto dearImGuiLayer = std::make_unique<DearImGuiLayer>();
 	m_DearImGuiLayer = dearImGuiLayer.get();

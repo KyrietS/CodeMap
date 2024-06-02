@@ -3,8 +3,8 @@
 #include <imgui.h>
 
 
-GuiLayer::GuiLayer(EventQueue& eventQueue)
-	: m_Gui(eventQueue)
+GuiLayer::GuiLayer(CanvasElements& elements, EventQueue& eventQueue)
+	: m_Gui(elements, eventQueue)
 {
 }
 

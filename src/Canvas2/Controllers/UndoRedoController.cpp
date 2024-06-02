@@ -67,7 +67,7 @@ namespace Controllers
     template<typename ElementT>
     static void CopyElementIfTypeOf(const Elements::IElement& element, CanvasElements& elements)
     {
-        if (const auto* concreteElement = dynamic_cast<const ElementT*>(&element))
+        if (const auto* concreteElement = element.As<const ElementT>())
         {
             auto clonedElement = std::make_unique<ElementT>(*concreteElement);
             elements.Add(std::move(clonedElement));

@@ -1,10 +1,12 @@
 #include "pch.hpp"
 #include "Canvas2Layer.hpp"
 #include "Canvas2/Canvas2.hpp"
+#include "Canvas2/CanvasElements.hpp"
+#include "Events/EventQueue.hpp"
 #include "Input.hpp"
 
-Canvas2Layer::Canvas2Layer(Canvas2& canvas)
-	: m_Canvas(canvas)
+Canvas2Layer::Canvas2Layer(CanvasElements& elements, EventQueue& eventQueue)
+	: m_Canvas(elements, eventQueue)
 {
 }
 

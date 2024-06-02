@@ -4,6 +4,7 @@
 #include "Events/EventDispatcher.hpp"
 #include "Window.hpp"
 #include "Controllers/CameraController.hpp"
+#include "Controllers/SelectionController.hpp"
 #include "Controllers/ToolboxController.hpp"
 #include "Controllers/PasteImageController.hpp"
 #include "Controllers/UndoRedoController.hpp"
@@ -13,11 +14,12 @@
 #include "Canvas/Deserializer/SVG/SvgDeserializer2.hpp"
 #include <ranges>
 
-Canvas2::Canvas2(EventQueue& eventQueue)
-	: m_EventQueue(eventQueue)
+Canvas2::Canvas2(CanvasElements& elements, EventQueue& eventQueue)
+	: m_Elements(elements), m_EventQueue(eventQueue)
 {
 	m_Controllers.push_back(std::make_unique<Controllers::CommonKeyboardShortcutsController>(m_EventQueue));
 	m_Controllers.push_back(std::make_unique<Controllers::CameraController>(m_Camera));
+	m_Controllers.push_back(std::make_unique<Controllers::SelectionController>(m_Camera, m_Elements));
 	m_Controllers.push_back(std::make_unique<Controllers::ToolboxController>(m_Camera, m_EventQueue, m_Elements));
 	m_Controllers.push_back(std::make_unique<Controllers::PasteImageController>(m_Camera, m_EventQueue, m_Elements));
 	m_Controllers.push_back(std::make_unique<Controllers::UndoRedoController>(m_EventQueue, m_Elements));

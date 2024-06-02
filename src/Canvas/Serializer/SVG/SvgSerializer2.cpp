@@ -121,19 +121,19 @@ void SvgSerializer2::SerializeAllElements(tinyxml2::XMLElement& root)
 		assert(element);
 
 		// Serialize Arrow
-		if (auto* arrow = dynamic_cast<Elements::ArrowElement*>(element.get()))
+		if (auto* arrow = element->As<Elements::ArrowElement>())
 			SerializeArrow(root, *arrow);
 
 		// Serialize Shape
-		else if (auto* shape = dynamic_cast<Elements::ShapeElement*>(element.get()))
+		else if (auto* shape = element->As<Elements::ShapeElement>())
 			SerializeShape(root, *shape);
 
 		// Serialize Text
-		else if (auto* text = dynamic_cast<Elements::TextElement*>(element.get()))
+		else if (auto* text = element->As<Elements::TextElement>())
 			SerializeText(root, *text);
 
 		// Serialize Image
-		else if (auto* image = dynamic_cast<Elements::ImageElement*>(element.get()))
+		else if (auto* image = element->As<Elements::ImageElement>())
 			SerializeImage(root, *image);
 
 		// Not implemented

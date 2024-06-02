@@ -5,24 +5,28 @@
 #include "Events/MouseEvents.hpp"
 #include "Events/KeyEvents.hpp"
 #include "Events/EventQueue.hpp"
+#include "Events/CanvasEvents.hpp"
 
 namespace Controllers
 {
-	class SelectionController : public IController
+	class EditController : public IController
 	{
 	public:
-		SelectionController(CanvasCamera& camera, CanvasElements& elements, EventQueue& eventQueue) 
+		EditController(CanvasCamera& camera, CanvasElements& elements, EventQueue& eventQueue) 
 			: m_Camera(camera), m_Elements(elements), m_EventQueue(eventQueue) {}
-		~SelectionController();
+		~EditController();
 		void Draw() override;
 		void OnEvent(Event& event) override;
 
 	private:
 		void DrawSelection(const glm::vec2& begin, const glm::vec2& end);
+
+		// Event handlers
 		void OnUpdate();
 		bool OnMousePressed(const Events::Input::MousePressed&);
 		bool OnMouseReleased(const Events::Input::MouseReleased&);
 		bool OnKeyPressed(const Events::Input::KeyPressed&);
+
 		void PassEventToSelectedElements(Event&);
 		bool SelectHoveredElement();
 		void HandleMouseHoveredOverElement();
@@ -37,7 +41,6 @@ namespace Controllers
 		std::optional<glm::vec2> m_SelectionStart;
 		std::optional<glm::vec2> m_SelectionEnd;
 		std::optional<ElementId> m_HoveredElement;
-		std::set<ElementId> m_SelectedElements;
 
 		CanvasCamera& m_Camera;
 		CanvasElements& m_Elements;

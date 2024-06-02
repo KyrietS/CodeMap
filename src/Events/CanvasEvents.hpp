@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include "Canvas/Tool.hpp"
 
 namespace Events::Canvas

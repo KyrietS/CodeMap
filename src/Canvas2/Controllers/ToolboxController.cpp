@@ -3,7 +3,7 @@
 #include "Events/EventDispatcher.hpp"
 #include "Events/CanvasEvents.hpp"
 #include "Tools/HandController.hpp"
-#include "Tools/SelectionController.hpp"
+#include "Tools/EditController.hpp"
 #include "Tools/ArrowController.hpp"
 #include "Tools/ShapeController.hpp"
 #include "Tools/TextController.hpp"
@@ -39,7 +39,7 @@ namespace Controllers
 			LOG_INFO("Hand tool selected");
 			break;
 		case ToolType::Select:
-			m_ActiveTool = std::make_unique<SelectionController>(m_Camera, m_Elements, m_EventQueue);
+			m_ActiveTool = std::make_unique<EditController>(m_Camera, m_Elements, m_EventQueue);
 			LOG_INFO("Selection tool selected");
 			break;
 		case ToolType::Text:

@@ -1,5 +1,5 @@
 #include "pch.hpp"
-#include "SelectionController.hpp"
+#include "EditController.hpp"
 #include "Events/EventDispatcher.hpp"
 #include "Input.hpp"
 #include "Render/Renderer.hpp"
@@ -7,19 +7,21 @@
 #include "Canvas/Box.hpp"
 #include "Canvas2/Elements/TextElement.hpp"
 #include "Events/CanvasEvents.hpp"
+#include "Canvas2/Elements/ArrowElement.hpp"
 
 namespace Controllers
 {
-	SelectionController::~SelectionController()
+	EditController::~EditController()
 	{
 		UnselectAllElements();
 	}
 
-	void SelectionController::Draw()
+	void EditController::Draw()
 	{
 		if (m_HoveredElement.has_value())
 		{
-			if (auto* element = m_Elements.TryGet(*m_HoveredElement))
+			auto* element = m_Elements.TryGet(*m_HoveredElement);
+			if (element and not element->InEditMode)
 			{
 				const auto box = element->GetBoundingBox();
 				const float thickness = 1.0f / m_Camera.GetZoom();
@@ -27,23 +29,29 @@ namespace Controllers
 			}
 		}
 
-		for (const auto id : m_SelectedElements)
-		{
-			if (auto* element = m_Elements.TryGet(id))
-			{
-				const auto box = element->GetBoundingBox();
-				const float thickness = 1.0f / m_Camera.GetZoom();
-				Renderer::DrawRectangleLines({ box.x, box.y }, box.width, box.height, thickness, VColor::Blue);
-			}
-		}
-
 		if (m_SelectionStart.has_value() && m_SelectionEnd.has_value())
 		{
 			DrawSelection(m_SelectionStart.value(), m_SelectionEnd.value());
 		}
+
+		for (auto& [id, element] : m_Elements)
+		{
+			if (element->InEditMode)
+			{
+				if (auto* arrow = element->As<Elements::ArrowElement>())
+				{
+					for (const auto& point : arrow->GetData().Points)
+					{
+						point.Draw(m_Camera);
+						// TODO: Implement for other elements
+						//DrawControlPoint(point, m_Camera);
+					}
+				}
+			}
+		}
 	}
 
-	void SelectionController::DrawSelection(const glm::vec2& begin, const glm::vec2& end)
+	void EditController::DrawSelection(const glm::vec2& begin, const glm::vec2& end)
 	{
 		float minX = std::min(begin.x, end.x);
 		float minY = std::min(begin.y, end.y);
@@ -56,7 +64,7 @@ namespace Controllers
 		Renderer::DrawRectangleLines({ minX, minY }, width, height, thickness, color);
 	}
 
-	void SelectionController::OnEvent(Event& event)
+	void EditController::OnEvent(Event& event)
 	{
 		// We give the selected elements a chance to handle the event first
 		PassEventToSelectedElements(event);
@@ -64,14 +72,14 @@ namespace Controllers
 			return;
 
 		EventDispatcher dispatcher(event);
-		dispatcher.Handle<Events::Input::MousePressed>(BIND_EVENT(SelectionController::OnMousePressed));
-		dispatcher.Handle<Events::Input::MouseReleased>(BIND_EVENT(SelectionController::OnMouseReleased));
-		dispatcher.Handle<Events::Input::KeyPressed>(BIND_EVENT(SelectionController::OnKeyPressed));
+		dispatcher.Handle<Events::Input::MousePressed>(BIND_EVENT(EditController::OnMousePressed));
+		dispatcher.Handle<Events::Input::MouseReleased>(BIND_EVENT(EditController::OnMouseReleased));
+		dispatcher.Handle<Events::Input::KeyPressed>(BIND_EVENT(EditController::OnKeyPressed));
 
 		OnUpdate();
 	}
 
-	void SelectionController::OnUpdate()
+	void EditController::OnUpdate()
 	{
 		if (m_SelectionStart.has_value())
 		{
@@ -91,7 +99,7 @@ namespace Controllers
 		m_LastMouseWorldPosition = Input::GetWorldMousePosition(m_Camera);
 	}
 
-	bool SelectionController::OnMousePressed(const Events::Input::MousePressed& event)
+	bool EditController::OnMousePressed(const Events::Input::MousePressed& event)
 	{
 		if (event.GetButton() != Mouse::ButtonLeft)
 			return false;
@@ -107,7 +115,7 @@ namespace Controllers
 		return true;
 	}
 
-	bool SelectionController::OnMouseReleased(const Events::Input::MouseReleased& event)
+	bool EditController::OnMouseReleased(const Events::Input::MouseReleased& event)
 	{
 		if (event.GetButton() == Mouse::ButtonLeft)
 		{
@@ -123,7 +131,7 @@ namespace Controllers
 		return false;
 	}
 
-	bool SelectionController::OnKeyPressed(const Events::Input::KeyPressed& event)
+	bool EditController::OnKeyPressed(const Events::Input::KeyPressed& event)
 	{
 		if (event.GetKey() == Key::Delete)
 		{
@@ -133,44 +141,29 @@ namespace Controllers
 		return false;
 	}
 
-	void SelectionController::PassEventToSelectedElements(Event& event)
+	void EditController::PassEventToSelectedElements(Event& event)
 	{
-		for (auto id : m_SelectedElements)
+		for (auto& [id, element] : m_Elements)
 		{
 			if (event.Handled)
 				return;
 
-			if (auto* element = m_Elements.TryGet(id))
+			if (element->InEditMode)
 			{
 				element->OnEvent(event);
 			}
 		}
 	}
 
-	static void DisableEditModeWhenThereAreMultipleTextElements(CanvasElements& elements, const std::set<ElementId>& selectedElements)
-	{
-		if (selectedElements.size() > 1)
-		{
-			for (auto id : selectedElements)
-			{
-				if (auto* textElement = elements.TryGet<Elements::TextElement>(id))
-				{
-					textElement->InEditMode = false;
-				}
-			}
-		}
-	}
-
-	bool SelectionController::SelectHoveredElement()
+	bool EditController::SelectHoveredElement()
 	{
 		auto mousePos = Input::GetWorldMousePosition(m_Camera);
 		for (const auto& [id, element] : m_Elements)
 		{
 			if (element->Contains(mousePos))
 			{
-				m_SelectedElements.insert(id);
 				element->InEditMode = true;
-				DisableEditModeWhenThereAreMultipleTextElements(m_Elements, m_SelectedElements);
+
 				return true;
 			}
 		}
@@ -180,7 +173,7 @@ namespace Controllers
 		return false;
 	}
 
-	void SelectionController::HandleMouseHoveredOverElement()
+	void EditController::HandleMouseHoveredOverElement()
 	{
 		m_HoveredElement.reset();
 
@@ -195,39 +188,31 @@ namespace Controllers
 		}
 	}
 
-	void SelectionController::MoveSelectedElementsBy(glm::vec2 delta)
+	void EditController::MoveSelectedElementsBy(glm::vec2 delta)
 	{
-		for (auto id : m_SelectedElements)
+		for (auto& [id, element] : m_Elements)
 		{
-			if (auto* element = m_Elements.TryGet(id))
+			if (element->InEditMode)
 			{
 				element->MoveBy(delta.x, delta.y);
 			}
 		}
 	}
 
-	void SelectionController::UnselectAllElements()
+	void EditController::UnselectAllElements()
 	{
-		for (auto id : m_SelectedElements)
+		for (auto& [id, element] : m_Elements)
 		{
-			if (auto* element = m_Elements.TryGet(id))
-			{
-				element->InEditMode = false;
-			}
+			element->InEditMode = false;
 		}
-		m_SelectedElements.clear();
 	}
 
-	void SelectionController::RemoveSelectedElements()
+	void EditController::RemoveSelectedElements()
 	{
-		for (auto id : m_SelectedElements)
-		{
-			m_Elements.Remove(id);
-		}
-		m_SelectedElements.clear();
+		m_Elements.RemoveIf([](const Elements::IElement& element) { return element.InEditMode; });
 	}
 
-	void SelectionController::HideSelectionRectangle()
+	void EditController::HideSelectionRectangle()
 	{
 		m_SelectionStart.reset();
 		m_SelectionEnd.reset();

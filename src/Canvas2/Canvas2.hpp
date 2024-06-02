@@ -8,7 +8,7 @@
 class Canvas2
 {
 public:
-	Canvas2(EventQueue&);
+	Canvas2(CanvasElements&, EventQueue&);
 
 	void Draw();
 	void OnEvent(Event&);
@@ -18,9 +18,9 @@ private:
 	bool OnCanvasLoadFromFile(const Events::Canvas::LoadFromFile&);
 	void DrawGrid();
 
-	CanvasElements m_Elements;
 	Controllers::CanvasControllers m_Controllers;
 
+	CanvasElements& m_Elements;
 	EventQueue& m_EventQueue;
 	CanvasCamera m_Camera;
 };
