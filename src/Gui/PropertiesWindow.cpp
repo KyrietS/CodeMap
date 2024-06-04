@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 #include <misc/cpp/imgui_stdlib.h>
 #include "Events/EventDispatcher.hpp"
+#include "Canvas2/Elements/ArrowElement.hpp"
 
 namespace
 {
@@ -22,8 +23,8 @@ void HelpMarker(const char* desc)
 
 namespace Gui
 {
-PropertiesWindow::PropertiesWindow(EventQueue& eventQueue, ImGuiID dockSpaceId )
-	: m_EventQueue(eventQueue)
+PropertiesWindow::PropertiesWindow(EventQueue& eventQueue, CanvasElements& elements, ImGuiID dockSpaceId )
+	: m_EventQueue(eventQueue), m_Elements(elements)
 {
 	ImGui::DockBuilderDockWindow( "Properties", dockSpaceId );
 	SetupDockSpace( dockSpaceId );
@@ -32,16 +33,25 @@ PropertiesWindow::PropertiesWindow(EventQueue& eventQueue, ImGuiID dockSpaceId )
 void PropertiesWindow::OnUpdate()
 {
 	ImGui::Begin( "Properties" );
-	ImGui::Text( "No entity selected." );
+	
+	if (m_SelectedElement)
+	{
+		ShowProperties();
+	}
+	else
+	{
+		ImGui::Text( "No entity selected." );
+	}
+
 	ImGui::End();
 
-	ShowProperties();
 }
 
 void PropertiesWindow::OnEvent(Event& event)
 {
 	EventDispatcher dispatcher(event);
 	dispatcher.Dispatch<Events::Gui::ShowProperties>(BIND_EVENT(PropertiesWindow::OnShowPropertiesEvent));
+	dispatcher.Handle<Events::Gui::ShowProperties2>(BIND_EVENT(PropertiesWindow::OnShowProperties2));
 }
 
 // TODO: Remove this function when all properties are move to Properties window
@@ -58,8 +68,23 @@ void PropertiesWindow::OnShowPropertiesEvent(const Events::Gui::ShowProperties& 
 	m_SelectedEntity = event.Entity ? std::make_unique<Entity>(event.Entity) : nullptr;
 }
 
+bool PropertiesWindow::OnShowProperties2(const Events::Gui::ShowProperties2& event)
+{
+	m_SelectedElement = event.ElementId;
+	return true;
+}
+
 void PropertiesWindow::ShowProperties()
 {
+	if (not m_Elements.Contains(m_SelectedElement))
+		return;
+
+	if (auto* arrow = m_Elements.TryGet<Elements::ArrowElement>(m_SelectedElement))
+	{
+		ShowPropertiesFor(*arrow);
+	}
+
+	return;
 	if (!m_SelectedEntity || !m_SelectedEntity->IsValid())
 		return;
 
@@ -87,6 +112,28 @@ void PropertiesWindow::ShowProperties()
 		ShowPropertiesFor(m_SelectedEntity->GetComponent<Components::Highlight>());
 		ImGui::End();
 	}
+}
+
+void PropertiesWindow::ShowPropertiesFor(Elements::ArrowElement& arrow)
+{
+	auto& data = arrow.GetData();
+
+	ImGui::Text("Arrow");
+	ImGui::Separator();
+	glm::vec2 position = arrow.GetBoundingBox().GetPosition();
+	if (ImGui::DragFloat2("Position", &position[ 0 ], 1.0f, 0.0f, 0.0f, "%.0f"))
+	{
+		glm::vec2 offset = position - arrow.GetBoundingBox().GetPosition();
+		arrow.MoveBy(offset.x, offset.y);
+	}
+	if (ImGui::IsItemHovered() && !ImGui::IsItemActive())
+		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
+	ImGui::ColorEdit3("Arrowhead", &data.ArrowheadColor[ 0 ], ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_DisplayHex);
+	ImGui::ColorEdit3("Line", &data.StrokeColor[ 0 ], ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_DisplayHex);
+	ImGui::DragFloat("Thickness", &data.Thickness, 0.5f, 1.0f, 256.0f, "%.1f");
+	if (ImGui::IsItemHovered() && !ImGui::IsItemActive())
+		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 }
 
 void PropertiesWindow::ShowPropertiesFor(Components::Transform& transform)

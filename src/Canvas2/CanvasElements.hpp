@@ -16,6 +16,9 @@ public:
 
 	bool Contains(ElementId id) const
 	{
+		if (id == 0)
+			return false;
+
 		return std::any_of(m_Elements.begin(), m_Elements.end(), [id](const auto& pair) { return pair.first == id; });
 	}
 

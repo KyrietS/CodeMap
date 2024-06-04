@@ -7,5 +7,9 @@ namespace Events::Gui
 	{
 		Entity Entity;
 	};
+	struct ShowProperties2
+	{
+		std::uint64_t ElementId; // TODO: vector
+	};
 	struct ShowPopup {};
 }

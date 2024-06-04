@@ -19,7 +19,7 @@ Canvas2::Canvas2(CanvasElements& elements, EventQueue& eventQueue)
 {
 	m_Controllers.push_back(std::make_unique<Controllers::CommonKeyboardShortcutsController>(m_EventQueue));
 	m_Controllers.push_back(std::make_unique<Controllers::CameraController>(m_Camera));
-	m_Controllers.push_back(std::make_unique<Controllers::SelectionController>(m_Camera, m_Elements));
+	m_Controllers.push_back(std::make_unique<Controllers::SelectionController>(m_Camera, m_EventQueue, m_Elements));
 	m_Controllers.push_back(std::make_unique<Controllers::ToolboxController>(m_Camera, m_EventQueue, m_Elements));
 	m_Controllers.push_back(std::make_unique<Controllers::PasteImageController>(m_Camera, m_EventQueue, m_Elements));
 	m_Controllers.push_back(std::make_unique<Controllers::UndoRedoController>(m_EventQueue, m_Elements));
