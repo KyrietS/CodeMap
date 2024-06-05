@@ -13,6 +13,7 @@ class CanvasCamera;
 
 namespace Elements
 {
+	// TODO: Rename to PolygonElement
 	class ShapeElement : public IElement
 	{
 	public:

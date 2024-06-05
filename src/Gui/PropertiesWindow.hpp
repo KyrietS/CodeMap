@@ -9,6 +9,7 @@ class Entity;
 namespace Elements
 {
 	class ArrowElement;
+	class ShapeElement;
 }
 
 namespace Gui
@@ -30,6 +31,7 @@ private:
 	void ShowProperties();
 
 	void ShowPropertiesFor(Elements::ArrowElement&);
+	void ShowPropertiesFor(Elements::ShapeElement&);
 
 	void ShowPropertiesFor(Components::Transform&);
 	void ShowPropertiesFor(Components::Text&);
