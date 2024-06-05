@@ -3,13 +3,15 @@
 #include "Canvas/CanvasElements.hpp"
 #include "Events/Event.hpp"
 #include "Events/EventQueue.hpp"
+#include "Events/AppEvents.hpp"
 #include "Layer.hpp"
 #include "DearImGuiLayer.hpp"
 
 
 struct AppConfig
 {
-	std::string Name = "CodeMap";
+	std::string AppName = "CodeMap";
+	std::string ProjectName = "New project";
 	std::string WorkingDir;
 	int WindowWidth = 1000;
 	int WindowHeight = 600;
@@ -23,7 +25,10 @@ public:
 
 private:
 	void OnEvent(Event&);
-	void Close();
+	void OnQuit(const Events::App::Quit&);
+	bool OnProjectSaved(const Events::App::ProjectSaved&);
+	bool OnProjectUnsaved(const Events::App::ProjectUnsaved&);
+
 	bool IsRunning();
 	void FetchEvents();
 	void UpdateLayers();

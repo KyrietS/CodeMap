@@ -14,6 +14,8 @@ public:
 	static uint32_t GetHeight();
 	static Cursor& GetMouseCursor();
 
+	static void SetWindowTitle(const std::string& title);
+
 	static void PollEvents();
 	static void PollEventsOrWait();
 	static void Close();

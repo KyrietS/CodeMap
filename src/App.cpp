@@ -17,7 +17,7 @@ App* App::m_Instance = nullptr;
 App::App(const AppConfig& appConfig) : m_AppConfig{appConfig}
 {
 	Logger::Init();
-	Window::Init(appConfig.WindowWidth, appConfig.WindowHeight, appConfig.Name, &m_EventQueue);
+	Window::Init(appConfig.WindowWidth, appConfig.WindowHeight, appConfig.AppName, &m_EventQueue);
 	Time::Init();
 	Time::LockFPS(61.0);
 
@@ -48,9 +48,22 @@ void App::Run()
 	ReleaseResources();
 }
 
-void App::Close()
+void App::OnQuit(const Events::App::Quit&)
 {
 	m_Running = false;
+}
+
+bool App::OnProjectSaved(const Events::App::ProjectSaved& event)
+{
+	m_AppConfig.ProjectName = event.ProjectName;
+	Window::SetWindowTitle(m_AppConfig.ProjectName + " - " + m_AppConfig.AppName);
+	return true;
+}
+
+bool App::OnProjectUnsaved(const Events::App::ProjectUnsaved&)
+{
+	Window::SetWindowTitle("*" + m_AppConfig.ProjectName + " - " + m_AppConfig.AppName);
+	return true;
 }
 
 void App::FetchEvents()
@@ -106,7 +119,9 @@ void App::ReleaseResources()
 void App::OnEvent(Event& event)
 {
 	EventDispatcher dispatcher(event);
-	dispatcher.Dispatch<Events::App::Quit>([this](const auto&){ Close(); });
+	dispatcher.Dispatch<Events::App::Quit>(BIND_EVENT(OnQuit));
+	dispatcher.Handle<Events::App::ProjectSaved>(BIND_EVENT(OnProjectSaved));
+	dispatcher.Handle<Events::App::ProjectUnsaved>(BIND_EVENT(OnProjectUnsaved));
 
 	for (auto it = m_Layers.rbegin(); it != m_Layers.rend(); ++it)
 	{

@@ -2,6 +2,7 @@
 #include "Canvas/Controllers/UndoRedoController.hpp"
 #include "Input.hpp"
 #include "Events/EventDispatcher.hpp"
+#include "Events/AppEvents.hpp"
 #include "Canvas/Elements/ArrowElement.hpp"
 #include "Canvas/Elements/ShapeElement.hpp"
 #include "Canvas/Elements/TextElement.hpp"
@@ -27,6 +28,8 @@ namespace Controllers
         m_Snapshots.push(std::move(m_CurrentSnapshot));
         m_CurrentSnapshot = CloneElements();
         m_RedoSnapshots = {};
+
+        m_EventQueue.Push(Events::App::ProjectUnsaved {});
     }
 
     void UndoRedoController::OnUndoEvent(const Events::Canvas::Undo& event)
@@ -47,6 +50,8 @@ namespace Controllers
         m_Snapshots.pop();
         m_RedoSnapshots.push(std::move(m_CurrentSnapshot));
         m_CurrentSnapshot = CloneElements();
+
+        m_EventQueue.Push(Events::App::ProjectUnsaved {});
     }
 
     void UndoRedoController::OnRedoEvent(const Events::Canvas::Redo& event)
@@ -62,6 +67,8 @@ namespace Controllers
         m_RedoSnapshots.pop();
         m_Snapshots.push(std::move(m_CurrentSnapshot));
         m_CurrentSnapshot = CloneElements();
+
+        m_EventQueue.Push(Events::App::ProjectUnsaved {});
     }
 
     template<typename ElementT>

@@ -95,6 +95,11 @@ Cursor& Window::GetMouseCursor()
 	return *s_MouseCursor;
 }
 
+void Window::SetWindowTitle(const std::string& title)
+{
+	::SetWindowTitle(title.c_str());
+}
+
 void Window::PollEvents()
 {
 	glfwPollEvents(); // callbacks will be invoked here

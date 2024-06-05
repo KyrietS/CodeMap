@@ -2,6 +2,7 @@
 #include "Render/Renderer.hpp"
 #include "Render/VColor.hpp"
 #include "Events/EventDispatcher.hpp"
+#include "Events/AppEvents.hpp"
 #include "Window.hpp"
 #include "Controllers/CameraController.hpp"
 #include "Controllers/SelectionController.hpp"
@@ -70,6 +71,7 @@ bool Canvas::OnCanvasSaveToFile(const Events::Canvas::SaveToFile& event)
 {
 	LOG_DEBUG("[EVENT] Canvas received SaveToFile event with path: {}", event.Filename);
 	SvgSerializer { m_Elements }.Serialize();
+	m_EventQueue.Push(Events::App::ProjectSaved { "CanvasProject" });
 	return true;
 }
 
