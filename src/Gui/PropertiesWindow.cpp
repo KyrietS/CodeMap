@@ -204,6 +204,11 @@ void PropertiesWindow::ShowPropertiesFor(Elements::ImageElement& image)
 		data.Width = size[ 0 ];
 		data.Height = size[ 1 ];
 	}
+	float scale = 1.0f;
+	if (ImGui::DragFloat("Scale", &scale, 0.01f, 0.1f, 10.0f, "%.2f"))
+	{
+		// Not implemented yet
+	}
 	ImGui::EndDisabled();
 
 	Separator();
