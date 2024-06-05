@@ -4,35 +4,63 @@
 #include "Render/Renderer.hpp"
 #include "Canvas/CanvasCamera.hpp"
 #include "Events/GuiEvents.hpp"
-
+#include "Events/EventDispatcher.hpp"
 
 namespace Controllers
 {
-    void SelectionController::Draw()
-    {
-        std::vector<ElementId> selectedElements;
+	void SelectionController::Draw()
+	{
+		for (auto& [id, element] : m_Elements)
+		{
+			if (element->InEditMode)
+			{
+				const auto box = element->GetBoundingBox();
+				const float thickness = 1.0f / m_Camera.GetZoom();
+				Renderer::DrawRectangleLines({ box.x, box.y }, box.width, box.height, thickness, VColor::Blue);
+			}
+		}
+	}
 
-        for (auto& [id, element] : m_Elements)
-        {
-            if (element->InEditMode)
-            {
-                selectedElements.push_back(id);
+	void SelectionController::OnEvent(Event& event)
+	{
+		EventDispatcher dispatcher(event);
+		dispatcher.Handle<Events::Canvas::SelectElement>(BIND_EVENT(OnSelectElement));
+	}
 
-                const auto box = element->GetBoundingBox();
-                const float thickness = 1.0f / m_Camera.GetZoom();
-                Renderer::DrawRectangleLines({ box.x, box.y }, box.width, box.height, thickness, VColor::Blue);
-            }
-        }
+	bool SelectionController::OnSelectElement(const Events::Canvas::SelectElement& event)
+	{
+		if (not event.MultiSelect)
+		{
+			UnselectAllElements();
+		}
 
-        if (selectedElements != m_SelectedElements)
-        {
-            m_SelectedElements = std::move(selectedElements);
-			m_EventQueue.Push(Events::Gui::ShowProperties { m_SelectedElements });
-        }
-        else if (not m_SelectedElements.empty() and selectedElements.empty())
-        {
-            m_SelectedElements.clear();
-            m_EventQueue.Push(Events::Gui::ShowProperties {});
-        }
-    }
+		if (auto* element = m_Elements.TryGet(event.ElementId))
+		{
+			element->InEditMode = true;
+		}
+
+		m_EventQueue.Push(Events::Gui::ShowProperties { GetSelectedElements() });
+		return false;
+	}
+
+	std::vector<ElementId> SelectionController::GetSelectedElements()
+	{
+		std::vector<ElementId> selectedElements;
+		for (auto& [id, element] : m_Elements)
+		{
+			if (element->InEditMode)
+			{
+				selectedElements.push_back(id);
+			}
+		}
+		return selectedElements;
+	}
+
+	void SelectionController::UnselectAllElements()
+	{
+		for (auto& [id, element] : m_Elements)
+		{
+			element->InEditMode = false;
+		}
+	}
 }

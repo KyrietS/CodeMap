@@ -27,7 +27,6 @@ namespace Controllers
 
 	void ToolboxController::OnToolSelectedEvent(const Events::Canvas::SelectTool& event)
 	{
-		m_EventQueue.Push(Events::Canvas::ClearFocus {});
 		switch (event.Tool)
 		{
 		case ToolType::None:
@@ -61,6 +60,8 @@ namespace Controllers
 
 	bool ToolboxController::OnKeyPressed(const Events::Input::KeyPressed& event)
 	{
+		// TODO: This colides with TextElement and keys are entered in the text box
+		// I should create KeyBindingsController and call it after elements' OnEvent
 		switch (event.GetKey())
 		{
 		case Key::D1:

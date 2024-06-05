@@ -33,9 +33,10 @@ namespace Controllers
 	{
 		auto text = std::make_unique<Elements::TextElement>(m_Camera, m_EventQueue);
 		text->GetData().Position = Input::GetWorldMousePosition(m_Camera);
-		text->GetData().SetUtf8Text("Hello, World!");
 
-		m_Elements.Add(std::move(text));
+		ElementId id = m_Elements.Add(std::move(text));
+		m_EventQueue.Push(Events::Canvas::SelectElement { id });
+		m_EventQueue.Push(Events::Canvas::SelectTool { ToolType::Select });
 		m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
 	}
 

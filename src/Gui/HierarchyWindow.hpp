@@ -23,7 +23,6 @@ namespace Gui
 		void ShowTableCellForElementId(ElementId);
 		void ShowTableCellForElementData(Elements::IElement&);
 		void MakeSnapshotWhenCanvasChanged();
-		void UnselectAllElements();
 
 		EventQueue& m_EventQueue;
 		CanvasElements& m_Elements;

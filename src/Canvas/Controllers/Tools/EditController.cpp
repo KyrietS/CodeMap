@@ -162,15 +162,23 @@ namespace Controllers
 		{
 			if (element->Contains(mousePos))
 			{
-				element->InEditMode = true;
-
+				HandleMousePressedOnElement(id, *element);
 				return true;
 			}
 		}
 
 		// Clicked on empty space
-		UnselectAllElements();
+		m_EventQueue.Push(Events::Canvas::SelectElement { 0 });
 		return false;
+	}
+
+	void EditController::HandleMousePressedOnElement(ElementId elementId, const Elements::IElement& element)
+	{
+		if (not element.InEditMode)
+		{
+			const bool multiSelect = Input::IsKeyDown(Key::LeftControl);
+			m_EventQueue.Push(Events::Canvas::SelectElement { elementId, multiSelect });
+		}
 	}
 
 	void EditController::HandleMouseHoveredOverElement()

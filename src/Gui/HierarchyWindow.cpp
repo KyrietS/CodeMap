@@ -102,14 +102,11 @@ namespace Gui
 	{
 		ImGui::PushID(elementId);
 		std::string elementName = GetElementName(element);
-		if (ImGui::Selectable(elementName.c_str(), &element.InEditMode, ImGuiSelectableFlags_SpanAllColumns))
+		bool isSelected = element.InEditMode;
+		if (ImGui::Selectable(elementName.c_str(), &isSelected, ImGuiSelectableFlags_SpanAllColumns))
 		{
-			if (not ImGui::GetIO().KeyCtrl)
-			{
-				UnselectAllElements();
-			}
-			// Add current element to selection and send SelectElements
-			element.InEditMode = true;
+			bool multiSelect = ImGui::GetIO().KeyCtrl;
+			m_EventQueue.Push(Events::Canvas::SelectElement{ elementId, multiSelect });
 		}
 		ImGui::PopID();
 
@@ -217,13 +214,6 @@ namespace Gui
 			LOG_INFO("[GUI] Hierarchy Window: canvas changed. Snapshot taken.");
 			m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
 			m_CanvasChanged = false;
-		}
-	}
-	void HierarchyWindow::UnselectAllElements()
-	{
-		for (auto& [id, element] : m_Elements)
-		{
-			element->InEditMode = false;
 		}
 	}
 }

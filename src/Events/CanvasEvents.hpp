@@ -12,7 +12,11 @@ namespace Events::Canvas
 	struct Copy {};
 	struct Paste {};
 
-	struct ClearFocus {};
+	struct SelectElement
+	{
+		std::uint64_t ElementId;
+		bool MultiSelect = false;
+	};
 
 	struct SaveToFile
 	{

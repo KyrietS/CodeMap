@@ -4,8 +4,8 @@ enum class ToolType
 {
 	None,
 	Hand,
-	Select,
+	Select, // TODO: Rename to Edit
 	Text,
 	Arrow,
-	Highlight
+	Highlight // TODO: Rename to Shape / Polygon
 };

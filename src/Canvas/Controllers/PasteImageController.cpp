@@ -97,8 +97,8 @@ namespace Controllers
 		auto imageElement = CreateImageElement(imagePos, width, height, rgbaData);
 
 		auto elementId = m_Elements.Add(std::move(imageElement));
-
-		//m_EventQueue.Push(Events::Canvas::SetFocus { elementId });
+		m_EventQueue.Push(Events::Canvas::SelectElement { elementId });
+		m_EventQueue.Push(Events::Canvas::SelectTool { ToolType::Select });
 		m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
 	}
 }

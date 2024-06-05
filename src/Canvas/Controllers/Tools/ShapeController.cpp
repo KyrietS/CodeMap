@@ -84,7 +84,9 @@ namespace Controllers
 		if (m_Shape and m_Shape->GetBoundingBox().width > 5.0f and m_Shape->GetBoundingBox().height > 5.0f)
 		{
 			LOG_DEBUG("Shape added to canvas");
-			m_Elements.Add(std::move(m_Shape));
+			ElementId id = m_Elements.Add(std::move(m_Shape));
+			m_EventQueue.Push(Events::Canvas::SelectElement { id });
+			m_EventQueue.Push(Events::Canvas::SelectTool { ToolType::Select });
 			m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
 		}
 		m_Shape.reset();

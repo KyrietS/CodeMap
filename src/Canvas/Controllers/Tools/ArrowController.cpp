@@ -119,7 +119,9 @@ namespace Controllers
 		else if (m_Arrow)
 		{
 			LOG_DEBUG("Arrow added to canvas");
-			m_Elements.Add(std::move(m_Arrow));
+			ElementId id = m_Elements.Add(std::move(m_Arrow));
+			m_EventQueue.Push(Events::Canvas::SelectElement { id });
+			m_EventQueue.Push(Events::Canvas::SelectTool { ToolType::Select });
 			m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
 		}
 

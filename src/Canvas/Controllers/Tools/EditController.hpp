@@ -29,6 +29,7 @@ namespace Controllers
 
 		void PassEventToSelectedElements(Event&);
 		bool SelectHoveredElement();
+		void HandleMousePressedOnElement(ElementId, const Elements::IElement&);
 		void HandleMouseHoveredOverElement();
 		void MoveSelectedElementsBy(glm::vec2);
 		void UnselectAllElements();
