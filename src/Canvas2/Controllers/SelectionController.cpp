@@ -10,13 +10,13 @@ namespace Controllers
 {
     void SelectionController::Draw()
     {
-        std::set<ElementId> selectedElements;
+        std::vector<ElementId> selectedElements;
 
         for (auto& [id, element] : m_Elements)
         {
             if (element->InEditMode)
             {
-                selectedElements.insert(id);
+                selectedElements.push_back(id);
 
                 const auto box = element->GetBoundingBox();
                 const float thickness = 1.0f / m_Camera.GetZoom();
@@ -24,15 +24,15 @@ namespace Controllers
             }
         }
 
-        if (selectedElements.size() == 1 and *selectedElements.begin() != m_SelectedElement)
+        if (selectedElements != m_SelectedElements)
         {
-            m_SelectedElement = *selectedElements.begin();
-			m_EventQueue.Push(Events::Gui::ShowProperties2 { m_SelectedElement });
+            m_SelectedElements = std::move(selectedElements);
+			m_EventQueue.Push(Events::Gui::ShowProperties2 { m_SelectedElements });
         }
-        else if (m_SelectedElement != 0 and selectedElements.empty())
+        else if (not m_SelectedElements.empty() and selectedElements.empty())
         {
-            m_SelectedElement = 0;
-            m_EventQueue.Push(Events::Gui::ShowProperties2 {0});
+            m_SelectedElements.clear();
+            m_EventQueue.Push(Events::Gui::ShowProperties2 {});
         }
     }
 }

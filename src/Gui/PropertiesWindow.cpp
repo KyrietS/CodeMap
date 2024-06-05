@@ -23,6 +23,18 @@ void HelpMarker(const char* desc)
 	}
 }
 
+void ShowPositionControl(Elements::IElement& element)
+{
+	glm::vec2 newPos = element.GetBoundingBox().GetPosition();
+	if (ImGui::DragFloat2("Position", &newPos[ 0 ], 1.0f, 0.0f, 0.0f, "%.0f"))
+	{
+		glm::vec2 offset = newPos - element.GetBoundingBox().GetPosition();
+		element.MoveBy(offset.x, offset.y);
+	}
+	if (ImGui::IsItemHovered() && !ImGui::IsItemActive())
+		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+}
+
 void Separator(int marginTop = 5, int marginBottom = 5)
 {
 	if (marginTop) ImGui::Dummy(ImVec2(0, marginTop));
@@ -44,13 +56,13 @@ void PropertiesWindow::OnUpdate()
 {
 	ImGui::Begin( "Properties" );
 	
-	if (m_SelectedElement)
+	if (m_SelectedElements.empty())
 	{
-		ShowProperties();
+		ImGui::Text( "No element selected" );
 	}
 	else
 	{
-		ImGui::Text( "No element selected." );
+		ShowProperties();
 	}
 
 	ImGui::End();
@@ -80,32 +92,21 @@ void PropertiesWindow::OnShowPropertiesEvent(const Events::Gui::ShowProperties& 
 
 bool PropertiesWindow::OnShowProperties2(const Events::Gui::ShowProperties2& event)
 {
-	m_SelectedElement = event.ElementId;
+	m_SelectedElements = event.Elements;
 	return true;
 }
 
 void PropertiesWindow::ShowProperties()
 {
-	if (not m_Elements.Contains(m_SelectedElement))
-		return;
+	assert(not m_SelectedElements.empty());
 
-	auto& element = m_Elements.Get(m_SelectedElement);
-
-	if (auto* arrow = element.As<Elements::ArrowElement>())
+	if (m_SelectedElements.size() > 1)
 	{
-		ShowPropertiesFor(*arrow);
+		ShowPropertiesForMultipleElements();
 	}
-	else if (auto* shape = element.As<Elements::ShapeElement>())
+	else
 	{
-		ShowPropertiesFor(*shape);
-	}
-	else if (auto* text = element.As<Elements::TextElement>())
-	{
-		ShowPropertiesFor(*text);
-	}
-	else if (auto* image = element.As<Elements::ImageElement>())
-	{
-		ShowPropertiesFor(*image);
+		ShowPropertiesFor(m_SelectedElements.front());
 	}
 
 	return;
@@ -138,16 +139,33 @@ void PropertiesWindow::ShowProperties()
 	}
 }
 
-void ShowPositionControl(Elements::IElement& element)
+
+void PropertiesWindow::ShowPropertiesFor(ElementId elementId)
 {
-	glm::vec2 newPos = element.GetBoundingBox().GetPosition();
-	if (ImGui::DragFloat2("Position", &newPos[ 0 ], 1.0f, 0.0f, 0.0f, "%.0f"))
+	if (not m_Elements.Contains(elementId))
 	{
-		glm::vec2 offset = newPos - element.GetBoundingBox().GetPosition();
-		element.MoveBy(offset.x, offset.y);
+		LOG_WARN("[GUI] Element with id {} not found", elementId);
+		return;
 	}
-	if (ImGui::IsItemHovered() && !ImGui::IsItemActive())
-		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
+	auto& element = m_Elements.Get(elementId);
+
+	if (auto* arrow = element.As<Elements::ArrowElement>())
+	{
+		ShowPropertiesFor(*arrow);
+	}
+	else if (auto* shape = element.As<Elements::ShapeElement>())
+	{
+		ShowPropertiesFor(*shape);
+	}
+	else if (auto* text = element.As<Elements::TextElement>())
+	{
+		ShowPropertiesFor(*text);
+	}
+	else if (auto* image = element.As<Elements::ImageElement>())
+	{
+		ShowPropertiesFor(*image);
+	}
 }
 
 void PropertiesWindow::ShowPropertiesFor(Elements::ArrowElement& arrow)
@@ -227,6 +245,12 @@ void PropertiesWindow::ShowPropertiesFor(Elements::ImageElement& image)
 	int originalWidth = data.Width;
 	int originalHeight = data.Height;
 	ImGui::Text("Original size: %d x %d px", originalWidth, originalHeight);
+}
+
+void PropertiesWindow::ShowPropertiesForMultipleElements()
+{
+	ImGui::Text("Selected %d elements", m_SelectedElements.size());
+	// TODO: Show common properties for multiple elements
 }
 
 void PropertiesWindow::ShowPropertiesFor(Components::Transform& transform)

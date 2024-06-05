@@ -32,10 +32,12 @@ private:
 
 	void ShowProperties();
 
+	void ShowPropertiesFor(ElementId);
 	void ShowPropertiesFor(Elements::ArrowElement&);
 	void ShowPropertiesFor(Elements::ShapeElement&);
 	void ShowPropertiesFor(Elements::TextElement&);
 	void ShowPropertiesFor(Elements::ImageElement&);
+	void ShowPropertiesForMultipleElements();
 
 	void ShowPropertiesFor(Components::Transform&);
 	void ShowPropertiesFor(Components::Text&);
@@ -44,7 +46,7 @@ private:
 
 	EventQueue& m_EventQueue;
 	CanvasElements& m_Elements;
-	ElementId m_SelectedElement = 0;
+	std::vector<ElementId> m_SelectedElements;
 	std::unique_ptr<Entity> m_SelectedEntity;
 };
 }

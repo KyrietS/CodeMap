@@ -14,7 +14,7 @@ public:
     void Draw() override;
 
 private:
-    ElementId m_SelectedElement = 0;
+    std::vector<ElementId> m_SelectedElements;
 
     CanvasCamera& m_Camera;
     EventQueue& m_EventQueue;

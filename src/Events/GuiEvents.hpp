@@ -9,7 +9,7 @@ namespace Events::Gui
 	};
 	struct ShowProperties2
 	{
-		std::uint64_t ElementId; // TODO: vector
+		std::vector<std::uint64_t> Elements;
 	};
 	struct ShowPopup {};
 }
