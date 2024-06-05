@@ -2,7 +2,7 @@
 
 namespace Events::Gui
 {
-	struct ShowProperties2
+	struct ShowProperties
 	{
 		std::vector<std::uint64_t> Elements;
 	};

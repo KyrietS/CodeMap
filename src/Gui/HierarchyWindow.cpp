@@ -2,11 +2,11 @@
 #include "HierarchyWindow.hpp"
 #include "Events/EventDispatcher.hpp"
 #include "Events/CanvasEvents.hpp"
-#include "Canvas2/CanvasElements.hpp"
-#include "Canvas2/Elements/ArrowElement.hpp"
-#include "Canvas2/Elements/ShapeElement.hpp"
-#include "Canvas2/Elements/TextElement.hpp"
-#include "Canvas2/Elements/ImageElement.hpp"
+#include "Canvas/CanvasElements.hpp"
+#include "Canvas/Elements/ArrowElement.hpp"
+#include "Canvas/Elements/ShapeElement.hpp"
+#include "Canvas/Elements/TextElement.hpp"
+#include "Canvas/Elements/ImageElement.hpp"
 #include <imgui_internal.h>
 
 

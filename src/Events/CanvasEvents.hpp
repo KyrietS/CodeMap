@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Canvas2/Tool.hpp"
+#include "Canvas/Tool.hpp"
 
 namespace Events::Canvas
 {
@@ -12,17 +12,7 @@ namespace Events::Canvas
 	struct Copy {};
 	struct Paste {};
 
-	struct SetFocus
-	{
-		std::uint32_t EntityId; // TODO: In the future use UUID
-	};
-
 	struct ClearFocus {};
-
-	struct Destroy
-	{
-		std::uint32_t EntityId;
-	};
 
 	struct SaveToFile
 	{

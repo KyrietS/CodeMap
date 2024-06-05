@@ -1,6 +1,6 @@
 #pragma once
 #include "GuiElement.hpp"
-#include "Canvas2/CanvasElements.hpp"
+#include "Canvas/CanvasElements.hpp"
 #include "Events/CanvasEvents.hpp"
 
 class Entity;

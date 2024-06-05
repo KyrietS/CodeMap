@@ -4,10 +4,10 @@
 #include <imgui_internal.h>
 #include <misc/cpp/imgui_stdlib.h>
 #include "Events/EventDispatcher.hpp"
-#include "Canvas2/Elements/ArrowElement.hpp"
-#include "Canvas2/Elements/ShapeElement.hpp"
-#include "Canvas2/Elements/TextElement.hpp"
-#include "Canvas2/Elements/ImageElement.hpp"
+#include "Canvas/Elements/ArrowElement.hpp"
+#include "Canvas/Elements/ShapeElement.hpp"
+#include "Canvas/Elements/TextElement.hpp"
+#include "Canvas/Elements/ImageElement.hpp"
 
 namespace
 {
@@ -72,7 +72,7 @@ void PropertiesWindow::OnUpdate()
 void PropertiesWindow::OnEvent(Event& event)
 {
 	EventDispatcher dispatcher(event);
-	dispatcher.Handle<Events::Gui::ShowProperties2>(BIND_EVENT(PropertiesWindow::OnShowProperties2));
+	dispatcher.Handle<Events::Gui::ShowProperties>(BIND_EVENT(PropertiesWindow::OnShowProperties2));
 }
 
 // TODO: Remove this function when all properties are move to Properties window
@@ -84,7 +84,7 @@ void PropertiesWindow::SetupDockSpace(ImGuiID dockSpaceId)
 	ImGui::DockBuilderDockWindow("Highlight", dockSpaceId);
 }
 
-bool PropertiesWindow::OnShowProperties2(const Events::Gui::ShowProperties2& event)
+bool PropertiesWindow::OnShowProperties2(const Events::Gui::ShowProperties& event)
 {
 	m_SelectedElements = event.Elements;
 	return true;

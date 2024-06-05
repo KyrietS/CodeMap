@@ -2,7 +2,7 @@
 #include "GuiElement.hpp"
 #include "Events/EventQueue.hpp"
 #include "Events/GuiEvents.hpp"
-#include "Canvas2/CanvasElements.hpp"
+#include "Canvas/CanvasElements.hpp"
 
 
 namespace Elements
@@ -25,7 +25,7 @@ public:
 
 private:
 	void SetupDockSpace(ImGuiID viewportDockSpaceId);
-	bool OnShowProperties2(const Events::Gui::ShowProperties2&);
+	bool OnShowProperties2(const Events::Gui::ShowProperties&);
 
 	void ShowProperties();
 

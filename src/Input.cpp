@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "Input.hpp"
 #include "Events/EventDispatcher.hpp"
-#include "Canvas2/CanvasCamera.hpp"
+#include "Canvas/CanvasCamera.hpp"
 #include "Time.hpp"
 
 

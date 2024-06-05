@@ -1,6 +1,6 @@
 #pragma once
-#include "Canvas2/Canvas2.hpp"
-#include "Canvas2/CanvasElements.hpp"
+#include "Canvas/Canvas.hpp"
+#include "Canvas/CanvasElements.hpp"
 #include "Events/Event.hpp"
 #include "Events/EventQueue.hpp"
 #include "Layer.hpp"
