@@ -37,9 +37,9 @@ void App::Run()
 	while (IsRunning())
 	{
 		FetchEvents();
+		DispatchEvents();
 
 		BeginFrame();
-		DispatchEvents();
 		UpdateLayers();
 		EndFrame();
 	}
