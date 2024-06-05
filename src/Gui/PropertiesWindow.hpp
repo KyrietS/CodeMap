@@ -11,6 +11,7 @@ namespace Elements
 	class ArrowElement;
 	class ShapeElement;
 	class TextElement;
+	class ImageElement;
 }
 
 namespace Gui
@@ -34,6 +35,7 @@ private:
 	void ShowPropertiesFor(Elements::ArrowElement&);
 	void ShowPropertiesFor(Elements::ShapeElement&);
 	void ShowPropertiesFor(Elements::TextElement&);
+	void ShowPropertiesFor(Elements::ImageElement&);
 
 	void ShowPropertiesFor(Components::Transform&);
 	void ShowPropertiesFor(Components::Text&);

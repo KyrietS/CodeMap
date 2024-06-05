@@ -22,6 +22,13 @@ void HelpMarker(const char* desc)
 		ImGui::EndTooltip();
 	}
 }
+
+void Separator(int marginTop = 5, int marginBottom = 5)
+{
+	if (marginTop) ImGui::Dummy(ImVec2(0, marginTop));
+	ImGui::Separator();
+	if (marginBottom) ImGui::Dummy(ImVec2(0, marginBottom));
+}
 }
 
 namespace Gui
@@ -96,6 +103,10 @@ void PropertiesWindow::ShowProperties()
 	{
 		ShowPropertiesFor(*text);
 	}
+	else if (auto* image = element.As<Elements::ImageElement>())
+	{
+		ShowPropertiesFor(*image);
+	}
 
 	return;
 	if (!m_SelectedEntity || !m_SelectedEntity->IsValid())
@@ -144,7 +155,7 @@ void PropertiesWindow::ShowPropertiesFor(Elements::ArrowElement& arrow)
 	auto& data = arrow.GetData();
 
 	ImGui::Text("Arrow");
-	ImGui::Separator();
+	Separator(0);
 	ShowPositionControl(arrow);
 
 	ImGui::ColorEdit3("Arrowhead", &data.ArrowheadColor[ 0 ], ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_DisplayHex);
@@ -159,7 +170,7 @@ void PropertiesWindow::ShowPropertiesFor(Elements::ShapeElement& shape)
 	auto& data = shape.GetData();
 
 	ImGui::Text("Shape");
-	ImGui::Separator();
+	Separator(0);
 	ShowPositionControl(shape);
 
 	ImGui::ColorPicker4("Color", &data.Color[ 0 ],
@@ -178,7 +189,7 @@ void PropertiesWindow::ShowPropertiesFor(Elements::TextElement& text)
 	auto& data = text.GetData();
 
 	ImGui::Text("Text");
-	ImGui::Separator();
+	Separator(0);
 	ShowPositionControl(text);
 
 	std::string utf8Content = data.GetTextInUtf8();
@@ -193,6 +204,29 @@ void PropertiesWindow::ShowPropertiesFor(Elements::TextElement& text)
 	ImGui::BeginDisabled();
 	ImGui::ColorEdit4("Font color", &data.FontColor[ 0 ], ImGuiColorEditFlags_NoAlpha);
 	ImGui::EndDisabled();
+}
+
+void PropertiesWindow::ShowPropertiesFor(Elements::ImageElement& image)
+{
+	auto& data = image.GetData();
+
+	ImGui::Text("Image");
+	Separator(0);
+	ShowPositionControl(image);
+
+	ImGui::BeginDisabled();
+	int size[] = { data.Width, data.Height };
+	if (ImGui::InputInt2("Dimension", size))
+	{
+		data.Width = size[ 0 ];
+		data.Height = size[ 1 ];
+	}
+	ImGui::EndDisabled();
+
+	Separator();
+	int originalWidth = data.Width;
+	int originalHeight = data.Height;
+	ImGui::Text("Original size: %d x %d px", originalWidth, originalHeight);
 }
 
 void PropertiesWindow::ShowPropertiesFor(Components::Transform& transform)
