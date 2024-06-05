@@ -1,7 +1,6 @@
 #include "pch.hpp"
 #include "StatusBar.hpp"
 #include <imgui.h>
-#include "Canvas/Canvas.hpp"
 #include "Time.hpp"
 #include "Input.hpp"
 #include <imgui_internal.h>

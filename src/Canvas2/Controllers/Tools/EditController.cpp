@@ -4,7 +4,7 @@
 #include "Input.hpp"
 #include "Render/Renderer.hpp"
 #include "Render/VColor.hpp"
-#include "Canvas/Box.hpp"
+#include "Canvas2/Box.hpp"
 #include "Canvas2/Elements/TextElement.hpp"
 #include "Events/CanvasEvents.hpp"
 #include "Canvas2/Elements/ArrowElement.hpp"

@@ -4,7 +4,6 @@
 #include "Events/GuiEvents.hpp"
 #include "Canvas2/CanvasElements.hpp"
 
-class Entity;
 
 namespace Elements
 {
@@ -26,8 +25,6 @@ public:
 
 private:
 	void SetupDockSpace(ImGuiID viewportDockSpaceId);
-	
-	void OnShowPropertiesEvent(const Events::Gui::ShowProperties&);
 	bool OnShowProperties2(const Events::Gui::ShowProperties2&);
 
 	void ShowProperties();
@@ -39,14 +36,8 @@ private:
 	void ShowPropertiesFor(Elements::ImageElement&);
 	void ShowPropertiesForMultipleElements();
 
-	void ShowPropertiesFor(Components::Transform&);
-	void ShowPropertiesFor(Components::Text&);
-	void ShowPropertiesFor(Components::Arrow&);
-	void ShowPropertiesFor(Components::Highlight&);
-
 	EventQueue& m_EventQueue;
 	CanvasElements& m_Elements;
 	std::vector<ElementId> m_SelectedElements;
-	std::unique_ptr<Entity> m_SelectedEntity;
 };
 }

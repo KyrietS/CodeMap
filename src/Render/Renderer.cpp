@@ -2,10 +2,10 @@
 #include "Renderer.hpp"
 #include "raylib.h"
 #include "rlgl.h"
-#include "Canvas/Components.hpp"
-#include <Utils/System.hpp>
+#include "Utils/System.hpp"
 #include "Trex/Atlas.hpp"
 #include "Trex/TextShaper.hpp"
+#include "Render/VColor.hpp"
 #include "Render/Fonts/compressed_roboto.h"
 #include "render/Fonts/FontStorage.hpp"
 #include "Utils/Strings.hpp"
@@ -167,12 +167,6 @@ void Renderer::DrawPolygon(std::span<const glm::vec2> points, const glm::vec4& c
 	DrawTriangle(centerPoint, sortedPoints.back(), sortedPoints.front(), color);
 }
 
-void Renderer::DrawImage(const glm::vec2& position, const Components::Image& image)
-{
-	assert(image.TextureId);
-	DrawImage(position, *image.TextureId, image.Width, image.Height);
-}
-
 void Renderer::DrawImage(const glm::vec2& position,int width, int height, TextureId textureId)
 {
 	int mipmaps = 1;
@@ -218,11 +212,6 @@ static int DrawTextLine(const glm::vec2& position, const FontInstance& font, std
 	}
 
 	return cursor.x - position.x; // Return line length (in pixels)
-}
-
-void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
-{
-
 }
 
 //void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
@@ -272,11 +261,6 @@ static TextMeasurement MeasureMultilineText(const std::vector<Trex::TextMeasurem
 	};
 }
 
-TextMeasurement Renderer::MeasureText(const Components::Text& text)
-{
-	return MeasureText(text.Content, text.FontSize, text.FontId);
-}
-
 TextMeasurement Renderer::MeasureText(std::span<const uint32_t> text, float fontSize, unsigned int fontId)
 {
 	auto& font = Renderer::s_FontStorage.GetFont(fontId, fontSize);
@@ -318,11 +302,6 @@ std::shared_ptr<TextureId> Renderer::LoadTextureFromBytes(std::span<const uint8_
     });
 
     return textureId;
-}
-
-std::vector<uint8_t> Renderer::LoadBytesFromImage(const Components::Image& image)
-{
-	return LoadBytesFromImage(*image.TextureId, image.Width, image.Height);
 }
 
 std::vector<uint8_t> Renderer::LoadBytesFromImage(unsigned int textureId, int width, int height)

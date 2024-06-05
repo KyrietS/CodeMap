@@ -1,6 +1,6 @@
 #pragma once
-#include "Canvas/Deserializer/CanvasDeserializer.hpp"
-#include "Canvas/CanvasCamera.hpp"
+#include "Canvas2/Deserializer/CanvasDeserializer.hpp"
+#include "Canvas2/CanvasCamera.hpp"
 #include "Canvas2/CanvasElements.hpp"
 #include "Events/EventQueue.hpp"
 #include <tinyxml2.h>

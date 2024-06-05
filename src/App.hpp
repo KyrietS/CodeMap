@@ -1,8 +1,6 @@
 #pragma once
-#include "Canvas/Canvas.hpp"
 #include "Canvas2/Canvas2.hpp"
 #include "Canvas2/CanvasElements.hpp"
-#include "ScriptEngine.hpp"
 #include "Events/Event.hpp"
 #include "Events/EventQueue.hpp"
 #include "Layer.hpp"
@@ -28,7 +26,6 @@ private:
 	void Close();
 	bool IsRunning();
 	void FetchEvents();
-	void ExecuteScripts();
 	void UpdateLayers();
 	void BeginFrame();
 	void EndFrame();
@@ -37,11 +34,6 @@ private:
 
 	AppConfig m_AppConfig;
 	bool m_Running = true;
-
-	// TODO: Remove this
-	std::unique_ptr<Canvas> m_Canvas;
-	std::unique_ptr<ScriptEngine> m_ScriptEngine;
-	// ---
 
 	CanvasElements m_CanvasElements;
 	EventQueue m_EventQueue;

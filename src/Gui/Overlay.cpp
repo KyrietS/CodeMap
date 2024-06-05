@@ -1,7 +1,6 @@
 #include "pch.hpp"
 #include "Overlay.hpp"
 #include <imgui.h>
-#include "Canvas/Canvas.hpp"
 #include "Time.hpp"
 #include "Input.hpp"
 
@@ -37,7 +36,8 @@ void Overlay::ShowMetaInfoOverlay()
 	ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
 	if (ImGui::Begin("MetaInfoOverlay", nullptr, window_flags))
 	{
-		int zoomLevel = (int)(Canvas::Camera().GetZoom() * 100);
+		//int zoomLevel = (int)(Canvas::Camera().GetZoom() * 100);
+		int zoomLevel = 100;
 		int fps = (int)Time::GetFPS();
 
 		ImGui::Text("zoom: %d%%", zoomLevel);
@@ -74,7 +74,8 @@ void Overlay::ShowMousePositionOverlay()
 	ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
 	if (ImGui::Begin("MousePositionOverlay", nullptr, window_flags))
 	{
-		auto mousePos = Input::GetWorldMousePosition(Canvas::Camera());
+		//auto mousePos = Input::GetWorldMousePosition(Canvas::Camera());
+		auto mousePos = glm::vec2(0.0f, 0.0f);
 		ImGui::Text("(%.0f, %.0f)", mousePos.x, mousePos.y);
 	}
 	ImGui::End();

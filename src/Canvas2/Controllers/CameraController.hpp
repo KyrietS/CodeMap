@@ -1,6 +1,6 @@
 #pragma once
 #include "IController.hpp"
-#include "Canvas/CanvasCamera.hpp"
+#include "Canvas2/CanvasCamera.hpp"
 #include "Events/MouseEvents.hpp"
 
 namespace Controllers

@@ -47,13 +47,10 @@ public:
 	static void DrawCircle(const glm::vec2& position, float radius, const glm::vec4& color);
 	static void DrawCircleOutline(const glm::vec2& position, float radius, const glm::vec4& color);
 	static void DrawPolygon(std::span<const glm::vec2> points, const glm::vec4& color);
-	static void DrawImage(const glm::vec2& position, const Components::Image& image);
 	static void DrawImage(const glm::vec2& position, int width, int height, TextureId);
-	static void DrawText(const glm::vec2& position, const Components::Text& text);
 	static void DrawText(std::span<const uint32_t> text, glm::vec2 position, float fontSize, unsigned int fontId, bool cursor = false);
 
 
-	static TextMeasurement MeasureText(const Components::Text& text);
 	static TextMeasurement MeasureText(std::span<const uint32_t> text, float fontSize, unsigned int fontId);
 	static int GetBaselineHeight(float fontSize, unsigned int fontId);
 	// Loads texture from RGBA|RGBA|RGBA|... data.
@@ -61,7 +58,6 @@ public:
 	static std::shared_ptr<TextureId> LoadTextureFromBytes(std::span<const uint8_t> data, int width, int height);
 	// Loads image bitmap in RGBA|RGBA|RGBA|... format from the GPU.
 	static std::vector<uint8_t> LoadBytesFromImage(unsigned int textureId, int width, int height);
-	static std::vector<uint8_t> LoadBytesFromImage(const Components::Image&);
 	static void SetImageFilter(TextureId, ImageFilter);
 
 private:

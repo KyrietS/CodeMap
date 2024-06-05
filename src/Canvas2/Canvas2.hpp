@@ -1,6 +1,6 @@
 #pragma once
 #include "Events/EventQueue.hpp"
-#include "Canvas/CanvasCamera.hpp"
+#include "Canvas2/CanvasCamera.hpp"
 #include "Controllers/IController.hpp"
 #include "Canvas2/CanvasElements.hpp"
 #include "Events/CanvasEvents.hpp"

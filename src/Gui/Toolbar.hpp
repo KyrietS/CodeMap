@@ -2,7 +2,7 @@
 
 #include "Events/EventQueue.hpp"
 #include "GuiElement.hpp"
-#include "Canvas/Tool.hpp"
+#include "Canvas2/Tool.hpp"
 
 using TextureId = unsigned int;
 

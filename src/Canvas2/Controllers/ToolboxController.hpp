@@ -1,7 +1,7 @@
 #pragma once
 #include "IController.hpp"
 #include "Events/EventQueue.hpp"
-#include "Canvas/CanvasCamera.hpp"
+#include "Canvas2/CanvasCamera.hpp"
 #include "Events/CanvasEvents.hpp"
 #include "Events/KeyEvents.hpp"
 #include "Canvas2/CanvasElements.hpp"

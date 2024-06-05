@@ -10,8 +10,8 @@
 #include "Controllers/UndoRedoController.hpp"
 #include "Controllers/CommonKeyboardShortcutsController.hpp"
 #include "Elements/ArrowElement.hpp"
-#include "Canvas/Serializer/SVG/SvgSerializer2.hpp"
-#include "Canvas/Deserializer/SVG/SvgDeserializer2.hpp"
+#include "Canvas2/Serializer/SVG/SvgSerializer2.hpp"
+#include "Canvas2/Deserializer/SVG/SvgDeserializer2.hpp"
 #include <ranges>
 
 Canvas2::Canvas2(CanvasElements& elements, EventQueue& eventQueue)

@@ -2,7 +2,7 @@
 #include "SelectionController.hpp"
 #include "Render/VColor.hpp"
 #include "Render/Renderer.hpp"
-#include "Canvas/CanvasCamera.hpp"
+#include "Canvas2/CanvasCamera.hpp"
 #include "Events/GuiEvents.hpp"
 
 

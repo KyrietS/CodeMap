@@ -4,7 +4,7 @@
 #include "Events/EventDispatcher.hpp"
 #include "Events/CanvasEvents.hpp"
 #include "Input.hpp"
-#include "Canvas/CanvasCamera.hpp"
+#include "Canvas2/CanvasCamera.hpp"
 #include "Utils/Strings.hpp"
 
 namespace Elements

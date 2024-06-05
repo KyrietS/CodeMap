@@ -1,6 +1,6 @@
 #include "pch.hpp"
 #include "ControlPoint.hpp"
-#include "Canvas/CanvasCamera.hpp"
+#include "Canvas2/CanvasCamera.hpp"
 #include "Render/Renderer.hpp"
 #include "Events/EventDispatcher.hpp"
 #include "Events/CanvasEvents.hpp"

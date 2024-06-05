@@ -1,6 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
-#include "Canvas/Box.hpp"
+#include "Canvas2/Box.hpp"
 
 class Event;
 

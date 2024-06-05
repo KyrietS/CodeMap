@@ -3,7 +3,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec4.hpp>
 #include "Render/VColor.hpp"
-#include "Canvas/Box.hpp"
+#include "Canvas2/Box.hpp"
 #include "Events/MouseEvents.hpp"
 #include "Events/EventQueue.hpp"
 #include "Render/BlendMode.hpp"

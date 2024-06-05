@@ -1,5 +1,5 @@
 #pragma once
-#include "Canvas/Serializer/CanvasSerializer.hpp"
+#include "Canvas2/Serializer/CanvasSerializer.hpp"
 #include <tinyxml2.h>
 #include "ViewBox.hpp"
 #include "Canvas2/CanvasElements.hpp"

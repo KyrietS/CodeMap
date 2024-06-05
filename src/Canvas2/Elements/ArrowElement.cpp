@@ -4,7 +4,7 @@
 #include "Render/VColor.hpp"
 #include "Events/EventDispatcher.hpp"
 #include "Input.hpp"
-#include "Canvas/CanvasCamera.hpp"
+#include "Canvas2/CanvasCamera.hpp"
 
 namespace Elements
 {
