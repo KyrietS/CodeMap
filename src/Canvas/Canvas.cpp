@@ -71,7 +71,7 @@ bool Canvas::OnCanvasSaveToFile(const Events::Canvas::SaveToFile& event)
 {
 	LOG_DEBUG("[EVENT] Canvas received SaveToFile event with path: {}", event.Filename);
 	SvgSerializer { m_Elements }.Serialize();
-	m_EventQueue.Push(Events::App::ProjectSaved { "CanvasProject" });
+	m_EventQueue.Push(Events::App::ProjectSaved { "canvas.svg" });
 	return true;
 }
 
