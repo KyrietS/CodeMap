@@ -82,16 +82,19 @@ void PropertiesWindow::ShowProperties()
 	if (not m_Elements.Contains(m_SelectedElement))
 		return;
 
-	auto* element = m_Elements.TryGet(m_SelectedElement);
-	assert(element);
+	auto& element = m_Elements.Get(m_SelectedElement);
 
-	if (auto* arrow = element->As<Elements::ArrowElement>())
+	if (auto* arrow = element.As<Elements::ArrowElement>())
 	{
 		ShowPropertiesFor(*arrow);
 	}
-	else if (auto* shape = element->As<Elements::ShapeElement>())
+	else if (auto* shape = element.As<Elements::ShapeElement>())
 	{
 		ShowPropertiesFor(*shape);
+	}
+	else if (auto* text = element.As<Elements::TextElement>())
+	{
+		ShowPropertiesFor(*text);
 	}
 
 	return;
@@ -168,6 +171,28 @@ void PropertiesWindow::ShowPropertiesFor(Elements::ShapeElement& shape)
 	data.BlendMode = static_cast<Render::BlendMode>(currentOption);
 
 	ImGui::SameLine(); HelpMarker("Set the blending mode for rendering polygon.");
+}
+
+void PropertiesWindow::ShowPropertiesFor(Elements::TextElement& text)
+{
+	auto& data = text.GetData();
+
+	ImGui::Text("Text");
+	ImGui::Separator();
+	ShowPositionControl(text);
+
+	std::string utf8Content = data.GetTextInUtf8();
+	if (ImGui::InputTextMultiline("Content", &utf8Content))
+	{
+		data.SetUtf8Text(utf8Content);
+	}
+	ImGui::DragFloat("Font size", &data.FontSize, 1.0f, 4.0f, 256.0f, "%.0f");
+	if (ImGui::IsItemHovered() && !ImGui::IsItemActive())
+		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
+
+	ImGui::BeginDisabled();
+	ImGui::ColorEdit4("Font color", &data.FontColor[ 0 ], ImGuiColorEditFlags_NoAlpha);
+	ImGui::EndDisabled();
 }
 
 void PropertiesWindow::ShowPropertiesFor(Components::Transform& transform)
