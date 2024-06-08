@@ -58,7 +58,7 @@ namespace Controllers
 		if (Input::IsKeyDown(Key::LeftControl) && event.GetKey() == Key::S)
 		{
 			LOG_DEBUG("Ctrl + S");
-			m_EventQueue.Push(Events::Canvas::SaveToFile {"canvas.svg"}); // TODO: Dialog for filename
+			m_EventQueue.Push(Events::Canvas::SaveToFile {});
 			return true;
 		}
 

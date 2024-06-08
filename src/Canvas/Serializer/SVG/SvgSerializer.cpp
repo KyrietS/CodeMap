@@ -40,8 +40,6 @@ std::string SvgSerializer::Serialize()
 	SerializeAllElements(root);
 	AddBorderToSvgDocument(root, viewBox);
 
-	doc.SaveFile("canvas.svg");
-
 	tinyxml2::XMLPrinter printer;
 	doc.Print(&printer);
 	return printer.CStr();

@@ -9,7 +9,7 @@
 #include <vector>
 
 // <Windows.h> I hate you so much!!!
-#undef DrawText
+#undef DrawText // TODO: wrap in #if WINDOWS
 
 namespace Components
 {

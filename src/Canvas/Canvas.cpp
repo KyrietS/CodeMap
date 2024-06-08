@@ -13,7 +13,27 @@
 #include "Elements/ArrowElement.hpp"
 #include "Canvas/Serializer/SVG/SvgSerializer.hpp"
 #include "Canvas/Deserializer/SVG/SvgDeserializer.hpp"
+#include "Dialogs.hpp"
 #include <ranges>
+
+namespace
+{
+	std::string LoadFileContent(const std::filesystem::path& filename)
+	{
+		std::ifstream file(filename);
+		if (!file.is_open())
+		{
+			LOG_ERROR("Failed to open file: {0}", filename);
+			return "";
+		}
+
+		std::stringstream ss;
+		ss << file.rdbuf();
+		file.close();
+
+		return ss.str();
+	}
+}
 
 Canvas::Canvas(CanvasElements& elements, EventQueue& eventQueue)
 	: m_Elements(elements), m_EventQueue(eventQueue)
@@ -51,6 +71,7 @@ void Canvas::OnEvent(Event& event)
 	EventDispatcher dispatcher(event);
 	dispatcher.Handle<Events::Canvas::SaveToFile>(BIND_EVENT(OnCanvasSaveToFile));
 	dispatcher.Handle<Events::Canvas::LoadFromFile>(BIND_EVENT(OnCanvasLoadFromFile));
+	dispatcher.Dispatch<Events::Canvas::MakeSnapshot>(BIND_EVENT(OnMakeSnapshot));
 
 	for (auto& controller : m_Controllers)
 	{
@@ -69,17 +90,91 @@ void Canvas::OnEvent(Event& event)
 
 bool Canvas::OnCanvasSaveToFile(const Events::Canvas::SaveToFile& event)
 {
-	LOG_DEBUG("[EVENT] Canvas received SaveToFile event with path: {}", event.Filename);
-	SvgSerializer { m_Elements }.Serialize();
-	m_EventQueue.Push(Events::App::ProjectSaved { "canvas.svg" });
+	if (not m_CurrentFilePath.has_value() or event.SaveAs)
+	{
+		if (auto path = Dialogs::SaveFileAsDialog())
+		{
+			SaveFileAs(*path);
+		}
+	}
+	else
+	{
+		SaveFileAs(m_CurrentFilePath.value());
+	}
+	
+	if (m_CurrentFilePath.has_value())
+	{
+		m_IsSaved = true;
+		m_EventQueue.Push(Events::App::ProjectSaved { m_CurrentFilePath.value().string() });
+	}
+
 	return true;
 }
 
 bool Canvas::OnCanvasLoadFromFile(const Events::Canvas::LoadFromFile& event)
 {
-	LOG_DEBUG("[EVENT] Canvas received LoadFromFile event with path: {}", event.Filename);
-	SvgDeserializer { m_Camera, m_Elements, m_EventQueue }.Deserialize(event.Filename);
+	if (not m_IsSaved)
+	{
+		auto answer = Dialogs::MessageBoxDialog(
+			"Open new file",
+			"Current project is not saved.\nAre you sure you want to open a new file?",
+			Dialogs::Type::YesNo,
+			Dialogs::Icon::Warning,
+			Dialogs::Result::Reject
+		);
+		if (answer != Dialogs::Result::Accept)
+		{
+			return true;
+		}
+	}
+
+	if (auto path = Dialogs::OpenFileDialog())
+	{
+		if (not path->extension().string().ends_with(".svg"))
+		{
+			auto answer = Dialogs::MessageBoxDialog(
+				"Invalid file format",
+				"Selected file is not an SVG file.\nLoad it anyway?",
+				Dialogs::Type::YesNoCancel,
+				Dialogs::Icon::Question
+			);
+			if (answer != Dialogs::Result::Accept)
+			{
+				return true;
+			}
+		}
+
+		std::string fileContent = LoadFileContent(*path);
+		SvgDeserializer { m_Camera, m_Elements, m_EventQueue }.Deserialize(fileContent);
+		m_CurrentFilePath = *path;
+		m_IsSaved = true;
+		m_EventQueue.Push(Events::App::ProjectSaved { m_CurrentFilePath.value().string() });
+	}
+	
 	return true;
+}
+
+void Canvas::OnMakeSnapshot(const Events::Canvas::MakeSnapshot&)
+{
+	m_IsSaved = false;
+}
+
+void Canvas::SaveFileAs(const std::filesystem::path& path)
+{
+	LOG_INFO("Saving to file: {}", path);
+	const std::string svgContent = SvgSerializer { m_Elements }.Serialize();
+	if (std::ofstream file(path); file.is_open())
+	{
+		file << svgContent;
+	}
+	else
+	{
+		LOG_ERROR("Failed to save file: {}", path);
+		return;
+	}
+
+	m_CurrentFilePath = path;
+	m_EventQueue.Push(Events::App::ProjectSaved { path.string() });
 }
 
 void Canvas::DrawGrid()

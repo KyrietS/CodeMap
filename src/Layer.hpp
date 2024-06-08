@@ -2,6 +2,7 @@
 
 class Event;
 
+// TODO: Move to "Layer" directory
 class Layer
 {
 public:

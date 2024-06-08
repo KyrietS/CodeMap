@@ -10,22 +10,6 @@
 
 namespace
 {
-	std::string LoadFileContent(const std::string& filename)
-	{
-		std::ifstream file(filename);
-		if (!file.is_open())
-		{
-			LOG_ERROR("Failed to open file: {0}", filename);
-			return "";
-		}
-
-		std::stringstream ss;
-		ss << file.rdbuf();
-		file.close();
-
-		return ss.str();
-	}
-
 	std::unique_ptr<tinyxml2::XMLDocument> LoadXMLDocument(const std::string& svgContent)
 	{
 		auto doc = std::make_unique<tinyxml2::XMLDocument>();
@@ -96,13 +80,10 @@ SvgDeserializer::SvgDeserializer(CanvasCamera& camera, CanvasElements& elements,
 {
 }
 
-void SvgDeserializer::Deserialize(const std::string& filename)
+void SvgDeserializer::Deserialize(const std::string& svgContent)
 {
 	LOG_DEBUG("Deserialize Canvas from SVG");
-
-	(void)filename; // temporarily filename is hardcoded
-	std::string svgContent = LoadFileContent("canvas.svg");
-	LOG_DEBUG("SVG content: {}", svgContent);
+	LOG_TRACE("SVG content: {}", svgContent);
 
 	// Load SVG
 	auto doc = LoadXMLDocument(svgContent);

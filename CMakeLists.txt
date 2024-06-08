@@ -56,6 +56,11 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/nothings/stb.git
     GIT_TAG        5736b15f7ea0ffb08dd38af21067c314d6a3aae9
 )
+FetchContent_Declare(
+    tinyfiledialogs
+    GIT_REPOSITORY https://git.code.sf.net/p/tinyfiledialogs/code
+    GIT_TAG        384f35c9fc15f3d4deb9a579805e24ddbaa92a1d # v3.18.2
+)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT CodeMap)
@@ -67,7 +72,7 @@ set(CMAKE_CXX_STANDARD 20)
 file(GLOB_RECURSE SOURCES "src/**.cpp" "src/**.hpp")
 add_executable(CodeMap ${SOURCES})
 target_include_directories(CodeMap PRIVATE src)
-target_link_libraries(CodeMap raylib clip imgui tinyxml2 spdlog glm utf8cpp EnTT trex)
+target_link_libraries(CodeMap raylib clip imgui tinyxml2 spdlog glm utf8cpp EnTT trex tinyfiledialogs)
 target_precompile_headers(CodeMap PRIVATE src/pch.hpp)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src FILES ${SOURCES})
 
@@ -87,6 +92,7 @@ FetchContent_MakeAvailable(
     EnTT
     trex
     stb
+    tinyfiledialogs
 )
 
 target_compile_definitions(raylib PRIVATE SUPPORT_CUSTOM_FRAME_CONTROL)
@@ -104,6 +110,12 @@ endif()
 file(GLOB IMGUI_SOURCES ${imgui_SOURCE_DIR}/*.cpp ${imgui_SOURCE_DIR}/*.h ${imgui_SOURCE_DIR}/misc/cpp/*)
 add_library(imgui ${IMGUI_SOURCES})
 target_include_directories(imgui PRIVATE ${imgui_SOURCE_DIR})
+
+add_library(tinyfiledialogs 
+    ${tinyfiledialogs_SOURCE_DIR}/tinyfiledialogs.h
+    ${tinyfiledialogs_SOURCE_DIR}/tinyfiledialogs.c
+)
+target_include_directories(tinyfiledialogs PUBLIC ${tinyfiledialogs_SOURCE_DIR})
 
 get_target_property(dependencies CodeMap INTERFACE_LINK_LIBRARIES)
 foreach(dependency ${dependencies})

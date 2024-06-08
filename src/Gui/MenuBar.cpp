@@ -22,13 +22,16 @@ void MenuBar::OnUpdate()
 			if (ImGui::MenuItem("New")) {}
 			if (ImGui::MenuItem("Open", "Ctrl+O"))
 			{
-				LoadCanvasFromFile("test.svg");
+				m_EventQueue.Push(Events::Canvas::LoadFromFile{});
 			}
 			if (ImGui::MenuItem("Save", "Ctrl+S"))
 			{
-				SaveCanvasToFile("canvas.xml");
+				m_EventQueue.Push(Events::Canvas::SaveToFile {});
 			}
-			if (ImGui::MenuItem("Save As..")) {}
+			if (ImGui::MenuItem("Save As.."))
+			{
+				m_EventQueue.Push(Events::Canvas::SaveToFile{ .SaveAs = true });
+			}
 			if (ImGui::MenuItem("Quit", "Alt+F4"))
 			{
 				m_EventQueue.Push(Events::App::Quit{});
@@ -69,17 +72,5 @@ void MenuBar::OnUpdate()
 	{
 		ImGui::ShowDemoWindow( &m_Demo );
 	}
-}
-
-void MenuBar::SaveCanvasToFile(const std::string& filename)
-{
-	LOG_DEBUG("Saving canvas to: {}", filename);
-	m_EventQueue.Push(Events::Canvas::SaveToFile{ filename });
-}
-
-void MenuBar::LoadCanvasFromFile(const std::string& filename)
-{
-	LOG_DEBUG("Loading canvas from: {}", filename);
-	m_EventQueue.Push(Events::Canvas::LoadFromFile{ filename });
 }
 }

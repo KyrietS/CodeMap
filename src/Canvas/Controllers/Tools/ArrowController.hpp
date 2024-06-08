@@ -11,6 +11,7 @@ namespace Elements
 	class ArrowElement;
 }
 
+// TODO: Rename it to "Controllers::Tools" and "ArrowTool"
 namespace Controllers
 {
 	class ArrowController : public IController

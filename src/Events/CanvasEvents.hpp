@@ -20,17 +20,10 @@ namespace Events::Canvas
 
 	struct SaveToFile
 	{
-		SaveToFile(const std::string& filename)
-			: Filename(filename) {}
-		std::string Filename;
+		bool SaveAs = false;
 	};
 
-	struct LoadFromFile
-	{
-		LoadFromFile(const std::string& filename)
-			: Filename(filename) {}
-		std::string Filename;
-	};
+	struct LoadFromFile {};
 
 	struct SelectTool
 	{
