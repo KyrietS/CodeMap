@@ -110,6 +110,7 @@ void PropertiesWindow::ShowPropertiesFor(ElementId elementId)
 	if (not m_Elements.Contains(elementId))
 	{
 		LOG_WARN("[GUI] Element with id {} not found", elementId);
+		std::erase(m_SelectedElements, elementId);
 		return;
 	}
 

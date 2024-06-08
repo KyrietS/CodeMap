@@ -53,15 +53,11 @@ namespace Controllers
 
 	void EditController::DrawSelection(const glm::vec2& begin, const glm::vec2& end)
 	{
-		float minX = std::min(begin.x, end.x);
-		float minY = std::min(begin.y, end.y);
-
-		float width = std::abs(begin.x - end.x);
-		float height = std::abs(begin.y - end.y);
+		Box selection = Box::Create({ begin, end });
 		float thickness = 1.0f / m_Camera.GetZoom();
 		glm::vec4 color = VColor::Blue;
 
-		Renderer::DrawRectangleLines({ minX, minY }, width, height, thickness, color);
+		Renderer::DrawRectangleLines({selection.x, selection.y}, selection.width, selection.height, thickness, color);
 	}
 
 	void EditController::OnEvent(Event& event)
@@ -125,6 +121,7 @@ namespace Controllers
 			}
 
 			m_MoveByDrag = false;
+			SelectElementsInsideSelectionRectangle();
 			HideSelectionRectangle();
 			return true;
 		}
@@ -168,7 +165,7 @@ namespace Controllers
 		}
 
 		// Clicked on empty space
-		m_EventQueue.Push(Events::Canvas::SelectElement { 0 });
+		UnselectAllElements();
 		return false;
 	}
 
@@ -209,10 +206,7 @@ namespace Controllers
 
 	void EditController::UnselectAllElements()
 	{
-		for (auto& [id, element] : m_Elements)
-		{
-			element->InEditMode = false;
-		}
+		m_EventQueue.Push(Events::Canvas::SelectElement { 0 });
 	}
 
 	void EditController::RemoveSelectedElements()
@@ -220,10 +214,24 @@ namespace Controllers
 		m_Elements.RemoveIf([](const Elements::IElement& element) { return element.InEditMode; });
 	}
 
+	void EditController::SelectElementsInsideSelectionRectangle()
+	{
+		if (not m_SelectionStart.has_value() or not m_SelectionEnd.has_value())
+			return;
+
+		Box selection = Box::Create({ m_SelectionStart.value(), m_SelectionEnd.value() });
+		for (auto& [id, element] : m_Elements)
+		{
+			if (selection.Contains(element->GetBoundingBox()))
+			{
+				m_EventQueue.Push(Events::Canvas::SelectElement { .ElementId = id, .MultiSelect = true });
+			}
+		}
+	}
+
 	void EditController::HideSelectionRectangle()
 	{
 		m_SelectionStart.reset();
 		m_SelectionEnd.reset();
 	}
-
 }

@@ -34,6 +34,7 @@ namespace Controllers
 		void MoveSelectedElementsBy(glm::vec2);
 		void UnselectAllElements();
 		void RemoveSelectedElements();
+		void SelectElementsInsideSelectionRectangle();
 		void HideSelectionRectangle();
 
 		bool m_MoveByDrag = false;
