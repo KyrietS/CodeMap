@@ -17,6 +17,7 @@ namespace Controllers
 	{
 	public:
 		ArrowController(CanvasCamera& camera, CanvasElements& elements, EventQueue& eventQueue);
+		~ArrowController() override;
 		void Draw() override;
 		void OnEvent(Event& event) override;
 

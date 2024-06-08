@@ -13,6 +13,11 @@ namespace Controllers
 	{
 	}
 
+	ArrowController::~ArrowController()
+	{
+		Window::GetMouseCursor().Reset();
+	}
+
 	void ArrowController::Draw()
 	{
 		if (m_Arrow)
