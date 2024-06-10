@@ -7,6 +7,7 @@
 #include "Gui/HierarchyWindow.hpp"
 #include "Gui/Toolbar.hpp"
 #include "Gui/Popup.hpp"
+#include "Gui/About.hpp"
 #include <imgui_internal.h>
 
 namespace Gui
@@ -27,6 +28,7 @@ void Gui::OnSetup(ImGuiID viewportDockSpaceId)
 	m_GuiElements.push_back(std::make_unique<HierarchyWindow>(m_EventQueue, m_CanvasElements, m_DockRightTop));
 	m_GuiElements.push_back(std::make_unique<Overlay>());
 	m_GuiElements.push_back(std::make_unique<Popup>());
+	m_GuiElements.push_back(std::make_unique<About>(m_EventQueue));
 }
 
 void Gui::SetupDockSpace( ImGuiID viewportDockSpaceId )

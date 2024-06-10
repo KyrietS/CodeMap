@@ -6,5 +6,6 @@ namespace Events::Gui
 	{
 		std::vector<std::uint64_t> Elements;
 	};
+	struct ShowAbout {};
 	struct ShowPopup {};
 }

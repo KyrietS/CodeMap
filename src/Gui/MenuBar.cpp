@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include "Events/AppEvents.hpp"
 #include "Events/CanvasEvents.hpp"
+#include "Events/GuiEvents.hpp"
 
 namespace Gui
 {
@@ -62,6 +63,11 @@ void MenuBar::OnUpdate()
 		if( ImGui::BeginMenu( "Help" ) )
 		{
 			if( ImGui::MenuItem( "Show ImGui Demo", nullptr, &m_Demo ) ) {}
+			ImGui::Separator();
+			if (ImGui::MenuItem("About"))
+			{
+				m_EventQueue.Push(Events::Gui::ShowAbout{});
+			}
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
