@@ -4,6 +4,7 @@
 #include "TextMeasurement.hpp"
 #include "BlendMode.hpp"
 #include "Render/Fonts/FontStorage.hpp"
+#include "Render/Shaders/ShaderStorage.hpp"
 #include <glm/glm.hpp>
 #include <span>
 #include <vector>
@@ -48,7 +49,7 @@ public:
 	static void DrawCircleOutline(const glm::vec2& position, float radius, const glm::vec4& color);
 	static void DrawPolygon(std::span<const glm::vec2> points, const glm::vec4& color);
 	static void DrawImage(const glm::vec2& position, int width, int height, TextureId);
-	static void DrawText(std::span<const uint32_t> text, glm::vec2 position, float fontSize, unsigned int fontId, bool cursor = false);
+	static void DrawText(std::span<const uint32_t> text, glm::vec2 position, glm::vec4 color, float fontSize, unsigned int fontId, bool cursor = false);
 
 
 	static TextMeasurement MeasureText(std::span<const uint32_t> text, float fontSize, unsigned int fontId);
@@ -63,5 +64,6 @@ public:
 private:
 	static void UnloadImage(TextureId);
 	static FontStorage s_FontStorage;
+	static ShaderStorage s_ShaderStorage;
 };
 

@@ -10,12 +10,12 @@ class TextShaper;
 }
 class FontCollection;
 struct Texture;
+struct Shader;
 
 struct FontInstance
 {
     std::unique_ptr<Trex::TextShaper> Shaper;
     std::unique_ptr<const Texture> Texture;
-    // TODO: Add fragment shader for text rendering
 };
 
 std::vector<uint8_t> LoadDefaultFontData();

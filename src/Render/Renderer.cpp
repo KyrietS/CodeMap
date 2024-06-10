@@ -25,6 +25,7 @@ namespace
 
 
 FontStorage Renderer::s_FontStorage{};
+ShaderStorage Renderer::s_ShaderStorage{};
 
 
 void Renderer::BeginFrame()
@@ -214,11 +215,14 @@ static int DrawTextLine(const glm::vec2& position, const FontInstance& font, std
 	return cursor.x - position.x; // Return line length (in pixels)
 }
 
-//void Renderer::DrawText(const glm::vec2& position, const Components::Text& text)
-void Renderer::DrawText(std::span<const uint32_t> text, glm::vec2 position, float fontSize, unsigned int fontId, bool showCursor)
+void Renderer::DrawText(std::span<const uint32_t> text, glm::vec2 position, glm::vec4 color, float fontSize, unsigned int fontId, bool showCursor)
 {
 	const FontInstance& font = Renderer::s_FontStorage.GetFont(fontId, fontSize);
 	const Trex::FontMetrics fontMetrics = font.Shaper->GetFontMetrics();
+
+	auto& shader = s_ShaderStorage.TextShader(color);
+	::BeginShaderMode(shader);
+
 	// Draws text aligned to the left
 	glm::vec2 cursor = position;
 	glm::vec2 lastLineEnd = position;
@@ -230,6 +234,7 @@ void Renderer::DrawText(std::span<const uint32_t> text, glm::vec2 position, floa
 		cursor.y += fontMetrics.height;
 	}
 
+	::EndShaderMode();
 	
 	if (showCursor)
 	{

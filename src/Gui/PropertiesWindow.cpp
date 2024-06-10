@@ -185,9 +185,7 @@ void PropertiesWindow::ShowPropertiesFor(Elements::TextElement& text)
 	if (ImGui::IsItemHovered() && !ImGui::IsItemActive())
 		ImGui::SetMouseCursor(ImGuiMouseCursor_ResizeEW);
 
-	ImGui::BeginDisabled();
-	ImGui::ColorEdit4("Font color", &data.FontColor[ 0 ], ImGuiColorEditFlags_NoAlpha);
-	ImGui::EndDisabled();
+	ImGui::ColorEdit4("Font color", &data.FontColor[0], ImGuiColorEditFlags_NoAlpha);
 }
 
 void PropertiesWindow::ShowPropertiesFor(Elements::ImageElement& image)

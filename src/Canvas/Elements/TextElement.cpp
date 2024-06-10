@@ -22,7 +22,7 @@ namespace Elements
 	void TextElement::Draw()
 	{
 		const bool showCursor = InEditMode and m_CursorVisible;
-		Renderer::DrawText(m_Data.Text, m_Data.Position, m_Data.FontSize, m_Data.FontId, showCursor);
+		Renderer::DrawText(m_Data.Text, m_Data.Position, m_Data.FontColor, m_Data.FontSize, m_Data.FontId, showCursor);
 		if (InEditMode)
 		{
 			auto textMeasure = Renderer::MeasureText(m_Data.Text, m_Data.FontSize, m_Data.FontId);
