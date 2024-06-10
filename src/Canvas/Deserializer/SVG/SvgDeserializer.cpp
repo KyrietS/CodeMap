@@ -26,7 +26,7 @@ namespace
 
 	glm::vec4 ParseColor(const char* attribute)
 	{
-		if (attribute == nullptr)
+		if (attribute == nullptr or attribute[0] == '\0')
 		{
 			return { 0, 0, 0, 1 };
 		}
@@ -116,7 +116,7 @@ void SvgDeserializer::DeserializeElement(const tinyxml2::XMLElement& element)
 	else if (name == "image")
 		DeserializeImage(element);
 	else if (name == "defs")
-		return; // ignore, arrowhead markers
+		LoadDefs(element);
 	else if (name == "style")
 		return; // ignore, fonts
 	else if (name == "rect")
@@ -163,7 +163,25 @@ void SvgDeserializer::DeserializeArrow(const tinyxml2::XMLElement& element)
 
 	arrow->GetData().StrokeColor = ParseColor(element.Attribute("stroke"));
 	arrow->GetData().Thickness = element.FloatAttribute("stroke-width", 1.0f);
-	// TODO: ArrowheadColor
+
+	auto markerEnd = element.Attribute("marker-end");
+	std::string_view markerEndStr = markerEnd ? markerEnd : "";
+	if (markerEndStr.starts_with("url(#"))
+	{
+		std::string markerId = std::string(markerEndStr.substr(5, markerEndStr.size() - 6));
+		if (m_ArrowheadColors.contains(markerId))
+		{
+			arrow->GetData().ArrowheadColor = m_ArrowheadColors.at(markerId);
+		}
+		else
+		{
+			LOG_ERROR("Arrowhead color not found for marker id: {}", markerId);
+		}
+	}
+	else
+	{
+		LOG_ERROR("Unsupported or missing marker-end attribute: {}", markerEnd);
+	}
 
 	m_Elements.Add(std::move(arrow));
 }
@@ -272,3 +290,37 @@ void SvgDeserializer::DeserializeImage(const tinyxml2::XMLElement& element)
 
 	m_Elements.Add(std::move(image));
 }
+
+void SvgDeserializer::LoadDefs(const tinyxml2::XMLElement& defs)
+{
+	for (auto element = defs.FirstChildElement(); element != nullptr; element = element->NextSiblingElement())
+	{
+		const std::string_view elementName = element->Name();
+		if (elementName == "marker")
+		{
+			LoadMarker(*element);
+		}
+		else
+		{
+			LOG_ERROR("Unknown element in defs: {}", elementName);
+		}
+	}
+}
+
+void SvgDeserializer::LoadMarker(const tinyxml2::XMLElement& marker)
+{
+	auto id = marker.Attribute("id");
+	const std::string idStr = id ? id : "";
+
+	auto path = marker.FirstChildElement("path");
+	if (not path)
+	{
+		LOG_ERROR("Arrowhead marker does not required contain a path element");
+		return;
+	}
+
+	glm::vec4 color = ParseColor(path->Attribute("fill"));
+	m_ArrowheadColors[idStr] = color;
+}
+
+

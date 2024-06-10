@@ -35,7 +35,6 @@ std::string SvgSerializer::Serialize()
 	GenerateSvgRootElement(doc, viewBox);
 	auto& root = *doc.RootElement();
 
-	AddArrowheadMarkers(root);
 	AddRobotoFont(root);
 	SerializeAllElements(root);
 	AddBorderToSvgDocument(root, viewBox);
@@ -72,25 +71,6 @@ void SvgSerializer::GenerateSvgRootElement(tinyxml2::XMLDocument& doc, ViewBox v
 	root->SetAttribute("xmlns", "http://www.w3.org/2000/svg");
 
 	doc.InsertFirstChild(root);
-}
-
-void SvgSerializer::AddArrowheadMarkers(tinyxml2::XMLElement& root)
-{
-	// FIXME: These values are hardcoded for now and based on the values used in Canvas during rendering.
-	//        We should have different types of arrowheads with their own sizes and colors.
-	auto defs = root.InsertNewChildElement("defs");
-	auto marker = defs->InsertNewChildElement("marker");
-	marker->SetAttribute("id", "arrowhead"); // unique id
-	marker->SetAttribute("viewBox", "0 0 30 20"); // arrowhead dimensions
-	marker->SetAttribute("refX", 30); // x coordinate of the arrowhead's tip
-	marker->SetAttribute("refY", 10); // y coordinate of the arrowhead's tip
-	marker->SetAttribute("markerUnits", "strokeWidth"); // arrowhead size will be 'markerWidth/Height' times the width of the line
-	marker->SetAttribute("markerWidth", 6);
-	marker->SetAttribute("markerHeight", 4);
-	marker->SetAttribute("orient", "auto");
-	auto path = marker->InsertNewChildElement("path");
-	path->SetAttribute("d", "M 0 0 L 30 10 L 0 20 z");
-	path->SetAttribute("fill", GetColorString(VColor::Orange).c_str());
 }
 
 void SvgSerializer::AddRobotoFont(tinyxml2::XMLElement& root)
@@ -177,9 +157,12 @@ private:
 
 void SvgSerializer::SerializeArrow(tinyxml2::XMLElement& root, const Elements::ArrowElement& arrow)
 {
-	const auto& data = arrow.GetData();
-	auto arrowBegin = data.Points.front().Position;
 
+	const auto& data = arrow.GetData();
+
+	std::string markerId = AddArrowheadMarker(root, data.ArrowheadColor);
+
+	auto arrowBegin = data.Points.front().Position;
 	auto pathData = PathData {}.MoveTo(arrowBegin);
 	for (auto it = std::next(data.Points.begin()); it != data.Points.end(); it++)
 	{
@@ -192,7 +175,30 @@ void SvgSerializer::SerializeArrow(tinyxml2::XMLElement& root, const Elements::A
 	path->SetAttribute("stroke", GetColorString(data.StrokeColor).c_str());
 	path->SetAttribute("stroke-width", data.Thickness);
 	path->SetAttribute("fill", "none");
-	path->SetAttribute("marker-end", "url(#arrowhead)");
+	std::string markerEnd = fmt::format("url(#{})", markerId);
+	path->SetAttribute("marker-end", markerEnd.c_str());
+}
+
+std::string SvgSerializer::AddArrowheadMarker(tinyxml2::XMLElement& root, glm::vec4 color)
+{
+	static int id = 0;
+	std::string markerId = fmt::format("arrowhead-{}", id++);
+
+	auto defs = root.InsertNewChildElement("defs");
+	auto marker = defs->InsertNewChildElement("marker");
+	marker->SetAttribute("id", markerId.c_str()); // unique id
+	marker->SetAttribute("viewBox", "0 0 30 20"); // arrowhead dimensions
+	marker->SetAttribute("refX", 30); // x coordinate of the arrowhead's tip
+	marker->SetAttribute("refY", 10); // y coordinate of the arrowhead's tip
+	marker->SetAttribute("markerUnits", "strokeWidth"); // arrowhead size will be 'markerWidth/Height' times the width of the line
+	marker->SetAttribute("markerWidth", 6);
+	marker->SetAttribute("markerHeight", 4);
+	marker->SetAttribute("orient", "auto");
+	auto path = marker->InsertNewChildElement("path");
+	path->SetAttribute("d", "M 0 0 L 30 10 L 0 20 z");
+	path->SetAttribute("fill", GetColorString(color).c_str());
+
+	return markerId;
 }
 
 void SvgSerializer::SerializeShape(tinyxml2::XMLElement& root, const Elements::ShapeElement& shape)

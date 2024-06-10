@@ -17,8 +17,12 @@ private:
 	void DeserializeShape(const tinyxml2::XMLElement&);
 	void DeserializeText(const tinyxml2::XMLElement&);
 	void DeserializeImage(const tinyxml2::XMLElement&);
+	void LoadDefs(const tinyxml2::XMLElement&);
+	void LoadMarker(const tinyxml2::XMLElement&);
 
 	CanvasCamera& m_Camera;
 	CanvasElements& m_Elements;
 	EventQueue& m_EventQueue;
+
+	std::map<std::string, glm::vec4> m_ArrowheadColors;
 };
