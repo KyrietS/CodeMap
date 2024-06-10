@@ -140,7 +140,7 @@ void SvgSerializer::SerializeAllElements(tinyxml2::XMLElement& root)
 	}
 }
 
-class PathData2
+class PathData
 {
 public:
 	std::string AsString() const
@@ -154,19 +154,19 @@ public:
 		return result;
 	}
 
-	PathData2& MoveTo(glm::vec2 point)
+	PathData& MoveTo(glm::vec2 point)
 	{
 		m_Commands.push_front(fmt::format("M {} {}", point.x, point.y));
 		return *this;
 	}
 
-	PathData2& LineTo(glm::vec2 point)
+	PathData& LineTo(glm::vec2 point)
 	{
 		m_Commands.push_back(fmt::format("L {} {}", point.x, point.y));
 		return *this;
 	}
 
-	PathData2& QuadraticBezierTo(glm::vec2 control, glm::vec2 end)
+	PathData& QuadraticBezierTo(glm::vec2 control, glm::vec2 end)
 	{
 		m_Commands.push_back(fmt::format("Q {} {} {} {}", control.x, control.y, end.x, end.y));
 		return *this;
@@ -180,7 +180,7 @@ void SvgSerializer::SerializeArrow(tinyxml2::XMLElement& root, const Elements::A
 	const auto& data = arrow.GetData();
 	auto arrowBegin = data.Points.front().Position;
 
-	auto pathData = PathData2 {}.MoveTo(arrowBegin);
+	auto pathData = PathData {}.MoveTo(arrowBegin);
 	for (auto it = std::next(data.Points.begin()); it != data.Points.end(); it++)
 	{
 		pathData.LineTo(it->Position);
