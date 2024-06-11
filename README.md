@@ -1,13 +1,13 @@
 # CodeMap
 
-**CodeMap** is a simple graphical editor for creating maps from screenshots. It allows you to create visual maps and diagrams of source code using arrows. The application provides a user-friendly and minimal interface.
+**CodeMap** is a simple graphical editor for creating maps of code from screenshots. It allows you to create visual maps and diagrams of source code using arrows. The application provides a user-friendly and minimal interface.
 
 ![image](https://github.com/KyrietS/CodeMap/assets/19170699/a35fb351-f517-4e55-a35c-3b95cce2696d)
 
 
 ## Features
 
-* Visualize source code using screenshots, arrows and highlights.
+* Visualize source code using screenshots, arrows, highlights and text.
 * Export project to SVG format
 * Open project from SVG format
 * Standalone app (the binary weights around 6 MB)
@@ -15,7 +15,7 @@
 
 ## Building
 
-This project uses CMake to generate project files. It should work the same way on all supported platforms.
+This project uses CMake to generate project files. It should compile and work the same way on all supported platforms.
 
 ```bash
 git clone https://github.com/KyrietS/CodeMap.git
@@ -36,6 +36,7 @@ The project relies on a various open source C++ libraries. All of them are fetch
 * **spdlog** - logging library
 * **utfcpp** - library for encoding and decoding UTF text
 * **tinyxml2** - library for parsing XML files
+* **tinydialogs** - library for displaying OS-native dialogs
 * **stb** - encoding and decoding images to/from raw data
 * **[trex](https://github.com/KyrietS/trex)** - self-made font rasterizer and text shaper library
 
