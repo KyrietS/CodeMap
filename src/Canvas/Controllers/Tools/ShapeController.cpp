@@ -12,6 +12,8 @@ namespace Controllers
 	{
 	}
 
+	ShapeController::~ShapeController() = default;
+
 	void ShapeController::Draw()
 	{
 		if (m_Shape)
@@ -25,7 +27,7 @@ namespace Controllers
 		EventDispatcher dispatcher(event);
 		dispatcher.Handle<Events::Input::MousePressed>(BIND_EVENT(OnMousePressed));
 		dispatcher.Handle<Events::Input::MouseReleased>(BIND_EVENT(OnMouseReleased));
-	
+
 		OnUpdate();
 	}
 

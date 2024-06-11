@@ -1,5 +1,4 @@
 #pragma once
-#include "pch.hpp"
 
 using FontId = unsigned int;
 using FontSize = float;
@@ -15,7 +14,7 @@ struct Shader;
 struct FontInstance
 {
     std::unique_ptr<Trex::TextShaper> Shaper;
-    std::unique_ptr<const Texture> Texture;
+    std::unique_ptr<const ::Texture> Texture;
 };
 
 std::vector<uint8_t> LoadDefaultFontData();

@@ -7,7 +7,7 @@
 #include "Trex/TextShaper.hpp"
 #include "Render/VColor.hpp"
 #include "Render/Fonts/compressed_roboto.h"
-#include "render/Fonts/FontStorage.hpp"
+#include "Render/Fonts/FontStorage.hpp"
 #include "Utils/Strings.hpp"
 
 namespace
@@ -235,7 +235,7 @@ void Renderer::DrawText(std::span<const uint32_t> text, glm::vec2 position, glm:
 	}
 
 	::EndShaderMode();
-	
+
 	if (showCursor)
 	{
 		float cursorThickness = std::max(fontSize / 32.0f, 1.0f);
@@ -243,7 +243,7 @@ void Renderer::DrawText(std::span<const uint32_t> text, glm::vec2 position, glm:
 		glm::vec2 cursorBarEnd = { lastLineEnd.x, lastLineEnd.y - fontMetrics.descender };
 		DrawLine(cursorBarBegin, cursorBarEnd, cursorThickness, VColor::Black);
 	}
-	
+
 }
 
 static TextMeasurement MeasureMultilineText(const std::vector<Trex::TextMeasurement>& measurements, int baselineHeight)

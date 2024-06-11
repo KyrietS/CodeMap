@@ -16,6 +16,7 @@ namespace Controllers
 	{
 	public:
 		ShapeController(CanvasCamera& camera, CanvasElements& elements, EventQueue& eventQueue);
+		~ShapeController();
 		void Draw() override;
 		void OnEvent(Event& event) override;
 
