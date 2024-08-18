@@ -3,6 +3,8 @@
 #include <imgui.h>
 #include "Time.hpp"
 #include "Input.hpp"
+#include "Events/EventDispatcher.hpp"
+#include "Events/GuiEvents.hpp"
 
 namespace Gui
 {
@@ -12,6 +14,17 @@ void Overlay::OnUpdate()
 	ShowMousePositionOverlay();
 }
 
+void Overlay::OnEvent(Event& event)
+{
+	EventDispatcher dispatcher(event);
+	dispatcher.Handle<Events::Gui::ZoomChanged>(BIND_EVENT(OnZoomChanged));
+}
+
+bool Overlay::OnZoomChanged(const Events::Gui::ZoomChanged& event)
+{
+	zoomLevel = event.Zoom;
+	return true;
+}
 
 void Overlay::ShowMetaInfoOverlay()
 {
@@ -36,11 +49,10 @@ void Overlay::ShowMetaInfoOverlay()
 	ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
 	if (ImGui::Begin("MetaInfoOverlay", nullptr, window_flags))
 	{
-		//int zoomLevel = (int)(Canvas::Camera().GetZoom() * 100);
-		int zoomLevel = 100;
+		int zoom = (int)(zoomLevel * 100);
 		int fps = (int)Time::GetFPS();
 
-		ImGui::Text("zoom: %d%%", zoomLevel);
+		ImGui::Text("zoom: %d%%", zoom);
 		ImGui::Separator();
 		ImGui::Text("%d FPS", fps);
 	}

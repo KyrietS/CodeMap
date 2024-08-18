@@ -8,4 +8,9 @@ namespace Events::Gui
 	};
 	struct ShowAbout {};
 	struct ShowPopup {};
+
+	struct ZoomChanged
+	{
+		float Zoom;
+	};
 }

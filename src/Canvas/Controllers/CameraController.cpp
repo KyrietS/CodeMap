@@ -2,6 +2,7 @@
 #include "CameraController.hpp"
 #include "Input.hpp"
 #include "Events/EventDispatcher.hpp"
+#include "Events/GuiEvents.hpp"
 
 namespace
 {
@@ -36,11 +37,12 @@ namespace Controllers
 		}
 
 		m_Camera.SetZoomAt(Input::GetScreenMousePosition(), zoomLevel);
-
+		
 		//for (auto [entity, texture] : Canvas::GetAllEntitiesWith<Components::Image>().each())
 		//{
 		//	AdjustFilterToZoomLevel(zoomLevel, texture);
 		//}
+		m_EventQueue.Push(Events::Gui::ZoomChanged { zoomLevel });
 	}
 
 	void CameraController::OnEvent(Event& event)

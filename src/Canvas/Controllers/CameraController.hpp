@@ -1,6 +1,7 @@
 #pragma once
 #include "IController.hpp"
 #include "Canvas/CanvasCamera.hpp"
+#include "Events/EventQueue.hpp"
 #include "Events/MouseEvents.hpp"
 
 namespace Controllers
@@ -8,7 +9,8 @@ namespace Controllers
 	class CameraController : public IController
 	{
 	public:
-		CameraController(CanvasCamera& camera) : m_Camera(camera) {}
+		CameraController(CanvasCamera& camera, EventQueue& eventQueue) 
+			: m_Camera(camera), m_EventQueue(eventQueue) {}
 		void Draw() override;
 		void OnEvent(Event& event) override;
 	private:
@@ -19,5 +21,6 @@ namespace Controllers
 		void OnMouseScrolled(const Events::Input::MouseScrolled&);
 
 		CanvasCamera& m_Camera;
+		EventQueue& m_EventQueue;
 	};
 }
