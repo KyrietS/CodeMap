@@ -3,25 +3,22 @@
 #include "Input.hpp"
 #include "Events/EventDispatcher.hpp"
 #include "Events/GuiEvents.hpp"
+#include "Canvas/Elements/ImageElement.hpp"
+#include "Render/Renderer.hpp"
 
 namespace
 {
-	//void AdjustFilterToZoomLevel(float zoom, const Components::Image& sprite)
-	//{
-	//	if (zoom < 1.0f)
-	//		Renderer::SetImageFilter(*sprite.TextureId, ImageFilter::Linear);
-	//	else
-	//		Renderer::SetImageFilter(*sprite.TextureId, ImageFilter::Nearest);
-	//}
+	void AdjustFilterToZoomLevel(float zoom, const Elements::ImageElement& image)
+	{
+		if (zoom < 1.0f)
+			Renderer::SetImageFilter(*image.GetData().TextureId, ImageFilter::Linear);
+		else
+			Renderer::SetImageFilter(*image.GetData().TextureId, ImageFilter::Nearest);
+	}
 }
 
 namespace Controllers
 {
-	void CameraController::Draw()
-	{
-
-	}
-
 	void CameraController::ZoomCamera(float zoomChange)
 	{
 		const float zoomFactor = 1.1f;
@@ -38,10 +35,14 @@ namespace Controllers
 
 		m_Camera.SetZoomAt(Input::GetScreenMousePosition(), zoomLevel);
 		
-		//for (auto [entity, texture] : Canvas::GetAllEntitiesWith<Components::Image>().each())
-		//{
-		//	AdjustFilterToZoomLevel(zoomLevel, texture);
-		//}
+		for (auto& [id, element] : m_Elements)
+		{
+			if (auto* image = element->As<Elements::ImageElement>())
+			{
+				AdjustFilterToZoomLevel(zoomLevel, *image);
+			}
+		}
+
 		m_EventQueue.Push(Events::Gui::ZoomChanged { zoomLevel });
 	}
 
