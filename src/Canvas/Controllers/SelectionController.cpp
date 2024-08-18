@@ -5,6 +5,8 @@
 #include "Canvas/CanvasCamera.hpp"
 #include "Events/GuiEvents.hpp"
 #include "Events/EventDispatcher.hpp"
+#include "Canvas/Elements/TextElement.hpp"
+#include <clip.h>
 
 namespace Controllers
 {
@@ -25,6 +27,7 @@ namespace Controllers
 	{
 		EventDispatcher dispatcher(event);
 		dispatcher.Handle<Events::Canvas::SelectElement>(BIND_EVENT(OnSelectElement));
+		dispatcher.Handle<Events::Canvas::Copy>(BIND_EVENT(OnCopy));
 	}
 
 	bool SelectionController::OnSelectElement(const Events::Canvas::SelectElement& event)
@@ -40,6 +43,21 @@ namespace Controllers
 		}
 
 		m_EventQueue.Push(Events::Gui::ShowProperties { GetSelectedElements() });
+		return false;
+	}
+
+	bool SelectionController::OnCopy(const Events::Canvas::Copy& event)
+	{
+		auto selectedElements = GetSelectedElements();
+		if (selectedElements.size() == 1)
+		{
+			if (auto* textElement = m_Elements.TryGet<Elements::TextElement>(selectedElements[ 0 ]))
+			{
+				bool success = clip::set_text(textElement->GetData().GetTextInUtf8());
+				LOG_DEBUG("Copied text to clipboard: {}, success: {}", textElement->GetData().GetTextInUtf8(), success);
+				return true;
+			}
+		}
 		return false;
 	}
 

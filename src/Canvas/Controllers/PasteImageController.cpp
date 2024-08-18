@@ -74,7 +74,7 @@ namespace Controllers
 
 	bool PasteImageController::HasImageInClipboard()
 	{
-		return clip::has(clip::image_format());
+		return clip::has(clip::image_format()) and not clip::has(clip::text_format());
 	}
 
 	void PasteImageController::AddImageFromClipboardToCanvas()

@@ -3,6 +3,7 @@
 #include "IController.hpp"
 #include "Events/EventQueue.hpp"
 #include "Events/KeyEvents.hpp"
+#include "Events/CanvasEvents.hpp"
 
 namespace Controllers
 {
@@ -15,6 +16,7 @@ namespace Controllers
 
 	private:
 		bool OnKeyPressed(const Events::Input::KeyPressed&);
+		bool OnPaste(const Events::Canvas::Paste&);
 
 		EventQueue& m_EventQueue;
 	};

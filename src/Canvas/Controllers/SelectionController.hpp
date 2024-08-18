@@ -17,6 +17,7 @@ public:
 
 private:
 	bool OnSelectElement(const Events::Canvas::SelectElement&);
+	bool OnCopy(const Events::Canvas::Copy&);
 	std::vector<ElementId> GetSelectedElements();
 	void UnselectAllElements();
 

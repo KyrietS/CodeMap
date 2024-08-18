@@ -3,6 +3,7 @@
 #include "Input.hpp"
 #include "Events/CanvasEvents.hpp"
 #include "Events/EventDispatcher.hpp"
+#include <clip.h>
 
 namespace Controllers
 {
@@ -10,6 +11,7 @@ namespace Controllers
 	{
 		EventDispatcher dispatcher(event);
 		dispatcher.Handle<Events::Input::KeyPressed>(BIND_EVENT(OnKeyPressed));
+		dispatcher.Handle<Events::Canvas::Paste>(BIND_EVENT(OnPaste));
 	}
 
 	bool CommonKeyboardShortcutsController::OnKeyPressed(const Events::Input::KeyPressed& event)
@@ -59,6 +61,20 @@ namespace Controllers
 		{
 			LOG_DEBUG("Ctrl + S");
 			m_EventQueue.Push(Events::Canvas::SaveToFile {});
+			return true;
+		}
+
+		return false;
+	}
+
+	bool CommonKeyboardShortcutsController::OnPaste(const Events::Canvas::Paste&)
+	{
+		if (clip::has(clip::text_format()))
+		{
+			std::string pastedText;
+			clip::get_text(pastedText);
+			m_EventQueue.Push(Events::Canvas::SelectTool{ToolType::Text});
+			m_EventQueue.Push(Events::Canvas::PasteText{std::move(pastedText)});
 			return true;
 		}
 

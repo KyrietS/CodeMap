@@ -18,6 +18,11 @@ namespace Events::Canvas
 		bool MultiSelect = false;
 	};
 
+	struct PasteText
+	{
+		std::string Text;
+	};
+
 	struct SaveToFile
 	{
 		bool SaveAs = false;

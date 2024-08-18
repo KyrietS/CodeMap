@@ -16,25 +16,34 @@ namespace Controllers
 	{
 		EventDispatcher dispatcher(event);
 		dispatcher.Handle<Events::Input::MouseReleased>(BIND_EVENT(OnMouseReleased));
+		dispatcher.Handle<Events::Canvas::PasteText>(BIND_EVENT(OnPasteText));
 	}
 
 	bool TextController::OnMouseReleased(Events::Input::MouseReleased& event)
 	{
 		if (Input::IsMouseButtonClicked(Mouse::ButtonLeft))
 		{
-			AddTextToCanvas();
+			AddTextToCanvas("");
 			return true;
 		}
 
 		return false;
 	}
 
-	void TextController::AddTextToCanvas()
+	bool TextController::OnPasteText(Events::Canvas::PasteText& event)
 	{
-		auto text = std::make_unique<Elements::TextElement>(m_Camera, m_EventQueue);
-		text->GetData().Position = Input::GetWorldMousePosition(m_Camera);
+		LOG_DEBUG("Pasted text: {}", event.Text);
+		AddTextToCanvas(event.Text);
+		return true;
+	}
 
-		ElementId id = m_Elements.Add(std::move(text));
+	void TextController::AddTextToCanvas(const std::string& text)
+	{
+		auto textElement = std::make_unique<Elements::TextElement>(m_Camera, m_EventQueue);
+		textElement->GetData().Position = Input::GetWorldMousePosition(m_Camera);
+		textElement->GetData().SetUtf8Text(text);
+
+		ElementId id = m_Elements.Add(std::move(textElement));
 		m_EventQueue.Push(Events::Canvas::SelectElement { id });
 		m_EventQueue.Push(Events::Canvas::SelectTool { ToolType::Select });
 		m_EventQueue.Push(Events::Canvas::MakeSnapshot {});
