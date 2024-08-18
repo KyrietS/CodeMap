@@ -8,6 +8,7 @@
 #include "Gui/Toolbar.hpp"
 #include "Gui/Popup.hpp"
 #include "Gui/About.hpp"
+#include "Gui/ConfirmExitDialog.hpp"
 #include <imgui_internal.h>
 
 namespace Gui
@@ -28,6 +29,7 @@ void Gui::OnSetup(ImGuiID viewportDockSpaceId)
 	m_GuiElements.push_back(std::make_unique<HierarchyWindow>(m_EventQueue, m_CanvasElements, m_DockRightTop));
 	m_GuiElements.push_back(std::make_unique<Overlay>());
 	m_GuiElements.push_back(std::make_unique<Popup>());
+	m_GuiElements.push_back(std::make_unique<ConfirmExitDialog>(m_EventQueue));
 	m_GuiElements.push_back(std::make_unique<About>(m_EventQueue));
 }
 

@@ -10,6 +10,7 @@
 #include "CanvasLayer.hpp"
 #include "Events/EventDispatcher.hpp"
 #include "Events/AppEvents.hpp"
+#include "Events/GuiEvents.hpp"
 
 
 App* App::m_Instance = nullptr;
@@ -85,7 +86,13 @@ void App::UpdateLayers()
 
 bool App::IsRunning()
 {
-	return m_Running && !Window::ShouldClose();
+	if (Window::ShouldClose())
+	{
+		m_EventQueue.Push(Events::Gui::ShowConfirmExitDialog {});
+		return true;
+	}
+
+	return m_Running;
 }
 
 void App::BeginFrame()

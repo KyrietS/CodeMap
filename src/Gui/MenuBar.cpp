@@ -35,7 +35,7 @@ void MenuBar::OnUpdate()
 			}
 			if (ImGui::MenuItem("Quit", "Alt+F4"))
 			{
-				m_EventQueue.Push(Events::App::Quit{});
+				m_EventQueue.Push(Events::Gui::ShowConfirmExitDialog {});
 			}
 			ImGui::EndMenu();
 		}
