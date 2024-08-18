@@ -33,7 +33,7 @@ void About::OnUpdate()
 			ImGui::TableNextColumn();
 			ImGui::Text("Version:");
 			ImGui::TableNextColumn();
-			ImGui::Text("0.1-alpha.1");
+			ImGui::Text("0.1-alpha.2");
 
 			ImGui::TableNextRow();
 			ImGui::TableNextColumn();
