@@ -4,6 +4,7 @@
 
 namespace
 {
+	// TODO: Convert to XPM format
 	// Symbol to pixel mapping:
 	// ' ' - transparent
 	// '#' - black
