@@ -1,4 +1,5 @@
 #include "ArrowElement.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/vector_angle.hpp>
 #include "Render/Renderer.hpp"
 #include "Render/VColor.hpp"
@@ -96,7 +97,7 @@ namespace Elements
 	{
 		assert(m_Data.Points.size() >= 2);
 		glm::vec2 end = m_Data.Points.back().Position;
-		
+
 		// find previous point with different position
 		glm::vec2 prevEnd = end;
 		for (auto& point : m_Data.Points | std::views::reverse)

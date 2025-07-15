@@ -1,5 +1,5 @@
 #include "ArrowElement.hpp"
-#include <glm/gtx/vector_angle.hpp>
+#include <glm/vec2.hpp>
 #include "Render/Renderer.hpp"
 #include "Render/VColor.hpp"
 #include "Events/EventDispatcher.hpp"

@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "CanvasCamera.hpp"
 #include "Window.hpp"
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
 

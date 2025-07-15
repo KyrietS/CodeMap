@@ -4,12 +4,12 @@ include(FetchContent)
 FetchContent_Declare(
     clip
     GIT_REPOSITORY https://github.com/dacap/clip.git
-    GIT_TAG        v1.5
+    GIT_TAG        v1.10
 )
 FetchContent_Declare(
     glm
     GIT_REPOSITORY https://github.com/g-truc/glm.git
-    GIT_TAG        0.9.9.8
+    GIT_TAG        1.0.1
 )
 FetchContent_Declare(
     reasings
@@ -29,7 +29,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     utf8cpp
     GIT_REPOSITORY https://github.com/nemtrif/utfcpp.git
-    GIT_TAG        v3.2.3
+    GIT_TAG        v4.0.6
 )
 FetchContent_Declare(
     imgui
@@ -49,7 +49,7 @@ FetchContent_Declare(
 FetchContent_Declare(
     trex
     GIT_REPOSITORY https://github.com/KyrietS/trex.git
-    GIT_TAG        00fb684f292f3b2ff2f3e236fc3404091fe6b392
+    GIT_TAG        a6059ae03c9a8dfb722c77b8c2d1c5b5df27c939
 )
 FetchContent_Declare(
     stb
@@ -111,7 +111,7 @@ file(GLOB IMGUI_SOURCES ${imgui_SOURCE_DIR}/*.cpp ${imgui_SOURCE_DIR}/*.h ${imgu
 add_library(imgui ${IMGUI_SOURCES})
 target_include_directories(imgui PRIVATE ${imgui_SOURCE_DIR})
 
-add_library(tinyfiledialogs 
+add_library(tinyfiledialogs
     ${tinyfiledialogs_SOURCE_DIR}/tinyfiledialogs.h
     ${tinyfiledialogs_SOURCE_DIR}/tinyfiledialogs.c
 )
