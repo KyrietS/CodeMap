@@ -50,6 +50,8 @@ public:
 	static KeyCode GetKey();
 	static uint32_t GetChar();
 
+	static bool IsControlDown(); // Checks if any Control key is pressed even if a window is not focused
+
 private:
 	friend class App;
 	static void ResetStates();

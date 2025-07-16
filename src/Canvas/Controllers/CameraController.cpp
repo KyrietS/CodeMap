@@ -34,7 +34,7 @@ namespace Controllers
 		}
 
 		m_Camera.SetZoomAt(Input::GetScreenMousePosition(), zoomLevel);
-		
+
 		for (auto& [id, element] : m_Elements)
 		{
 			if (auto* image = element->As<Elements::ImageElement>())
@@ -68,7 +68,7 @@ namespace Controllers
 		glm::vec2 wheelMove = Input::GetMouseWheelMove();
 
 		// Camera zoom
-		if (Input::IsKeyDown(Key::LeftControl) && wheelMove.y != 0)
+		if (Input::IsControlDown() && wheelMove.y != 0)
 		{
 			ZoomCamera(wheelMove.y);
 		}

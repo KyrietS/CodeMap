@@ -247,6 +247,15 @@ uint32_t Input::GetChar()
 	return 0;
 }
 
+bool Input::IsControlDown()
+{
+#ifdef _WIN32
+	return GetAsyncKeyState(VK_CONTROL) & 0x8000;
+#else
+	return IsKeyDown(Key::LeftControl) || IsKeyDown(Key::RightControl);
+#endif
+}
+
 void Input::ResetStates()
 {
 	for (auto& state : s_MouseState)
