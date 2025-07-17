@@ -1,4 +1,4 @@
-#include "PageUpDownController.hpp"
+#include "ChangeZIndexController.hpp"
 
 #include "Events/CanvasEvents.hpp"
 #include "Events/EventDispatcher.hpp"
@@ -7,13 +7,13 @@
 
 namespace Controllers
 {
-void PageUpDownController::OnEvent(Event& event)
+void ChangeZIndexController::OnEvent(Event& event)
 {
     EventDispatcher dispatcher(event);
     dispatcher.Handle<Events::Input::KeyPressed>(BIND_EVENT(OnKeyPressed));
 }
 
-bool PageUpDownController::OnKeyPressed(const Events::Input::KeyPressed& event)
+bool ChangeZIndexController::OnKeyPressed(const Events::Input::KeyPressed& event)
 {
     if (HandleKeyPressed(event.GetKey()))
     {
@@ -23,43 +23,65 @@ bool PageUpDownController::OnKeyPressed(const Events::Input::KeyPressed& event)
 
     return false;
 }
-bool PageUpDownController::HandleKeyPressed(const KeyCode key)
+bool ChangeZIndexController::HandleKeyPressed(const KeyCode key)
 {
     if (key == Key::PageUp)
     {
-        LOG_DEBUG("PageUp: Moving selected elements up");
+        LOG_DEBUG("PageUp: Move selected elements up");
         MoveElementsUp();
         return true;
     }
     if (key == Key::PageDown)
     {
-        LOG_DEBUG("PageDown: Moving selected elements down");
+        LOG_DEBUG("PageDown: Move selected elements down");
         MoveElementsDown();
+        return true;
+    }
+    if (key == Key::Home)
+    {
+        LOG_DEBUG("Home: Bring selected elements to front");
+        BringElementsToFront();
+        return true;
+    }
+    if (key == Key::End)
+    {
+        LOG_DEBUG("End: Send selected elements to back");
+        SendElementsToBack();
         return true;
     }
 
     return false;
 }
 
-void PageUpDownController::MoveElementsUp()
+void ChangeZIndexController::MoveElementsUp(const int count)
 {
     for (const ElementId id : GetSelectedElements())
     {
-        m_Elements.Move(id, -1);
+        m_Elements.Move(id, -count);
     }
 }
 
-void PageUpDownController::MoveElementsDown()
+void ChangeZIndexController::MoveElementsDown(const int count)
 {
     auto selectedElements = GetSelectedElements();
     selectedElements.reverse();
     for (const ElementId id : selectedElements)
     {
-        m_Elements.Move(id, 1);
+        m_Elements.Move(id, count);
     }
 }
 
-std::list<ElementId> PageUpDownController::GetSelectedElements()
+void ChangeZIndexController::BringElementsToFront()
+{
+    MoveElementsUp(999'999);
+}
+
+void ChangeZIndexController::SendElementsToBack()
+{
+    MoveElementsDown(999'999);
+}
+
+std::list<ElementId> ChangeZIndexController::GetSelectedElements()
 {
     std::list<ElementId> selectedElements;
     for (const auto& [id, element] : m_Elements)

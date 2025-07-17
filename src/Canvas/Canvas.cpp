@@ -1,20 +1,20 @@
 #include "Canvas.hpp"
-#include "Render/Renderer.hpp"
-#include "Render/VColor.hpp"
-#include "Events/EventDispatcher.hpp"
-#include "Events/AppEvents.hpp"
-#include "Window.hpp"
+#include "Canvas/Deserializer/SVG/SvgDeserializer.hpp"
+#include "Canvas/Serializer/SVG/SvgSerializer.hpp"
 #include "Controllers/CameraController.hpp"
+#include "Controllers/ChangeZIndexController.hpp"
+#include "Controllers/CommonKeyboardShortcutsController.hpp"
+#include "Controllers/PasteImageController.hpp"
 #include "Controllers/SelectionController.hpp"
 #include "Controllers/ToolboxController.hpp"
-#include "Controllers/PasteImageController.hpp"
 #include "Controllers/UndoRedoController.hpp"
-#include "Controllers/CommonKeyboardShortcutsController.hpp"
-#include "Controllers/PageUpDownController.hpp"
-#include "Elements/ArrowElement.hpp"
-#include "Canvas/Serializer/SVG/SvgSerializer.hpp"
-#include "Canvas/Deserializer/SVG/SvgDeserializer.hpp"
 #include "Dialogs.hpp"
+#include "Elements/ArrowElement.hpp"
+#include "Events/AppEvents.hpp"
+#include "Events/EventDispatcher.hpp"
+#include "Render/Renderer.hpp"
+#include "Render/VColor.hpp"
+#include "Window.hpp"
 #include <ranges>
 
 namespace
@@ -40,7 +40,7 @@ Canvas::Canvas(CanvasElements& elements, EventQueue& eventQueue)
 	: m_Elements(elements), m_EventQueue(eventQueue)
 {
 	m_Controllers.push_back(std::make_unique<Controllers::CommonKeyboardShortcutsController>(m_EventQueue));
-	m_Controllers.push_back(std::make_unique<Controllers::PageUpDownController>(m_EventQueue, m_Elements));
+	m_Controllers.push_back(std::make_unique<Controllers::ChangeZIndexController>(m_EventQueue, m_Elements));
 	m_Controllers.push_back(std::make_unique<Controllers::CameraController>(m_Camera, m_Elements, m_EventQueue));
 	m_Controllers.push_back(std::make_unique<Controllers::SelectionController>(m_Camera, m_EventQueue, m_Elements));
 	m_Controllers.push_back(std::make_unique<Controllers::ToolboxController>(m_Camera, m_EventQueue, m_Elements));

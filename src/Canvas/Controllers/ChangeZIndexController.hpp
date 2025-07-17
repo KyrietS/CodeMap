@@ -11,18 +11,20 @@ namespace Events::Input
 
 namespace Controllers
 {
-class PageUpDownController : public IController
+class ChangeZIndexController : public IController
 {
 public:
-    PageUpDownController(EventQueue& eventQueue, CanvasElements& elements)
+    ChangeZIndexController(EventQueue& eventQueue, CanvasElements& elements)
         : m_EventQueue(eventQueue), m_Elements(elements) {}
     void OnEvent(Event&) override;
 
 private:
 	bool OnKeyPressed(const Events::Input::KeyPressed&);
     bool HandleKeyPressed(KeyCode);
-    void MoveElementsUp();
-    void MoveElementsDown();
+    void MoveElementsUp(int count = 1);
+    void MoveElementsDown(int count = 1);
+    void BringElementsToFront();
+    void SendElementsToBack();
     std::list<ElementId> GetSelectedElements();
 
     EventQueue& m_EventQueue;
