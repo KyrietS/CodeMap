@@ -69,7 +69,7 @@ project(CodeMap)
 
 set(CMAKE_CXX_STANDARD 20)
 
-file(GLOB_RECURSE SOURCES "src/**.cpp" "src/**.hpp")
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/**.cpp" "src/**.hpp")
 add_executable(CodeMap ${SOURCES})
 target_include_directories(CodeMap PRIVATE src)
 target_link_libraries(CodeMap raylib clip imgui tinyxml2 spdlog glm utf8cpp EnTT trex tinyfiledialogs)
