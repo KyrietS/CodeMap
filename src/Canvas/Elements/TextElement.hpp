@@ -32,14 +32,21 @@ namespace Elements
 		};
 
 		TextElement(CanvasCamera& camera, EventQueue& eventQueue)
-			: m_Camera(camera), m_EventQueue(eventQueue) {}
+			: m_Camera(camera), m_EventQueue(eventQueue), m_Data(GetDefaultData()) {}
 		void Draw() override;
 		void OnEvent(Event&) override;
 		void MoveBy(float x, float y) override;
 		Box GetBoundingBox() const override;
+		void Accept(IElementVisitor& visitor) override;
 
 		Data& GetData() { return m_Data; }
 		const Data& GetData() const { return m_Data; }
+
+		static Data& GetDefaultData() {
+			static Data defaultData;
+			return defaultData;
+		}
+
 	private:
 		bool OnMousePressed(const Events::Input::MousePressed&);
 		bool OnMouseReleased(const Events::Input::MouseReleased&);
@@ -48,10 +55,10 @@ namespace Elements
 		void ToggleCursorVisibility();
 
 		const CanvasCamera& m_Camera;
+		EventQueue& m_EventQueue;
 		Data m_Data;
 		bool m_TextModeActive = false;
 		bool m_CursorVisible = false;
-		EventQueue& m_EventQueue;
 		Timer m_CursorTimer;
 	};
 }

@@ -6,6 +6,8 @@ class Event;
 
 namespace Elements
 {
+	class IElementVisitor;
+
 	class IElement
 	{
 	public:
@@ -21,6 +23,8 @@ namespace Elements
 		{
 			return GetBoundingBox().Contains(point);
 		}
+
+		virtual void Accept(IElementVisitor& visitor) = 0;
 
 		template<typename T>
 		T* As()

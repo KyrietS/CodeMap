@@ -25,16 +25,22 @@ namespace Elements
 		};
 
 		ShapeElement(CanvasCamera& camera, EventQueue& eventQueue)
-			: m_Camera(camera), m_EventQueue(eventQueue) {}
+			: m_Camera(camera), m_EventQueue(eventQueue), m_Data(GetDefaultData()) {}
 		void Draw() override;
 		void OnEvent(Event&) override;
 		void MoveBy(float x, float y) override;
 		bool Contains(const glm::vec2& point) const override;
 		Box GetBoundingBox() const override;
+		void Accept(IElementVisitor& visitor) override;
 
 		Data& GetData() { return m_Data; }
 		const Data& GetData() const { return m_Data; }
 		void AddPoint(const glm::vec2& point);
+
+		static Data& GetDefaultData() {
+			static Data defaultData;
+			return defaultData;
+		}
 
 	private:
 		void OnUpdate();

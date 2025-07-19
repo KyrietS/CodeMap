@@ -23,7 +23,7 @@ enum class ImageFilter
 	Nearest,
 	Linear
 };
-using TextureId = unsigned int;
+using TextureId = unsigned int; // TODO: Move into a header
 
 class Renderer
 {

@@ -4,7 +4,6 @@
 #include <glm/vec4.hpp>
 #include "Render/VColor.hpp"
 #include "Canvas/Box.hpp"
-#include "Events/MouseEvents.hpp"
 #include "ControlPoint.hpp"
 
 class CanvasCamera;
@@ -23,19 +22,26 @@ namespace Elements
 		};
 
 		ArrowElement(CanvasCamera& camera)
-			: m_Camera(camera) {}
+			: m_Camera(camera), m_Data(GetDefaultData()) {}
 		void Draw() override;
 		void OnEvent(Event&) override;
 		void MoveBy(float x, float y) override;
 		bool Contains(const glm::vec2& point) const override;
 		Box GetBoundingBox() const override;
+		void Accept(IElementVisitor& visitor) override;
 
 		Data& GetData() { return m_Data; }
 		const Data& GetData() const { return m_Data; }
 		float GetEndAngle() const;
 
+		static Data& GetDefaultData() {
+			static Data defaultData;
+			return defaultData;
+		}
+
 	private:
 		const CanvasCamera& m_Camera;
 		Data m_Data;
+
 	};
 }

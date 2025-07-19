@@ -8,6 +8,9 @@
 #include "Canvas/Elements/ShapeElement.hpp"
 #include "Canvas/Elements/TextElement.hpp"
 #include "Canvas/Elements/ImageElement.hpp"
+#include "Assets/AssetLoader.hpp"
+#include "Canvas/Elements/IElementVisitor.hpp"
+#include "Render/Renderer.hpp"
 
 namespace
 {
@@ -41,6 +44,7 @@ void Separator(int marginTop = 5, int marginBottom = 5)
 	ImGui::Separator();
 	if (marginBottom) ImGui::Dummy(ImVec2(0, marginBottom));
 }
+
 }
 
 namespace Gui
@@ -48,6 +52,9 @@ namespace Gui
 PropertiesWindow::PropertiesWindow(EventQueue& eventQueue, CanvasElements& elements, ImGuiID dockSpaceId )
 	: m_EventQueue(eventQueue), m_Elements(elements)
 {
+	Assets::Icon saveDefaultIcon = Assets::LoadFloppyDiskIconRGBA();
+	m_SetDefaultButtonIconTexture = Renderer::LoadTextureFromBytes(saveDefaultIcon.RGBA, saveDefaultIcon.Width, saveDefaultIcon.Height);
+
 	ImGui::DockBuilderDockWindow( "Properties", dockSpaceId );
 	SetupDockSpace( dockSpaceId );
 }
@@ -55,7 +62,7 @@ PropertiesWindow::PropertiesWindow(EventQueue& eventQueue, CanvasElements& eleme
 void PropertiesWindow::OnUpdate()
 {
 	ImGui::Begin( "Properties" );
-	
+
 	if (m_SelectedElements.empty())
 	{
 		ImGui::Text( "No element selected" );
@@ -134,11 +141,11 @@ void PropertiesWindow::ShowPropertiesFor(ElementId elementId)
 	}
 }
 
-void PropertiesWindow::ShowPropertiesFor(Elements::ArrowElement& arrow)
-{
+void PropertiesWindow::ShowPropertiesFor(Elements::ArrowElement& arrow) {
 	auto& data = arrow.GetData();
 
 	ImGui::Text("Arrow");
+	ShowSetDefaultButton(arrow);
 	Separator(0);
 	ShowPositionControl(arrow);
 
@@ -154,6 +161,7 @@ void PropertiesWindow::ShowPropertiesFor(Elements::ShapeElement& shape)
 	auto& data = shape.GetData();
 
 	ImGui::Text("Shape");
+	ShowSetDefaultButton(shape);
 	Separator(0);
 	ShowPositionControl(shape);
 
@@ -173,6 +181,7 @@ void PropertiesWindow::ShowPropertiesFor(Elements::TextElement& text)
 	auto& data = text.GetData();
 
 	ImGui::Text("Text");
+	ShowSetDefaultButton(text);
 	Separator(0);
 	ShowPositionControl(text);
 
@@ -220,5 +229,98 @@ void PropertiesWindow::ShowPropertiesForMultipleElements()
 {
 	ImGui::Text("Selected %d elements", m_SelectedElements.size());
 	// TODO: Show common properties for multiple elements
+}
+
+void PropertiesWindow::ShowSetDefaultButton(Elements::IElement& element)
+{
+	struct IsDefaultElement : Elements::IElementVisitor {
+		bool IsDefaultFlag = true;
+
+		bool operator()(Elements::IElement& element) {
+			element.Accept(*this);
+			return IsDefaultFlag;
+		}
+
+		void Visit(Elements::ArrowElement& arrow) override {
+			IsDefaultFlag &= arrow.GetData().StrokeColor == arrow.GetDefaultData().StrokeColor;
+			IsDefaultFlag &= arrow.GetData().ArrowheadColor == arrow.GetDefaultData().ArrowheadColor;
+			IsDefaultFlag &= arrow.GetData().Thickness == arrow.GetDefaultData().Thickness;
+		}
+
+		void Visit(Elements::ShapeElement& shape) override {
+			IsDefaultFlag &= shape.GetData().Color == shape.GetDefaultData().Color;
+			IsDefaultFlag &= shape.GetData().BlendMode == shape.GetDefaultData().BlendMode;
+		}
+		void Visit(Elements::TextElement& text) override {
+			IsDefaultFlag &= text.GetData().FontId == text.GetDefaultData().FontId;
+			IsDefaultFlag &= text.GetData().FontSize == text.GetDefaultData().FontSize;
+			IsDefaultFlag &= text.GetData().FontColor == text.GetDefaultData().FontColor;
+			IsDefaultFlag &= text.GetData().LetterSpacing == text.GetDefaultData().LetterSpacing;
+		}
+		void Visit(Elements::ImageElement& element) override {}
+	};
+
+	struct SetAsDefault : Elements::IElementVisitor {
+		void Visit(Elements::ArrowElement& arrow) override {
+			arrow.GetDefaultData().StrokeColor = arrow.GetData().StrokeColor;
+			arrow.GetDefaultData().ArrowheadColor = arrow.GetData().ArrowheadColor;
+			arrow.GetDefaultData().Thickness = arrow.GetData().Thickness;
+		}
+		void Visit(Elements::ShapeElement& shape) override {
+			shape.GetDefaultData().Color = shape.GetData().Color;
+			shape.GetDefaultData().BlendMode = shape.GetData().BlendMode;
+		}
+		void Visit(Elements::TextElement& text) override {
+			text.GetDefaultData().FontId = text.GetData().FontId;
+			text.GetDefaultData().FontSize = text.GetData().FontSize;
+			text.GetDefaultData().FontColor = text.GetData().FontColor;
+			text.GetDefaultData().LetterSpacing = text.GetData().LetterSpacing;
+		}
+		void Visit(Elements::ImageElement& image) override {}
+	};
+
+	if (SetAsDefaultButton(IsDefaultElement{}(element))) {
+		SetAsDefault setAsDefault;
+		element.Accept(setAsDefault);
+	}
+}
+
+/**
+ * Show a button in the same line as the last text item, aligned to the right.
+ */
+bool PropertiesWindow::SetAsDefaultButton(bool selected)
+{
+	bool buttonClicked = false;
+	ImVec2 originalCursorPos = ImGui::GetCursorPos();
+
+	ImGui::SameLine();
+	ImVec2 textCursorPos = ImGui::GetCursorPos();
+
+	const float buttonWidth = 14.0f;
+	const float padding = ImGui::GetStyle().ItemSpacing.x + 4;
+	const float rightEdge = ImGui::GetWindowWidth() - buttonWidth - padding;
+	ImGui::SetCursorPos(ImVec2(rightEdge, textCursorPos.y-2));
+
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(3, 3));
+
+	if (selected) {
+		ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+	} else {
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f)); // Transparent background
+	}
+
+	if (ImGui::ImageButton("set_default_button", reinterpret_cast<void*>(*m_SetDefaultButtonIconTexture), ImVec2(buttonWidth, buttonWidth)))
+	{
+		LOG_DEBUG("[GUI] Set default button");
+		buttonClicked = true;
+	}
+	ImGui::PopStyleVar();
+	ImGui::PopStyleColor();
+
+	if (ImGui::IsItemHovered())
+		ImGui::SetTooltip("Set current settings as default");
+
+	ImGui::SetCursorPos(originalCursorPos);
+	return buttonClicked;
 }
 }

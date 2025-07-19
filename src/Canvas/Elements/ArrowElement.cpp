@@ -1,11 +1,10 @@
 #include "ArrowElement.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/vector_angle.hpp>
+
+#include "IElementVisitor.hpp"
 #include "Render/Renderer.hpp"
-#include "Render/VColor.hpp"
 #include "Events/EventDispatcher.hpp"
-#include "Input.hpp"
-#include "Canvas/CanvasCamera.hpp"
 
 namespace Elements
 {
@@ -91,6 +90,11 @@ namespace Elements
 			.width = width,
 			.height = height
 		};
+	}
+
+	void ArrowElement::Accept(IElementVisitor& visitor)
+	{
+		visitor.Visit(*this);
 	}
 
 	float ArrowElement::GetEndAngle() const

@@ -4,6 +4,7 @@
 #include "Events/GuiEvents.hpp"
 #include "Canvas/CanvasElements.hpp"
 
+using TextureId = unsigned int;
 
 namespace Elements
 {
@@ -36,8 +37,12 @@ private:
 	void ShowPropertiesFor(Elements::ImageElement&);
 	void ShowPropertiesForMultipleElements();
 
+	void ShowSetDefaultButton(Elements::IElement&);
+	bool SetAsDefaultButton(bool selected);
+
 	EventQueue& m_EventQueue;
 	CanvasElements& m_Elements;
 	std::vector<ElementId> m_SelectedElements;
+	std::shared_ptr<TextureId> m_SetDefaultButtonIconTexture;
 };
 }

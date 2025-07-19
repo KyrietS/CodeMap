@@ -1,12 +1,8 @@
 #include "ArrowElement.hpp"
 #include <glm/vec2.hpp>
 #include "Render/Renderer.hpp"
-#include "Render/VColor.hpp"
-#include "Events/EventDispatcher.hpp"
-#include "Input.hpp"
-#include "Canvas/CanvasCamera.hpp"
-#include "ShapeElement.hpp"
 #include "ImageElement.hpp"
+#include "IElementVisitor.hpp"
 
 namespace Elements
 {
@@ -30,5 +26,9 @@ namespace Elements
 		};
 	}
 
+	void ImageElement::Accept(IElementVisitor& visitor)
+	{
+		visitor.Visit(*this);
+	}
 
 }

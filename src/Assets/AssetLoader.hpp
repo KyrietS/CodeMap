@@ -15,4 +15,7 @@ Icon LoadCursorIconRGBA();
 Icon LoadTextIconRGBA();
 Icon LoadArrowIconRGBA();
 Icon LoadHighlightIconRGBA();
+
+// FloppyDisk.cpp
+Icon LoadFloppyDiskIconRGBA();
 }

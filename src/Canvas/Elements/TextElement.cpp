@@ -1,4 +1,6 @@
 #include "TextElement.hpp"
+
+#include "IElementVisitor.hpp"
 #include "Render/Renderer.hpp"
 #include "Render/VColor.hpp"
 #include "Events/EventDispatcher.hpp"
@@ -149,5 +151,10 @@ namespace Elements
 			.width = size.x,
 			.height = size.y
 		};
+	}
+
+	void TextElement::Accept(IElementVisitor& visitor)
+	{
+		visitor.Visit(*this);
 	}
 }

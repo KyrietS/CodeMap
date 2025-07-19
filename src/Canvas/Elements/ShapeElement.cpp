@@ -1,12 +1,10 @@
 #include "ArrowElement.hpp"
 #include <glm/vec2.hpp>
-#include "Render/Renderer.hpp"
-#include "Render/VColor.hpp"
-#include "Events/EventDispatcher.hpp"
-#include "Input.hpp"
-#include "Canvas/CanvasCamera.hpp"
-#include "ShapeElement.hpp"
 #include <ranges>
+#include "Render/Renderer.hpp"
+#include "Events/EventDispatcher.hpp"
+#include "ShapeElement.hpp"
+#include "IElementVisitor.hpp"
 
 namespace Elements
 {
@@ -84,6 +82,12 @@ namespace Elements
 			.height = maxY - minY
 		};
 	}
+
+	void ShapeElement::Accept(IElementVisitor& visitor)
+	{
+		visitor.Visit(*this);
+	}
+
 	void ShapeElement::AddPoint(const glm::vec2& point)
 	{
 		m_Data.Points.emplace_back(point, m_Camera, m_EventQueue);
